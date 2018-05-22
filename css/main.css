@@ -1,0 +1,23 @@
+.tablero{
+	width: 30%;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.tablero table{
+	width: 100%;
+}
+
+.tablero table td,th{
+	border: 1px solid black;
+}
+
+.contenido{
+	width: 50%;
+	margin:0 auto;
+}
+
+.contenido-tablero{
+	width: 95%;
+	margin:0 auto;
+}
