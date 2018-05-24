@@ -16,10 +16,13 @@
 	<section class="contenido">
 		<h1> Bienvenido: <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></h1>
 		<h3 id="mensaje_concurso">
-			La ronda 1 del concurso individual aun no comienza por favor espera a que el moderador inicie el concurso
-			[DEMO esta incompleto aun, las preguntas apareceran de a una con su limite de tiempo]
+			La ronda 1 de la etapa individual esta a punto de comenzar, espera a que el moderador inicie el concurso, mucha suerte.
 		</h3>
-		<div id="preguntas"></div>
+		<form  name="form-individual1" id="form-individual1">
+			<table class="table">
+				<tr><td colspan="4" id="cronometro"></td></tr>
+			</table>
+		</form>
 	</section>
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
