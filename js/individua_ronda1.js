@@ -25,7 +25,11 @@ function listenerInicio(){
      });
 }
 
-
+/**
+ * Genera el html de las preguntas y respuestas asi como los inputs para responder y los pone de a uno en el DOC
+ * @param  {array} preguntas 
+ * @param  {object} ronda     
+ */
 function generaContenido(preguntas,ronda){
     var contenido = "";
     var respuestas = null;
@@ -48,6 +52,11 @@ function generaContenido(preguntas,ronda){
     iniciaRonda(preguntas.length , ronda);
 }
 
+/**
+ * Inicia la ronda y la consecucion de lasp reguntas
+ * @param  {int} cantidad 
+ * @param  {object} ronda    
+ */
 function iniciaRonda(cantidad , ronda){
     var msPorPregunta = ronda.SEGUNDOS_POR_PREGUNTA * 1000;
 

@@ -1,27 +1,92 @@
-.tablero{
-	width: 30%;
-	margin: 0 auto;
+@font-face {
+    font-family: 'monserrat';
+    src: url('../fonts/Montserrat-Regular.ttf');
+}
+
+html,body{
+	font-family: 'monserrat';
+}
+
+.content{
+	margin:0 auto;
+	background-repeat: no-repeat;
+	background-size: cover;
+	padding: 5px;
+}
+
+.content-sm{
+	width: 45%;
+}
+
+.content-md{
+	width: 65%;
+}
+
+.content-lg{
+	width: 97%;
+}
+
+.centrado{
 	text-align: center;
 }
 
-.tablero table{
-	width: 100%;
+.blanco{
+	background-image: url('../image/fondo_blanco.png');
+	background-color: white;
+	
 }
 
-.tablero table td,th{
-	border: 1px solid black;
-}
-
-.contenido{
-	width: 65%;
-	margin:0 auto;
-}
-
-.contenido-tablero{
-	width: 95%;
-	margin:0 auto;
+.azul{
+	background-image: url('../image/fondo_azul.png');
+	background-color: rgb(152,166,228);
 }
 
 .initPreguntas{
 	display: none;
+}
+
+.btn-geo{
+	background-color: rgb(251,227,126);
+	border-radius: 30px;
+	font-family: 'monserrat';
+	color: rgb(140,138,130);
+	border: none;
+	padding: 8px 20px;
+	display: block;
+	margin: 0 auto;
+	box-shadow: 1px 2px 2px rgb(140,138,130);
+	font-weight: 600;
+}
+
+.select-geo{
+	-webkit-appearance:none;
+	-moz-appearance:none;
+	-ms-appearance:none;
+	-o-appearance:none;
+	appearance:none;
+	display: block;
+	margin: 0 auto;
+	width: 100%;
+	padding: 6px;
+	font-family: 'monserrat';
+	border: 2px solid rgb(158,219,180);
+	border-radius: 5px;
+	color: rgb(140,138,130);
+	background: url('../image/drop-down.png') no-repeat 100% center;
+	background-color: white;
+	cursor: pointer;
+}
+
+input[type=text],input[type=number]{
+	font-family: 'monserrat';
+	border: 2px solid rgb(158,219,180);
+	border-radius: 5px;
+	color: rgb(140,138,130);
+}
+
+.table-geo{
+	border: 2px solid rgb(158,219,180);
+	background-color: white;
+	font-family: 'monserrat';
+	color: rgb(140,138,130);
 }
