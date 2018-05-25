@@ -12,13 +12,14 @@
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
-<body>
-	<section class="contenido-tablero">
+<body class="content blanco content-lg">
+	<section class="centrado">
 		<h1>
-			<?php  echo $sesion->getOne(SessionKey::CONCURSO); ?>
+			Concurso: <?php  echo $sesion->getOne(SessionKey::CONCURSO); ?>
 		</h1>
+		<br>
 		<!-- TABLERO PUNTAJE -->
-		<table class="table table-bordered" id="tbl-puntaje" style="width: 100%">
+		<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%">
 			<thead>
 				<tr>
 					<th>Concursante</th>
@@ -35,7 +36,7 @@
 		<!--INICIO DEL CONCURSO-->
 		<form id="form-iniciar-concurso">
 			<input type="hidden" name="ID_CONCURSO" id="ID_CONCURSO" value="<?php  echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>"/>
-			<button type='button' class="btn btn-lg btn-primary" onclick="iniciarConcurso($('#form-iniciar-concurso'))">
+			<button type='button' class="btn btn-lg btn-geo" onclick="iniciarConcurso($('#form-iniciar-concurso'))">
 				Iniciar concurso
 			</button>
 		</form>

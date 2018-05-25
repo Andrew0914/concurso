@@ -12,7 +12,7 @@
 		$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 		// mientras el concurso no se inicie, se queda esperando y renueva la info del concurso para validar el inicio
 		while ($concurso['INICIO_CONCURSO'] == 0 ) {
-			usleep(5000);
+			usleep(50000);
 			$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 		}
 		// cuando ya inicio obtiene lasp reguntas generadas para el concurso para la primer ronda individual

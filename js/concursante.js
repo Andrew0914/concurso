@@ -1,3 +1,7 @@
+/**
+ * Permite acceder a la pantalla de inicio de concurso
+ * @param  {form} formulario 
+ */
 function accederConcurso(formulario){
 	$.ajax({
         type : 'POST',
@@ -16,4 +20,18 @@ function accederConcurso(formulario){
           	console.log(error);
         }
      });
+}
+
+function setConcursantes(concurso){
+  var idConcurso = $(concurso).val();
+  $.get('class/Concursante.php?concurso='+idConcurso+"&functionConcursante=getConcursantes",
+    function(data) {
+      var concursantes = data.concursantes;
+      var content = "";
+      for(var d=0; d<concursantes.length; d++){
+        content += "<option value='" + concursantes[d].CONCURSANTE;
+        content += "'>" + concursantes[d].CONCURSANTE + "</option>";
+      }
+      $("#CONCURSANTE").html(content);
+  },'json');
 }

@@ -12,14 +12,18 @@
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
-<body>
-	<section class="contenido">
-		<h1> Bienvenido: <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></h1>
-		<h3 id="mensaje_concurso">
-			La ronda 1 de la etapa individual esta a punto de comenzar, espera a que el moderador inicie el concurso, mucha suerte.
-		</h3>
+<body class="content content-md azul">
+	<section>
+		<div class="card centrado">
+			<h2 style="color: #545454"><b>Gracias</b></h2>
+			<h4 id="mensaje_concurso">
+				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
+				<br><br>
+				En cuanto todo este listo el moderador comenzara el concurso
+			</h4>
+		</div>
 		<form  name="form-individual1" id="form-individual1">
-			<table class="table">
+			<table class="table table-geo">
 				<tr><td colspan="4" id="cronometro"></td></tr>
 			</table>
 		</form>

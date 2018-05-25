@@ -10,26 +10,43 @@
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
-    <body>
-        <section class="contenido">
-            <h1>Acceder al concurso</h1>
+    <body class="content content-xs blanco">
+        <section class="centrado">
+            <h1>
+                <img src="image/logo_geollin.png" />
+            </h1>
+            <br>
+            <h2>
+                <b>Bienvenido</b>
+            </h2>
+            <br>
+            <h4>
+                El juego esta por comenzar por favor elige el concurso y el equipo al que perteneces.
+            </h4>
+            <br>
+            <label for="ID_CONCURSO"><b>Concurso</b></label>
             <form id="form-accede-concurso">
-                <select id="ID_CONCURSO" name="ID_CONCURSO" class="form-control">
+                <select id="ID_CONCURSO" name="ID_CONCURSO" class="select-geo"  onchange="setConcursantes(this)">
+                    <option value="">Elige el concurso</option>
                     <?php
-                    $concurso = new Concurso();
-                    $concursosDisponibles = $concurso->getConcursosDisponible();
-                    foreach ($concursosDisponibles as $value) {
-                        echo '<option value="' . $value['ID_CONCURSO'] . '">' . $value['CONCURSO'] . '</option>';
-                    }
+                        $concurso = new Concurso();
+                        $concursosDisponibles = $concurso->getConcursosDisponible();
+                        foreach ($concursosDisponibles as $value) {
+                            echo '<option value="' . $value['ID_CONCURSO'] . '">' . $value['CONCURSO'] . '</option>';
+                        }
                     ?>
                 </select>
-                <label for="CONCURSANTE">Concursante</label>
-                <input type="text" name="CONCURSANTE" id="CONCURSANTE" class="form-control" />
-                <label for="PASSWORD">Contraseña</label>
-                <input type="text" name="PASSWORD" id="PASSWORD" class="form-control" />
                 <br>
-                <button class="btn btn-lg btn-primary" type="button" onclick="accederConcurso($('#form-accede-concurso'))">
-                    Entrar al concurso
+                <label for="CONCURSANTE"><b>Concursante</b></label>
+                <select name="CONCURSANTE" id="CONCURSANTE" class="select-geo">
+                    <option value="">Elige un concursante</option>
+                </select>
+                <br>
+                <label for="PASSWORD"><b>Contraseña</b></label>
+                <input type="text" name="PASSWORD" id="PASSWORD" class="form-control" placeholder="Escribir..." />
+                <br>
+                <button class="btn btn-lg btn-geo" type="button" onclick="accederConcurso($('#form-accede-concurso'))">
+                    Comenzar
                 </button>
             </form>
         </section>
