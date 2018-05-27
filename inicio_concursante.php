@@ -16,7 +16,7 @@
                 <img src="image/logo_geollin.png" />
             </h1>
             <br>
-            <h2>
+            <h2 class="monserrat-bold">
                 <b>Bienvenido</b>
             </h2>
             <br>
