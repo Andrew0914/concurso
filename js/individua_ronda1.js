@@ -34,17 +34,17 @@ function generaContenido(preguntas,ronda){
     var contenido = "";
     var respuestas = null;
     for (var i = 0; i< preguntas.length ; i++) {
-        contenido += "<div class='preguntadisplay'><p class='initPreguntas pposicion"+i+"'>" + preguntas[i].PREGUNTA + "</p";
         respuestas = preguntas[i].respuestas;
+        contenido += "<p class='initPreguntas pposicion"+i+"'>" + preguntas[i].PREGUNTA + "</p>";
         contenido += "<div class='row initPreguntas pposicion"+i+"'>";
         for(var x= 0; x < respuestas.length ; x++){
             contenido += "<div class='col-md-3'>";
-            contenido += "<input type='radio' name='PyR"+i+"' value='"+respuestas[x].ID_PREGUNTA + "-"+ respuestas[x].ID_RESPUESTA+"'/>";
+            contenido += "<input type='radio' name='PyR"+i+"' value='"+respuestas[x].ID_PREGUNTA + "-"+ respuestas[x].ID_RESPUESTA+"'/>&nbsp;";
             contenido += respuestas[x].INCISO + ") " + respuestas[x].RESPUESTA
             contenido += "</div>";
         }
-        contenido += "</div></div>";
-        $("form#form-individual1 .preguntadisplay:last").after(contenido);
+        contenido += "</div>";
+        $("form#form-individual1").html(contenido);
     }
 
     iniciaRonda(preguntas.length , ronda);
@@ -56,11 +56,11 @@ function generaContenido(preguntas,ronda){
  * @param  {object} ronda    
  */
 function iniciaRonda(cantidad , ronda){
-
     $("body").removeClass('azul');
     $("body").addClass('blanco');
     $("#form-individual1").addClass("card-lg");
-
+    $("#card-inicio").hide(500);
+    $("#cronometro-content").show(500);
     var msPorPregunta = ronda.SEGUNDOS_POR_PREGUNTA * 1000;
     var showIndex = 0;
     var hideIndex = 0;
@@ -80,5 +80,5 @@ function iniciaRonda(cantidad , ronda){
 }
 
 $(document).ready(function(){
-	//listenerInicio();
+	listenerInicio();
 });
