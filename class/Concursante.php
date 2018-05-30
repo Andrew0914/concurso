@@ -61,6 +61,10 @@
 
 			return $response;
 		}
+
+		public function eliminar($id,$where,$values){
+			return $this->delete($id, $where, $values);
+		}
 	}
 
 	// POST REQUEST

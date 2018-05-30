@@ -38,8 +38,7 @@
 			if(!$this->delete(0,$whereDelete,$valuesDelete)){
 				return false;
 			}
-
-			
+			$valida = 1;
 			foreach($categorias as $cat){
 				foreach ($reglas as $regla) {
 					$preguntas = $pregunta->getPreguntasByCategoriaGrado($cat['ID_CATEGORIA'],$regla['PREGUNTA_DIFICULTAD']);
@@ -51,22 +50,21 @@
 						
 						$preguntas = $pregunta->getPreguntasByCategoriaGrado($cat['ID_CATEGORIA'],$regla['PREGUNTA_DIFICULTAD']);
 						$preguntaAleatoria = array_rand($preguntas);
-
 					}
 					$values = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
 					, 'ID_CONCURSO' => $idConcurso 
 					, 'ID_RONDA' => $ronda['ID_RONDA']
 					, 'PREGUNTA_POSICION' => $posicion];
 
-					$this->save($values);
+					if($this->save($values) <= 0){
+						$valida *= 0;
+					}
 					
 					$posicion++;
 				}
 			}
 			
-
-			return $ronda['CANTIDAD_PREGUNTAS'] == $posicion;
-			
+			return $valida;
 		}
 
 		/**
@@ -86,6 +84,10 @@
 			$query = "SELECT  preguntas_generadas.ID_PREGUNTA,preguntas.PREGUNTA,preguntas_generadas.PREGUNTA_POSICION,categorias.*,grados_dificultad.* FROM preguntas_generadas INNER JOIN preguntas ON preguntas_generadas.ID_PREGUNTA = preguntas.ID_PREGUNTA INNER JOIN categorias ON preguntas.ID_CATEGORIA = categorias.ID_CATEGORIA INNER JOIN grados_dificultad ON preguntas.ID_GRADO = grados_dificultad.ID_GRADO WHERE preguntas_generadas.ID_CONCURSO = :ID_CONCURSO AND preguntas_generadas.ID_RONDA = :ID_RONDA ORDER BY preguntas_generadas.PREGUNTA_POSICION ASC";
 			$values = [':ID_CONCURSO'=> $concurso, ':ID_RONDA'=>$ronda];
 			return $this->query($query, $values);
+		}
+
+		public function eliminar($id,$where,$values){
+			return $this->delete($id, $where, $values);
 		}
 
 	}

@@ -2,6 +2,10 @@
 <html lang="es">
 <?php 
 	require_once dirname(__FILE__) . '/class/Etapas.php';
+	require_once dirname(__FILE__) . '/class/util/Sesion.php';
+
+	$sesion = new Sesion();
+	$sesion->kill();
  ?>
 <head>
 	<meta charset="utf-8">

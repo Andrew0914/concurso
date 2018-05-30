@@ -32,6 +32,7 @@ function generarConcurso(formulario){
           	window.location.replace("panel");
           }else{
           	alert(response.mensaje);
+            window.location.replace("/");
           }
         },
         error : function(error){

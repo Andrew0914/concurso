@@ -21,16 +21,23 @@
 		 */
 		public function generaConcurso($values){
 			$valida = 1;
+			// fecha por defecto
 			$concurso = ['FECHA_INICIO' => date('Y-m-d H:i:s') ]; 
+			//valores del formulario
 			$concurso['ID_ETAPA'] = $values['ID_ETAPA'];
 			$concurso['CONCURSO'] = $values['CONCURSO'];
+			// obtenemos la primer ronda de la etapa elegida para el concurso
+			$ronda = new Rondas();
+			$idRonda = $ronda->getPrimeraRonda($values['ID_ETAPA'])['ID_RONDA'];
+			$concurso['ID_RONDA'] = $idRonda;
 			$concurso_insertado = $this->save($concurso);
 			$concursante = new Concursante();
-			if($concurso_insertado == 0 ){
-				$valida *= 0;
-			}
-			for($p=0 ; $p < count($values['CONCURSANTE_POSICION']); $p++) {
 
+			if($concurso_insertado == 0 ){
+				return ['estado'=>0,'mensaje'=>'No se genero el concurso de manera correcta'];
+			}
+			// se crean los concursantes
+			for($p=0 ; $p < count($values['CONCURSANTE_POSICION']); $p++) {
 				$concursante_insertable = ['CONCURSANTE'=>$values['CONCURSANTE'][$p],
 										'PASSWORD'=>$values['PASSWORD'][$p],
 										'ID_CONCURSO'=>$concurso_insertado,
@@ -41,16 +48,35 @@
 					$valida *= 0;
 				}
 			}
-			if($valida > 0){
-				$sesion = new Sesion();
-				$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
-								SessionKey::CONCURSO => $concurso['CONCURSO'],
-								SessionKey::ID_ETAPA => $concurso['ID_ETAPA']];
-				$sesion->setMany($sessionValues);
-				return ['estado'=>1,'mensaje'=>'se genero el concurso exitosamente'];
+
+			if($valida == 0){
+				$whereDelete = 'ID_CONCURSO = :ID_CONCURSO';
+				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
+				$concursante->eliminar(0,$whereDelete,$valuesDelete);
+				$this->delete(0,$whereDelete,$valuesDelete);
+				return ['estado'=>0,'mensaje'=>'NO se generaron los concursantes de manera correcta'];
+			}
+			// generamos las preguntas de la ronda y el concurso
+			$generar = new PreguntasGeneradas();
+			if(!$generar->generarPreguntasIndividual($concurso_insertado)){
+				// si n ose generan bien borramos concurso y concursantes y preguntas
+				$whereDelete = 'ID_CONCURSO = :ID_CONCURSO';
+				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
+				$generar->eliminar(0,$whereDelete,$valuesDelete);
+				$concursante->eliminar(0,$whereDelete,$valuesDelete);
+				$this->delete(0,$whereDelete,$valuesDelete);
+				return ['estado'=>0,
+				'mensaje'=>'No se han generado las preguntas para el concurso, vuelve a intentar']; 
 			}
 
-			return ['estado'=>0,'mensaje'=>'No se genero el concurso de manera correcta'];
+			// seteamos los valores del courso creado a la sesion
+			$sesion = new Sesion();
+			$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
+							SessionKey::CONCURSO => $concurso['CONCURSO'],
+							SessionKey::ID_ETAPA => $concurso['ID_ETAPA']];
+			$sesion->setMany($sessionValues);
+
+			return ['estado'=>1,'mensaje'=>'Se genero el concurso,concursantes y preguntas exitosamente'];
 		}
 
 		/**
@@ -59,16 +85,8 @@
 		 * @return [assoc_array]  
 		 */
 		public function iniciarConcurso($id){
-			$ronda = new Rondas();
-			$idRonda = $ronda->getPrimeraRonda($this->find($id)['ID_ETAPA'])['ID_RONDA'];
-			$values = ['INICIO_CONCURSO' => 1, 'ID_RONDA' => $idRonda];
+			$values = ['INICIO_CONCURSO' => 1];
 			if($this->update($id,$values)){
-				$generar = new PreguntasGeneradas();
-
-				if($this->find($id)['ID_ETAPA'] == 1 AND $generar->generarPreguntasIndividual($id)){
-					return ['estado'=>0,'mensaje'=>'Nose han generado las preguntas para el concurso, vuelve a intentar']; 
-				}
-				
 				return ['estado'=>1,'mensaje'=>'Se inicio el concurso exitosamente, les han comenzado a salir las preguntas a los concursantes.'];
 			}
 			return ['estado'=>0,'mensaje'=>'No se ha podido iniciar el concurso.']; 
