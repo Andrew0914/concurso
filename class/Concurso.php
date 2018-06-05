@@ -102,14 +102,40 @@
 			return $this->get($whereClause,$values);
 		}
 
+		/**
+		 * Obtiene el concurso del id especificado
+		 * @param  [int] $id 
+		 * @return [Concurso]     
+		 */
 		public function getConcurso($id){
 			return $this->find($id);
+		}
+
+		public function irConcurso($id){
+
+			$response = ['estado'=>0,'mensaje'=>'No se pudo acceder al concurso'];
+
+			try{
+				$concurso = $this->find($id);
+				$sesion = new Sesion();
+				$sessionValues = [SessionKey::ID_CONCURSO => $id ,
+							SessionKey::CONCURSO => $concurso['CONCURSO'],
+							SessionKey::ID_ETAPA => $concurso['ID_ETAPA']];
+				$sesion->setMany($sessionValues);
+				$response['estado'] = 1;
+				$response['mensaje'] = 'Acceso al concurso exitoso';
+			}catch(Exception $ex){
+				$response['estado'] = 0;
+				$response['mensaje'] = 'Acceso al concurso fallido: ' . $ex->getMessage();
+			}
+			
+			return $response;
 		}
 
 	}
 
 	/**
-	 * Actions - Acciones para la clase
+	 * POST REQUEST
 	 */
 	if(isset($_POST['functionConcurso'])){
 		$function = $_POST['functionConcurso'];
@@ -122,7 +148,24 @@
 				echo json_encode($concurso->iniciarConcurso($_POST['ID_CONCURSO']));
 				break;
 			default:
-				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSO']);
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSO:POST']);
+			break;
+		}
+	}
+
+	/**
+	 * GET REQUESTS
+	 */
+
+	if(isset($_GET['functionConcurso'])){
+		$function = $_GET['functionConcurso'];
+		$concurso = new Concurso();
+		switch ($function) {
+			case 'irConcurso':
+				echo json_encode($concurso->irConcurso($_GET['concurso']));
+				break;
+			default:
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida Concurso:GET']);
 			break;
 		}
 	}

@@ -42,6 +42,10 @@ function generarConcurso(formulario){
      });
 }
 
+/**
+ * Inicia el concurso
+ * @param  {object} formulario 
+ */
 function iniciarConcurso(formulario){
 	$.ajax({
         type : 'POST',
@@ -60,4 +64,23 @@ function iniciarConcurso(formulario){
           	console.log(error);
         }
      });
+}
+
+/**
+ * Es el inicio de sesion del moderador para entrar al panel del concurso indicado
+ */
+function irConcurso(){
+  var concurso = $("#ID_CONCURSO").val();
+  if(concurso != ""){
+    $.get('class/Concurso.php?functionConcurso=irConcurso&concurso='+concurso,
+      function(data, textStatus, xhr) {
+        if(data.estado == 1){
+          alert(data.mensaje);
+          window.location.replace("panel");
+        }
+    },'json');
+  }else{
+    alert("Debes seleccionar un concurso");
+  }
+  
 }

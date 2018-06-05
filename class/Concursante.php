@@ -76,7 +76,7 @@
 				echo $concursante->accederConcurso($_POST['ID_CONCURSO'],$_POST['CONCURSANTE'],$_POST['PASSWORD']);
 				break;
 			default:
-				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE']);
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE:POST']);
 			break;
 		}
 	}
@@ -90,7 +90,7 @@
 				echo json_encode($concursante->getConcursantes($_GET['concurso']));
 				break;
 			default:
-				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE']);
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE:GET']);
 			break;
 		}
 	}
