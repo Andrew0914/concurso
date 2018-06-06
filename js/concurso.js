@@ -97,11 +97,15 @@ function obtenerPuntaje(concurso,ronda){
           contenido += "<tr>";
           contenido += "<td>" + tablero[s].CONCURSANTE+"</td>";
           contenido += "<td>" + tablero[s].PREGUNTA_POSICION+"</td>";
-          contenido += "<td>" + tablero[s].INCISO+") ";
-          if(tablero[s].ES_IMAGEN == 1){
-            contenido += "<img src='image/respuestas/"+ tablero[s].RESPUESTA+ "'/></td>";
+          if(tablero[s].RESPUESTA == null && tablero[s].INCISO == null){
+            contenido += "<td>No respondió</td>";
           }else{
-            contenido += tablero[s].RESPUESTA+ "</td>";
+            contenido += "<td>" + tablero[s].INCISO+") ";
+            if(tablero[s].ES_IMAGEN == 1){
+              contenido += "<img src='image/respuestas/"+ tablero[s].RESPUESTA+ "'/></td>";
+            }else{
+              contenido += tablero[s].RESPUESTA+ "</td>";
+            }
           }
           contenido += "<td>" + tablero[s].PASO_PREGUNTA+"</td>";
           contenido += "<td>" + tablero[s].PUNTAJE+"</td>";
