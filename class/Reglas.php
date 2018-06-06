@@ -19,7 +19,12 @@
 			$values = array('ID_RONDA'=>$ronda);
 			return $this->get($where, $values);
 		}
-		
+
+
+		public function getRegla($id){
+			return $this->find($id);
+		}
+
 	}
 
  ?>

@@ -71,6 +71,8 @@
 	        		unset($values[$key]);
 			 	}
 			}
+
+			
 			$statement = $this->connection->prepare($query);
 			$statement->execute($values);
 

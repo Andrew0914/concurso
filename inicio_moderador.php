@@ -26,7 +26,7 @@
                     <option value="">Elige el concurso</option>
                     <?php
                         $concurso = new Concurso();
-                        $concursosDisponibles = $concurso->getConcursosDisponible();
+                        $concursosDisponibles = $concurso->getConcursos();
                         foreach ($concursosDisponibles as $value) {
                             echo '<option value="' . $value['ID_CONCURSO'] . '">' . $value['CONCURSO'] . '</option>';
                         }
@@ -36,6 +36,8 @@
                 <button class="btn btn-lg btn-geo" type="button" onclick="irConcurso()">
                     Entrar al panel
                 </button>
+                <br>
+                <a href="/">Crear otro concurso</a>
             </form>
         </section>
         <!-- INICIO SCRIPTS -->

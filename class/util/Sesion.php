@@ -47,5 +47,27 @@
 			session_destroy();
 		}
 
+		public function out(){
+			$this->kill();
+			header('Location: ../../moderador');
+		}
+
+	}
+	/**
+	 * POST REQUESTS
+	 */
+
+	if(isset($_POST['functionSesion'])){
+		echo "si entro al post";
+		$function = $_POST['functionSesion'];
+		$sesion = new Sesion();
+		switch ($function) {
+			case 'out':
+				$sesion->out();
+				break;
+			default:
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida Sesion:POST']);
+			break;
+		}
 	}
  ?>

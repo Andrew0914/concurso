@@ -39,6 +39,7 @@
 				return false;
 			}
 			$valida = 1;
+			$posicion_regla = 1;
 			foreach($categorias as $cat){
 				foreach ($reglas as $regla) {
 					$preguntas = $pregunta->getPreguntasByCategoriaGrado($cat['ID_CATEGORIA'],$regla['PREGUNTA_DIFICULTAD']);
@@ -51,15 +52,17 @@
 						$preguntas = $pregunta->getPreguntasByCategoriaGrado($cat['ID_CATEGORIA'],$regla['PREGUNTA_DIFICULTAD']);
 						$preguntaAleatoria = array_rand($preguntas);
 					}
+
 					$values = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
 					, 'ID_CONCURSO' => $idConcurso 
 					, 'ID_RONDA' => $ronda['ID_RONDA']
-					, 'PREGUNTA_POSICION' => $posicion];
+					, 'PREGUNTA_POSICION' => $posicion
+					, 'ID_REGLA' => $regla['ID_REGLA']];
 
 					if($this->save($values) <= 0){
 						$valida *= 0;
 					}
-					
+			
 					$posicion++;
 				}
 			}
@@ -88,6 +91,13 @@
 
 		public function eliminar($id,$where,$values){
 			return $this->delete($id, $where, $values);
+		}
+
+		public function getRegla($concurso,$ronda,$pregunta){
+			$whereClause = "ID_PREGUNTA = :ID_PREGUNTA AND ID_RONDA= :ID_RONDA AND ID_CONCURSO= :ID_CONCURSO";
+			$whereValues= ["ID_PREGUNTA" => $pregunta , "ID_RONDA" => $ronda , "ID_CONCURSO"=> $concurso];
+			$objRegla = new Reglas();
+			return $objRegla->getRegla($this->get($whereClause , $whereValues)[0]['ID_REGLA']);
 		}
 
 	}

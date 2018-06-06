@@ -3,6 +3,7 @@
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/util/Sesion.php';
 	require_once dirname(__FILE__) . '/util/SessionKey.php';
+	require_once dirname(__FILE__) . '/Concurso.php';
 	
 	class Concursante extends BaseTable{
 
@@ -35,12 +36,15 @@
 			if(count($objConcursante) <= 0){
 				return json_encode(['estado'=>0, 'mensaje'=> 'No eres un concursante de este concurso']);
 			}
+			$objConcurso = new Concurso();
+			$aConcurso = $objConcurso->getConcurso($concurso);
 			$sesion = new Sesion();
 
 			$valuesSesion = [SessionKey::ID_CONCURSANTE => $objConcursante[0]['ID_CONCURSANTE'] ,
 							SessionKey::CONCURSANTE => $objConcursante[0]['CONCURSANTE'],
 							SessionKey::ID_CONCURSO => $objConcursante[0]['ID_CONCURSO'],
-							SessionKey::CONCURSANTE_POSICION => $objConcursante[0]['CONCURSANTE_POSICION']];
+							SessionKey::CONCURSANTE_POSICION => $objConcursante[0]['CONCURSANTE_POSICION'],
+							SessionKey::ID_RONDA => $aConcurso['ID_RONDA']];
 
 			$sesion->setMany($valuesSesion);
 			

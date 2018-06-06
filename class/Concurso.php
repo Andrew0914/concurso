@@ -73,7 +73,8 @@
 			$sesion = new Sesion();
 			$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
-							SessionKey::ID_ETAPA => $concurso['ID_ETAPA']];
+							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
+							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
 			$sesion->setMany($sessionValues);
 
 			return ['estado'=>1,'mensaje'=>'Se genero el concurso,concursantes y preguntas exitosamente'];
@@ -102,6 +103,10 @@
 			return $this->get($whereClause,$values);
 		}
 
+		public function getConcursos(){
+			return $this->get();
+		}
+
 		/**
 		 * Obtiene el concurso del id especificado
 		 * @param  [int] $id 
@@ -120,7 +125,8 @@
 				$sesion = new Sesion();
 				$sessionValues = [SessionKey::ID_CONCURSO => $id ,
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
-							SessionKey::ID_ETAPA => $concurso['ID_ETAPA']];
+							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
+							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
 				$sesion->setMany($sessionValues);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Acceso al concurso exitoso';

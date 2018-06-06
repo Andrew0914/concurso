@@ -38,11 +38,17 @@ function generaContenido(preguntas,ronda){
         respuestas = preguntas[i].respuestas;
         contenido += "<div class='row initPreguntas pposicion"+i+"'><div class='col-md-12 text-pregunta'>"+preguntas[i].PREGUNTA + "</div></div>";
         contenido += "<div class='row initPreguntas pposicion"+i+"'>";
+        contenido += "<input type='hidden' id='mPregunta"+i+"' value='"+preguntas[i].ID_PREGUNTA+"'/>"
         for(var x= 0; x < respuestas.length ; x++){
             contenido += "<div class='col-md-3 centrado text-answer'>";
             contenido += "<button type='button' class='btn-answer' onclick='eligeInciso(this)'>"+incisos[x]+"</button><br><br>";
-            contenido += "<input type='radio' name='PyR"+i+"' value='"+respuestas[x].ID_PREGUNTA + "-"+ respuestas[x].ID_RESPUESTA+"' style='display:none'/>";
-            contenido += respuestas[x].RESPUESTA;
+            contenido += "<input type='radio' name='mRespuesta"+i+"' value='"+ respuestas[x].ID_RESPUESTA +"' style='display:none'/>";
+            if(respuestas[x].ES_IMAGEN == 1){
+                contenido += "<img src='image/respuestas/" + respuestas[x].RESPUESTA + "'/>";
+            }else{
+                contenido += respuestas[x].RESPUESTA;
+            }
+            
             contenido += "</div>";
         }
         contenido += "</div>";
@@ -75,12 +81,16 @@ function iniciaRonda(cantidad , ronda){
         if(showIndex > 0){
             hideIndex = showIndex-1;
             $(".pposicion"+hideIndex).css("display","none");
+            // cuando se acabo el tiempo de la anterior mandamos la respuesta
+            sendRespuesta(hideIndex);
         }
         $(".pposicion"+showIndex).css("display","flex");
         // iniciamos el cronometro visual
         cronometro(ronda.SEGUNDOS_POR_PREGUNTA);
         showIndex++;
         if(showIndex == cantidad){
+            // aqui se manda la ultima pregunta que ya no regresa al timer
+            sendRespuesta((showIndex - 1));
             clearInterval(timerPregunta);
         }
     },msPorPregunta);
@@ -92,6 +102,39 @@ function eligeInciso(boton){
     $(boton).addClass('btn-checked');
     // checamos el radio oculto
     $($(boton).siblings('input[type=radio]')[0]).prop('checked',true);
+}
+
+function sendRespuesta(posicionPreguntaTerminada){
+    // datos generales para el tablero
+    var concurso = $("#ID_CONCURSO").val();
+    var ronda = $("#ID_RONDA").val();
+    var concursante = $("#ID_CONCURSANTE").val();
+    // datos por pregunta y respuesta para el tablero
+    var pregunta = $("#mPregunta"+posicionPreguntaTerminada).val();
+    var respuesta = 0;
+    $("input[name=mRespuesta"+posicionPreguntaTerminada+"]").each(
+        function(index, el) {
+            if(el.checked){
+                respuesta = el.value;
+            }
+    });
+    var posicion = posicionPreguntaTerminada + 1;
+    // estructura para enviarla via post
+    var requestData= {"ID_CONCURSO":concurso ,
+                       "ID_RONDA":ronda,
+                       "ID_CONCURSANTE":concursante,
+                       "PREGUNTA_POSICION":posicion,
+                       "PREGUNTA":pregunta,
+                       "RESPUESTA":respuesta,
+                       "functionTablero":"guardar" };
+    //almacenamos
+    $.post('class/TableroPuntaje.php', 
+        requestData, 
+        function(data, textStatus, xhr) {
+            /*console.log("data: " + data);
+            console.log("textStatus: " + textStatus);
+            console.log("xhr: " + xhr );*/
+    },'json');
 }
 
 $(document).ready(function(){

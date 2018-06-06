@@ -39,6 +39,10 @@
 			</div>
 		</div>
 		<!-- CRONOMETRO -->
+		<!-- DATA GENERAL-->
+		<input type="hidden" name="ID_CONCURSO" id="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>"/>
+		<input type="hidden" name="ID_RONDA" id="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>"/>
+		<input type="hidden" name="ID_CONCURSANTE" id="ID_CONCURSANTE" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSANTE); ?>"/>
 		<form  name="form-individual1" id="form-individual1">
 		</form>
 	</section>
