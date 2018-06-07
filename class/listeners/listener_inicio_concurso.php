@@ -3,6 +3,7 @@
 	require_once dirname(__FILE__) . '/../util/SessionKey.php';
 	require_once dirname(__FILE__) . '/../Concurso.php';
 	require_once dirname(__FILE__) . '/../PreguntasGeneradas.php';
+	require_once dirname(__FILE__) . '/../Preguntas.php';
 	require_once dirname(__FILE__) . '/../Respuestas.php';
 	require_once dirname(__FILE__) . '/../Rondas.php';
 
@@ -17,11 +18,13 @@
 		}
 		// cuando ya inicio obtiene lasp reguntas generadas para el concurso para la primer ronda individual
 		try{
+			$objPregunta = new Preguntas();
 			$preguntasGeneradas = new PreguntasGeneradas();
 			$preguntas = $preguntasGeneradas->getPreguntasByConcursoRonda($concurso['ID_CONCURSO'],1);
 			$respeusta = new Respuestas();
 			// agregamos las respuestas para cada pregunta
 			for ($cont = 0 ; $cont < count($preguntas); $cont++) {
+				$preguntas[$cont]["PREGUNTA"]= $objPregunta->findPregunta($preguntas[$cont]['ID_PREGUNTA'])['PREGUNTA'];
 				$preguntas[$cont]['respuestas'] = $respeusta->getRespuestasByPregunta($preguntas[$cont]['ID_PREGUNTA']);
 			}
 			// devolvemos la informacion de la ronda tambien
