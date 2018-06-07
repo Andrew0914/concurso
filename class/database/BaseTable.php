@@ -4,7 +4,7 @@
 
 	class BaseTable{
 		
-		protected $table = '';
+		protected $table = 'grados_dificultad';
 		protected $id_name;
 		
 		private $connection;
@@ -21,8 +21,9 @@
 			$query = "SHOW KEYS FROM ".$this->table ." WHERE Key_name = 'PRIMARY'";
 			$statement = $this->connection->prepare($query);
 			$statement->execute();
-			$results = $statement->fetchAll();
-			$this->id_name = $results[0]['Column_name'];
+			$results = $statement->get_result()->fetch_array(MYSQLI_ASSOC);
+			$this->id_name = $results['Column_name'];	
+			$this->connection->close();	
 		}
 		
 		/**
@@ -30,7 +31,7 @@
 		 * @param  [assoc_array] $values [arreglo con los nombres de las columnas como llave y los valores a insertar]
 		 * @return [boolean]         [insercion realizada]
 		 */
-		public function save($values){
+		protected function save($values){
 			$this->connection = new Connection();
 			$valores_insertables = "";
 			$query = "INSERT INTO " . $this->table . "(" ;
@@ -39,23 +40,48 @@
 			foreach ($values as $key => $value) {
 				if($ultimo_elemento != $key){
 					$query .= $key . ",";
-					$valores_insertables .=  ":$key,";
+					$valores_insertables .=  "?,";
 				}else{
 					$query .= $key;
-					$valores_insertables .=  ":$key";
+					$valores_insertables .=  "?";
 				}
-				$values[':'.$key] = $value;
-        		unset($values[$key]);
+				
 			}
 			$query .= ') VALUES ('. $valores_insertables . ')';
 			$statement = $this->connection->prepare($query);
+			$params = str_replace("?","s",$valores_insertables);
+			$params = str_replace(",","",$params);
+			array_unshift($values,$params);
+			call_user_func_array(array($statement,'bind_param'),$this->refValues($values));
 			// si no se hizo el insert devolvemos 0 
-			if(!$statement->execute($values))
+			if(!$statement->execute()){
+				if($this->connection->error != null){
+					die ($this->connection->error);
+				}
 				return 0;
+			}
+			$inserted_id =$this->connection->insert_id; 
+			$this->connection->close();
 			// si se realizo regresamos el id insertado
-			return $this->connection->lastInsertId();
+			return $inserted_id;
 		}
-		
+
+		/**
+		 * Funcion para convertir los valores de un arreglo en referencias
+		 * @param  [array] $arr 
+		 * @return [array references]      
+		 */
+		private function refValues($arr){
+		    if (strnatcmp(phpversion(),'5.3') >= 0) //Reference is required for PHP 5.3+
+		    {
+		        $refs = array();
+		        foreach($arr as $key => $value)
+		            $refs[$key] = &$arr[$key];
+		        return $refs;
+		    }
+		    return $arr;
+		}
+
 		/**
 		 * Obtiene la lista de resultados de la tabla de implementacion
 		 * @param  [string] $whereClause [clausula where sin la paralabra WHERE]
@@ -65,19 +91,27 @@
 		protected function get($whereClause = null, $values = null){
 			$this->connection = new Connection();
 			$query = "SELECT * FROM ". $this->table;
+			$statement = null;
 			if($whereClause != null AND $values != null){
 				$query .= " WHERE " . $whereClause;
-				foreach ($values as $key => $value) {
-			 		$values[':'.$key] = $value;
-	        		unset($values[$key]);
+				$statement = $this->connection->prepare($query);
+				$params = "";
+				for($c = 0; $c < count($values) ; $c++) {
+			 		$params .= "s";
 			 	}
+			 	$values = array_values($values);
+			 	array_unshift($values,$params);
+				call_user_func_array(array($statement,'bind_param'),$this->refValues($values));
+			}else{
+				$statement = $this->connection->prepare($query);
 			}
-
-			
-			$statement = $this->connection->prepare($query);
-			$statement->execute($values);
-
-			return $statement->fetchAll();
+			if($this->connection->error != null){
+					die ($this->connection->error);
+			}
+			$statement->execute();
+			$results = $statement->get_result()->fetch_all(MYSQLI_ASSOC);
+			$this->connection->close();
+			return $results;
 		}
 
 		/**
@@ -87,12 +121,16 @@
 		 */
 		protected function find($id = 0){
 			$this->connection = new Connection();
-			$query = "SELECT * FROM " . $this->table . " WHERE " . $this->id_name . " = :ID";
+			$query = "SELECT * FROM " . $this->table . " WHERE " . $this->id_name . " = ?";
 			$statement = $this->connection->prepare($query);
-			$statement->bindParam(":ID",$id,PDO::PARAM_INT);
+			if($this->connection->error != null){
+					die ($this->connection->error);
+			}
+			$statement->bind_param("i",$id);
 			$statement->execute();
-			$results = $statement->fetchAll();
-			return $results[0];
+			$results = $statement->get_result()->fetch_array(MYSQLI_ASSOC);
+			$this->connection->close();
+			return $results;
 		}
 		
 		/**
@@ -104,37 +142,31 @@
 		 */
 		protected function delete($id = 0, $whereClause = null , $whereValues = null){
 			$this->connection = new Connection();
-			$values = null;
 			$query = 'DELETE FROM '. $this->table ;
 			if($id > 0 AND $whereClause == null){
-		 		$values[':ID'] = $id;
-		 		$query .= " WHERE ".$this->id_name.'= :ID ';
+		 		$query .= " WHERE ".$this->id_name.'= ? ';
+		 		$whereValues = [$id];
 		 	}else if($id == 0 AND $whereClause != null){
-		 		foreach ($whereValues as $key => $value) {
-		 			$whereValues[':'.$key] = $value;
-        			unset($whereValues[$key]);
-		 		}
-		 		$values = $whereValues;
 		 		$query .= ' WHERE '.$whereClause;
-	
 		 	}else if($id > 0 AND $whereClause != null){
-		 		$values[':ID'] = $id;
-		 		foreach ($whereValues as $key => $value) {
-		 			$whereValues[':'.$key] = $value;
-        			unset($whereValues[$key]);
-		 		}
-		 		$values = array_merge($values,$whereValues);
-		 		$query .= " WHERE ".$this->id_name.'= :ID AND ' . $whereClause;
+		 		$query .= ' WHERE '.$this->id_name.'='.$id.' AND ' . $whereClause;
 		 	}else{
-		 		die(json_encode(['estado'=>0,'mensaje'=>'Update reqiere al menos una condicion para actualizar , como el ID del row o una clausala where']));
+		 		die(json_encode(['estado'=>0,'mensaje'=>'Delete reqiere al menos una condicion para borrar , como el ID del row o una clausala where']));
 		 	}
-		 	
 		 	$statement = $this->connection->prepare($query);
-
-			if(!$statement->execute($values))
-				return 0;
-
-			return 1;
+		 	$values = array_values($whereValues);
+		 	$params ="";
+		 	for($c = 0; $c < count($values) ; $c++) {
+			 		$params .= "s";
+			}
+			array_unshift($values,$params);
+			call_user_func_array(array($statement,'bind_param'),$this->refValues($values));
+		 	if($this->connection->error != null){
+				die ($this->connection->error);
+			}
+			$bolDelete = $statement->execute();
+			$this->connection->close();
+			return $bolDelete;
 		}
 		
 		/**
@@ -155,40 +187,41 @@
 			$ultimo_elemento =  key($values);
 		 	foreach ($values as $key => $value) {
 		 		if($ultimo_elemento != $key){
-					$query .= $key . ' = ' . ':' .$key . ',';
+					$query .= $key . ' = ?,';
 				}else{
-					$query .= $key . ' = ' . ':' .$key;
+					$query .= $key . ' = ?';
 				}
-				$values[':'.$key] = $value;
-        		unset($values[$key]);
 		 	}
-		 	
+
 		 	if($id > 0 AND $whereClause == null){
-		 		$values[':ID'] = $id;
-		 		$query .= " WHERE ".$this->id_name.'= :ID ';
+		 		$query .= " WHERE ".$this->id_name.'= ? ';
+		 		$whereValues = [$id];
 		 	}else if($id == 0 AND $whereClause != null){
-		 		foreach ($whereValues as $key => $value) {
-		 			$whereValues[':'.$key] = $value;
-        			unset($whereValues[$key]);
-		 		}
-		 		$values = array_merge($values,$whereValues);
 		 		$query .= ' WHERE '.$whereClause;
 		 	}else if($id > 0 AND $whereClause != null){
-		 		$values[':ID'] = $id;
-		 		foreach ($whereValues as $key => $value) {
-		 			$whereValues[':'.$key] = $value;
-        			unset($whereValues[$key]);
-		 		}
-		 		$values = array_merge($values,$whereValues);
-		 		$query .= " WHERE ".$this->id_name.'= :ID AND ' . $whereClause;
+		 		$query .= ' WHERE '.$this->id_name.'='.$id.' AND ' . $whereClause;
 		 	}else{
-		 		die(json_encode(['estado'=>0,'mensaje'=>'Update reqiere al menos una condicion para actualizar , como el ID del row o una clausala where']));
+		 		die(json_encode(['estado'=>0,'mensaje'=>'Delete reqiere al menos una condicion para borrar , como el ID del row o una clausala where']));
 		 	}
 
 		 	$statement = $this->connection->prepare($query);
-			if(!$statement->execute($values))
-				return 0;
-			return 1;
+		 	$whereValues = array_values($whereValues);
+		 	$values = array_values($values);
+		 	$values = array_merge($values,$whereValues);
+		 	
+		 	$params ="";
+		 	for($c = 0; $c < count($values) ; $c++) {
+			 		$params .= "s";
+			}
+			array_unshift($values,$params);
+			call_user_func_array(array($statement,'bind_param'),$this->refValues($values));
+		 	if($this->connection->error != null){
+				die ($this->connection->error);
+			}
+			
+			$bolUpdate = $statement->execute();
+			$this->connection->close();
+			return $bolUpdate;
 		}	
 
 		/**
@@ -201,12 +234,27 @@
 		protected function query($query,$values,$isSelect= true){
 			$this->connection = new Connection();
 			$statement = $this->connection->prepare($query);
-			$bolExecute= $statement->execute($values);
+			if($this->connection->error != null){
+					die ($this->connection->error);
+			}
+			$params = "";
+			for($c = 0; $c < count($values) ; $c++) {
+		 		$params .= "s";
+		 	}
+		 	$values = array_values($values);
+		 	array_unshift($values,$params);
+			call_user_func_array(array($statement,'bind_param'),$this->refValues($values));
+			$bolExecute= $statement->execute();
 			if(!$isSelect){
 				return $bolExecute;
 			}
-			
-			return $statement->fetchAll();
+			$results = $statement->get_result()->fetch_all(MYSQLI_ASSOC);
+			$this->connection->close();
+			return $results;
 		}
 	}
+	/*$bt = new BaseTable();
+	$query = "SELECT * FROM concursantes INNER JOIN concursos ON concursantes.ID_CONCURSO = concursos.ID_CONCURSO WHERE concursos.ID_CONCURSO = ?";
+	$values = ['ID_CONCURSO' => 60];
+	echo json_encode($bt->query($query , $values , true));*/
 ?>

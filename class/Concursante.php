@@ -30,7 +30,7 @@
 		 * @return [string json]              
 		 */
 		public function accederConcurso($concurso,$concursante,$password){
-			$whereClause = ' ID_CONCURSO = :ID_CONCURSO  AND CONCURSANTE= :CONCURSANTE AND PASSWORD= :PASSWORD';
+			$whereClause = ' ID_CONCURSO = ?  AND CONCURSANTE= ? AND PASSWORD= ?';
 			$values = ['ID_CONCURSO'=>$concurso,'CONCURSANTE'=>$concursante,'PASSWORD'=>$password];
 			$objConcursante = $this->get($whereClause,$values);
 			if(count($objConcursante) <= 0){
@@ -54,7 +54,7 @@
 		public function getConcursantes($concurso){
 			$response =[ 'estado'=>0, 'mensaje'=>'No se realizo la operacion'];
 			try{
-				$whereClause = "ID_CONCURSO=:ID_CONCURSO";
+				$whereClause = "ID_CONCURSO=?";
 				$whereValues = ['ID_CONCURSO'=>$concurso];
 				$response['concursantes'] = $this->get($whereClause,$whereValues);
 				$response['estado']= 1;

@@ -50,7 +50,7 @@
 			}
 
 			if($valida == 0){
-				$whereDelete = 'ID_CONCURSO = :ID_CONCURSO';
+				$whereDelete = 'ID_CONCURSO = ?';
 				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
 				$concursante->eliminar(0,$whereDelete,$valuesDelete);
 				$this->delete(0,$whereDelete,$valuesDelete);
@@ -60,7 +60,7 @@
 			$generar = new PreguntasGeneradas();
 			if(!$generar->generarPreguntasIndividual($concurso_insertado)){
 				// si n ose generan bien borramos concurso y concursantes y preguntas
-				$whereDelete = 'ID_CONCURSO = :ID_CONCURSO';
+				$whereDelete = 'ID_CONCURSO = ?';
 				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
 				$generar->eliminar(0,$whereDelete,$valuesDelete);
 				$concursante->eliminar(0,$whereDelete,$valuesDelete);
@@ -98,7 +98,7 @@
 		 * @return [assoc_array]
 		 */
 		public function getConcursosDisponible(){
-			$whereClause = 'INICIO_CONCURSO = :INICIO_CONCURSO';
+			$whereClause = 'INICIO_CONCURSO = ?';
 			$values = ['INICIO_CONCURSO'=>0];
 			return $this->get($whereClause,$values);
 		}

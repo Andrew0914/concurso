@@ -15,7 +15,7 @@
 		 * @return assoc_array
 		 */
 		public function getReglas($ronda){
-			$where = 'ID_RONDA = :ID_RONDA';
+			$where = 'ID_RONDA = ?';
 			$values = array('ID_RONDA'=>$ronda);
 			return $this->get($where, $values);
 		}

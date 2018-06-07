@@ -1,5 +1,5 @@
 <?php 
-	class Connection extends PDO{
+	class Connection extends mysqli{
 	/**
 	 * Constructor del pdo de conexion
 	 * @param string $file [archivo de configuracion de la conexion BD]
@@ -15,12 +15,19 @@
         }
         try{
             // preparamos la conexion
-            $dns = $settings['database']['driver'] .
-            ':host=' . $settings['database']['host'] .
-            ((!empty($settings['database']['port'])) ? (';port=' . $settings['database']['port']) : '') .
-            ';dbname=' . $settings['database']['schema'];
+            $host = $settings['database']['host'];
+            if(!empty($settings['database']['port'])){
+                $host .= ":" . $settings['database']['port'];
+            }
+            $usuario = $settings['database']['username'];
+            $password = $settings['database']['password'];
+            $database = $settings['database']['schema'];
             //creamos el objeto
-            parent::__construct($dns, $settings['database']['username'], $settings['database']['password']);
+            parent::__construct($host, $usuario, $password, $database);
+            // si sucedio un error
+            if ($this->connect_errno) {
+                echo "Fallo al conectar a MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+            }
         }catch(Exception $ex){
             die($ex->getMessage());
         }

@@ -78,7 +78,7 @@
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			try{
 				$query = "SELECT c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA
-					WHERE t.ID_CONCURSO = :ID_CONCURSO AND t.ID_RONDA = :ID_RONDA";
+					WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ?";
 
 				$values = [':ID_CONCURSO'=>$concurso , ':ID_RONDA'=>$ronda];
 
@@ -100,7 +100,7 @@
 			try{
 				$query = "SELECT c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos
 						FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
-						WHERE t.ID_CONCURSO = :ID_CONCURSO AND t.ID_RONDA = :ID_RONDA GROUP BY c.ID_CONCURSANTE 
+						WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ? GROUP BY c.ID_CONCURSANTE 
 						ORDER BY totalPuntos DESC";
 
 				$values = [':ID_CONCURSO'=>$concurso , ':ID_RONDA'=>$ronda];

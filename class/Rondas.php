@@ -15,7 +15,7 @@
 		 * @return 
 		 */
 		public function getPrimeraRonda($etapa){
-			$whereClause = 'ID_ETAPA= :ID_ETAPA ORDER BY ID_RONDA ASC';
+			$whereClause = 'ID_ETAPA= ? ORDER BY ID_RONDA ASC';
 			$values = ['ID_ETAPA' => $etapa];
 			return $this->get($whereClause,$values)[0];
 		}

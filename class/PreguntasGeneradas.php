@@ -32,7 +32,7 @@
 			$totalFinalPreguntas = 0;
 			$posicion = 1;
 			// importantes
-			$whereDelete = 'ID_CONCURSO = :ID_CONCURSO AND ID_RONDA=:ID_RONDA';
+			$whereDelete = 'ID_CONCURSO = ? AND ID_RONDA=?';
 			$valuesDelete = ['ID_CONCURSO'=>$idConcurso , 'ID_RONDA'=>$ronda['ID_RONDA']];
 
 			if(!$this->delete(0,$whereDelete,$valuesDelete)){
@@ -78,13 +78,13 @@
 		 * @return [type]           
 		 */
 		private function existePreguntaEnConcursoRonda($concurso,$ronda,$pregunta){
-			$values = ['ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso,'ID_PREGUNTA'=>$pregunta];
-			$where = ' ID_CONCURSO=:ID_CONCURSO AND ID_RONDA = :ID_RONDA AND ID_PREGUNTA = :ID_PREGUNTA ';
+			$values = ['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda,'ID_PREGUNTA'=>$pregunta];
+			$where = ' ID_CONCURSO=? AND ID_RONDA = ? AND ID_PREGUNTA = ? ';
 			return count($this->get($where,$values));
 		}
 
 		public function getPreguntasByConcursoRonda($concurso,$ronda){
-			$where = 'ID_RONDA = :ID_RONDA AND ID_CONCURSO = :ID_CONCURSO';
+			$where = 'ID_RONDA = ? AND ID_CONCURSO = ?';
             $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
 			return $this->get($where,$values);
 		}
@@ -94,7 +94,7 @@
 		}
 
 		public function getRegla($concurso,$ronda,$pregunta){
-			$whereClause = "ID_PREGUNTA = :ID_PREGUNTA AND ID_RONDA= :ID_RONDA AND ID_CONCURSO= :ID_CONCURSO";
+			$whereClause = "ID_PREGUNTA = ? AND ID_RONDA= ? AND ID_CONCURSO= ?";
 			$whereValues= ["ID_PREGUNTA" => $pregunta , "ID_RONDA" => $ronda , "ID_CONCURSO"=> $concurso];
 			$objRegla = new Reglas();
 			return $objRegla->getRegla($this->get($whereClause , $whereValues)[0]['ID_REGLA']);

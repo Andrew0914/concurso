@@ -14,8 +14,8 @@
 		}
 
 		public function getPreguntasByCategoriaGrado($categoria,$grado){
-			$query = 'SELECT ID_PREGUNTA FROM preguntas WHERE ID_CATEGORIA = :ID_CATEGORIA AND ID_GRADO = :ID_GRADO';
-			$values = [':ID_CATEGORIA'=>$categoria, ':ID_GRADO'=>$grado];
+			$query = 'SELECT ID_PREGUNTA FROM preguntas WHERE ID_CATEGORIA = ? AND ID_GRADO = ?';
+			$values = ['ID_CATEGORIA'=>$categoria, 'ID_GRADO'=>$grado];
 
 			return $this->query($query,$values);
 		}
