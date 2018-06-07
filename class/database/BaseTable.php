@@ -10,7 +10,6 @@
 		private $connection;
 		
 		public function __construct(){
-			$this->connection = new Connection();
 			$this->getIDName();
 		}
 
@@ -18,6 +17,7 @@
 		 * Obtiene el nombre de la llave primaria de la tabla de implementacion
 		 */
 		private function getIDName(){
+			$this->connection = new Connection();
 			$query = "SHOW KEYS FROM ".$this->table ." WHERE Key_name = 'PRIMARY'";
 			$statement = $this->connection->prepare($query);
 			$statement->execute();
@@ -31,6 +31,7 @@
 		 * @return [boolean]         [insercion realizada]
 		 */
 		public function save($values){
+			$this->connection = new Connection();
 			$valores_insertables = "";
 			$query = "INSERT INTO " . $this->table . "(" ;
 			end($values);
@@ -62,8 +63,8 @@
 		 * @return [assoc_array]              [resultados]
 		 */
 		protected function get($whereClause = null, $values = null){
+			$this->connection = new Connection();
 			$query = "SELECT * FROM ". $this->table;
-
 			if($whereClause != null AND $values != null){
 				$query .= " WHERE " . $whereClause;
 				foreach ($values as $key => $value) {
@@ -85,6 +86,7 @@
 		 * @return [object]      
 		 */
 		protected function find($id = 0){
+			$this->connection = new Connection();
 			$query = "SELECT * FROM " . $this->table . " WHERE " . $this->id_name . " = :ID";
 			$statement = $this->connection->prepare($query);
 			$statement->bindParam(":ID",$id,PDO::PARAM_INT);
@@ -101,6 +103,7 @@
 		 * @return boolean             
 		 */
 		protected function delete($id = 0, $whereClause = null , $whereValues = null){
+			$this->connection = new Connection();
 			$values = null;
 			$query = 'DELETE FROM '. $this->table ;
 			if($id > 0 AND $whereClause == null){
@@ -143,6 +146,7 @@
 		 * @return boolean
 		 */
 		protected function update($id = 0, $values=null, $whereClause = null , $whereValues = null){
+			$this->connection = new Connection();
 			if($values == null){
 				die(json_encode(['estado'=>'0','mensaje'=>'Debes ingresar valores para actualizar: 2do parametro de la funcion']));
 			}
@@ -195,6 +199,7 @@
 		 * @return             
 		 */
 		protected function query($query,$values,$isSelect= true){
+			$this->connection = new Connection();
 			$statement = $this->connection->prepare($query);
 			$bolExecute= $statement->execute($values);
 			if(!$isSelect){
