@@ -90,12 +90,24 @@ function iniciaRonda(cantidad , ronda){
         showIndex++;
         if(showIndex == cantidad){
             // aqui se manda la ultima pregunta que ya no regresa al timer
-            sendRespuesta((showIndex - 1));
             clearInterval(timerPregunta);
+            setTimeout(function(){
+                sendRespuesta((showIndex - 1));
+                finalizaRonda();
+            },msPorPregunta);  
         }
     },msPorPregunta);
 }
 
+function finalizaRonda(){
+    alert("Felicidades, has concluido la primer ronda de la etapa individual");
+    window.location.replace("individual_ronda2");
+}
+
+/**
+ * Selecciona la respuesta que sera enviada
+ * @param  {button} boton [opcion oprimida]
+ */
 function eligeInciso(boton){
     // reseteamos los estilos de los no checados
     $(boton).parent().parent().children('div').children('button').removeClass('btn-checked');
@@ -104,6 +116,10 @@ function eligeInciso(boton){
     $($(boton).siblings('input[type=radio]')[0]).prop('checked',true);
 }
 
+/**
+ * Manda la respuesta a la base de datos
+ * @param  {int} posicionPreguntaTerminada
+ */
 function sendRespuesta(posicionPreguntaTerminada){
     // datos generales para el tablero
     var concurso = $("#ID_CONCURSO").val();

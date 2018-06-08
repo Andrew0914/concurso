@@ -37,7 +37,7 @@
                     Entrar al panel
                 </button>
                 <br>
-                <a href="/">Crear otro concurso</a>
+                <a href="crear">Crear otro concurso</a>
             </form>
         </section>
         <!-- INICIO SCRIPTS -->

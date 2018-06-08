@@ -22,6 +22,10 @@ function accederConcurso(formulario){
      });
 }
 
+/**
+ * Obtiene la lista de concursantes por concurso
+ * @param {int} concurso 
+ */
 function setConcursantes(concurso){
   var idConcurso = $(concurso).val();
   $.get('class/Concursante.php?concurso='+idConcurso+"&functionConcursante=getConcursantes",

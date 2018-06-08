@@ -87,6 +87,11 @@ function irConcurso(){
   
 }
 
+/**
+ * Obtiene y despliega el puntaje en lso tableros
+ * @param  {int} concurso 
+ * @param  {int} ronda    
+ */
 function obtenerPuntaje(concurso,ronda){
   $.get('class/TableroPuntaje.php?functionTablero=getTableroDisplay&ID_CONCURSO='+concurso + "&ID_RONDA="+ronda, 
     function(data, textStatus, xhr) {
@@ -122,6 +127,11 @@ function obtenerPuntaje(concurso,ronda){
   },'json');
 }
 
+/**
+ * Obtiene el tablero de las mejores posiciones y acumulado de puntos
+ * @param  {int} concurso [description]
+ * @param  {int} ronda    [description]
+ */
 function obtenerMejores(concurso,ronda){
   $.get('class/TableroPuntaje.php?functionTablero=getMejoresPuntajes&ID_CONCURSO='+concurso + "&ID_RONDA="+ronda, 
     function(data, textStatus, xhr) {
