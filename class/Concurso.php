@@ -103,6 +103,10 @@
 			return $this->get($whereClause,$values);
 		}
 
+		/**
+		 * Obtiebe la lsita de concursos
+		 * @return [type] [description]
+		 */
 		public function getConcursos(){
 			return $this->get();
 		}

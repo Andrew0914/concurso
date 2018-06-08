@@ -3,6 +3,7 @@
 <?php 
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
+	require_once 'class/Concurso.php';
 	$sesion = new Sesion();
  ?>
 <head>
@@ -67,15 +68,21 @@
 		</div>
 		<!--/TABLERO PUNTAJE -->
 		<!--INICIO DEL CONCURSO-->
+		<?php 
+			$objConcurso = new Concurso();
+			$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
+			if(!$concurso['INICIO_CONCURSO']){
+		?>
 		<form id="form-iniciar-concurso">
 			<input type="hidden" name="ID_CONCURSO" id="ID_CONCURSO" value="<?php  echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>"/>
 			<button type='button' class="btn btn-lg btn-geo" onclick="iniciarConcurso($('#form-iniciar-concurso'),this)">
 				Iniciar concurso
 			</button>
 		</form>
+		<?php } ?>
 		<!--INICIO DEL CONCURSO-->
 		<br>
-		<button class="btn btn-geo" id="btnObtenerPuntaje" onclick="obtenerPuntaje(<?php  echo $sesion->getOne(SessionKey::ID_CONCURSO) . "," . $sesion->getOne(SessionKey::ID_RONDA); ?>)" style='display: none'>
+		<button class="btn btn-geo" id="btnObtenerPuntaje" onclick="obtenerPuntaje(<?php  echo $sesion->getOne(SessionKey::ID_CONCURSO) . "," . $sesion->getOne(SessionKey::ID_RONDA); ?>)" <?php echo $concurso['INICIO_CONCURSO']==1 ? "":" style='display:none'"  ?>>
 			Obtener Puntajes
 		</button>
 	</section>
