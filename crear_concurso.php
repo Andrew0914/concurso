@@ -27,24 +27,30 @@
 	<!-- CONTENIDO-->
 	<section>
 		<form id="form-genera-concurso" class="form-group centrado">
-			<label for="CANTIDAD_PARTICIPANTES"><b>Cantidad de participantes</b></label>
-			<input type="text" id="CANTIDAD_PARTICIPANTES" name="CANTIDAD_PARTICIPANTES" class="form-control" value="1" />
-			<br>
-			<label for="ID_ETAPA"><b>Etapa de concurso</b></label> 
-				<select id="ID_ETAPA" name="ID_ETAPA" class="select-geo">
-					<?php 
-						$etapas = new Etapas();
-						$etapas = $etapas->getEtapas();
-						foreach ( $etapas as  $etapa) {
-							echo "<option value='".$etapa['ID_ETAPA']."'>".$etapa['ETAPA'] . "</option>";
-						}
-					 ?>
-				</select>
-			<br>
 			<label for="CONCRUSO"><b>Nombre del cocnurso</b></label>
 			<input type="text" class="form-control" id="CONCURSO" name="CONCURSO" placeholder="Escribir..">
 			<br>
-			<table class="table table-bordered table-geo" id="tbl-concursantes">
+			<label for="ID_ETAPA"><b>Etapa de concurso</b></label> 
+			<select id="ID_ETAPA" name="ID_ETAPA" class="select-geo" onchange="setRondas(this)">
+				<option value="">Selecciona una etapa de concurso</option>>
+				<?php 
+					$etapas = new Etapas();
+					$etapas = $etapas->getEtapas();
+					foreach ( $etapas as  $etapa) {
+						echo "<option value='".$etapa['ID_ETAPA']."'>".$etapa['ETAPA'] . "</option>";
+					}
+				 ?>
+			</select>
+			<br>
+			<label for="ID_RONDA"><b>Ronda de la etapa</b></label> 
+			<select id="ID_RONDA" name="ID_RONDA" class="select-geo">
+				<option value=''>Selecciona una ronda</option>
+			</select>
+			<br>
+			<label for="CANTIDAD_PARTICIPANTES"><b>Cantidad de participantes</b></label>
+			<input type="text" id="CANTIDAD_PARTICIPANTES" name="CANTIDAD_PARTICIPANTES" class="form-control" value="1" />
+			<br>
+			<table class="table table-bordered table-geo" id="tbl-concursantes" >
 				<thead>
 					<tr>
 						<th>Concursante/Equipo</th>

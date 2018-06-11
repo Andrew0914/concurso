@@ -5,6 +5,7 @@
 	require_once dirname(__FILE__) . '/Concursante.php';
 	require_once dirname(__FILE__) . '/Rondas.php';
 	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
+	require_once dirname(__FILE__) . '/Etapas.php';
 
 	class Concurso extends BaseTable{
 
@@ -26,13 +27,10 @@
 			//valores del formulario
 			$concurso['ID_ETAPA'] = $values['ID_ETAPA'];
 			$concurso['CONCURSO'] = $values['CONCURSO'];
+			$concurso['ID_RONDA'] = $values['ID_RONDA'];
 			// obtenemos la primer ronda de la etapa elegida para el concurso
-			$ronda = new Rondas();
-			$idRonda = $ronda->getPrimeraRonda($values['ID_ETAPA'])['ID_RONDA'];
-			$concurso['ID_RONDA'] = $idRonda;
 			$concurso_insertado = $this->save($concurso);
 			$concursante = new Concursante();
-
 			if($concurso_insertado == 0 ){
 				return ['estado'=>0,'mensaje'=>'No se genero el concurso de manera correcta'];
 			}
@@ -42,7 +40,6 @@
 										'PASSWORD'=>$values['PASSWORD'][$p],
 										'ID_CONCURSO'=>$concurso_insertado,
 										'CONCURSANTE_POSICION'=>$values['CONCURSANTE_POSICION'][$p]];
-
 				$inserto = $concursante->save($concursante_insertable);
 				if($inserto == 0){
 					$valida *= 0;
@@ -56,28 +53,16 @@
 				$this->delete(0,$whereDelete,$valuesDelete);
 				return ['estado'=>0,'mensaje'=>'NO se generaron los concursantes de manera correcta'];
 			}
-			// generamos las preguntas de la ronda y el concurso
-			$generar = new PreguntasGeneradas();
-			if(!$generar->generarPreguntasIndividual($concurso_insertado)){
-				// si n ose generan bien borramos concurso y concursantes y preguntas
-				$whereDelete = 'ID_CONCURSO = ?';
-				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
-				$generar->eliminar(0,$whereDelete,$valuesDelete);
-				$concursante->eliminar(0,$whereDelete,$valuesDelete);
-				$this->delete(0,$whereDelete,$valuesDelete);
-				return ['estado'=>0,
-				'mensaje'=>'No se han generado las preguntas para el concurso, vuelve a intentar']; 
-			}
-
+			
 			// seteamos los valores del courso creado a la sesion
 			$sesion = new Sesion();
 			$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
-							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
+							SessionKey::ID_RONDA =>$concurso['ID_RONDA']];
 			$sesion->setMany($sessionValues);
 
-			return ['estado'=>1,'mensaje'=>'Se genero el concurso,concursantes y preguntas exitosamente'];
+			return ['estado'=>1,'mensaje'=>'Se genero el concurso y concursantes exitosamente'];
 		}
 
 		/**
@@ -120,16 +105,25 @@
 			return $this->find($id);
 		}
 
+		/**
+		 * Inicial asesion y te dirije al tablero del concurso indicado
+		 * @param  [int] $id [concurso]
+		 * @return [assoc array]     [data del cocnurso e inicio de sesion]
+		 */
 		public function irConcurso($id){
-
 			$response = ['estado'=>0,'mensaje'=>'No se pudo acceder al concurso'];
-
 			try{
 				$concurso = $this->find($id);
+				$objEtapa = new Etapas();
+				$etapa = $objEtapa->getEtapa($concurso['ID_ETAPA']);
+				$objRonda = new Rondas();
+				$ronda = $objRonda->getRonda($concurso['ID_RONDA']);
 				$sesion = new Sesion();
 				$sessionValues = [SessionKey::ID_CONCURSO => $id ,
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
+							SessionKey::ETAPA => $etapa['ETAPA'],
+							SessionKey::RONDA => $ronda['RONDA'],
 							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
 				$sesion->setMany($sessionValues);
 				$response['estado'] = 1;

@@ -159,3 +159,17 @@ function obtenerMejores(concurso,ronda){
       }
   },'json');
 }
+
+function setRondas(etapa){
+  var idEtapa = $(etapa).val();
+  $.get('class/Rondas.php?etapa='+idEtapa+"&functionRonda=getRondas",
+    function(data) {
+      var rondas = data.rondas;
+      var content = "<option value=''>Selecciona una ronda</option>";
+      for(var d=0; d<rondas.length; d++){
+        content += "<option value='" + rondas[d].ID_RONDA;
+        content += "'>" + rondas[d].RONDA + "</option>";
+      }
+      $("#ID_RONDA").html(content);
+  },'json');
+}

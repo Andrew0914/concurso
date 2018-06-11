@@ -13,6 +13,9 @@
 			return $this->get();
 		}
 		
+		public function getEtapa($id){
+			return $this->find($id);
+		}
 	}
 
  ?>

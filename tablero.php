@@ -25,9 +25,13 @@
 				</form>
 			</div>
 		</div>
-		<h1>
+		<h1 class="title">
 			Concurso: <?php  echo $sesion->getOne(SessionKey::CONCURSO); ?>
 		</h1>
+		<h4 class="title"> 
+			<b>Etapa:</b> <?php  echo $sesion->getOne(SessionKey::ETAPA); ?> &nbsp;&nbsp; 
+			<b>Ronda:</b> <?php  echo $sesion->getOne(SessionKey::RONDA); ?>	
+		</h4>
 		<br>
 		<!-- TABLERO PUNTAJE -->
 		<div class="row">
