@@ -6,6 +6,7 @@
 	require_once dirname(__FILE__) . '/Rondas.php';
 	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
 	require_once dirname(__FILE__) . '/Etapas.php';
+	require_once dirname(__FILE__) . '/RondasLog.php';
 
 	class Concurso extends BaseTable{
 
@@ -52,6 +53,16 @@
 				$concursante->eliminar(0,$whereDelete,$valuesDelete);
 				$this->delete(0,$whereDelete,$valuesDelete);
 				return ['estado'=>0,'mensaje'=>'NO se generaron los concursantes de manera correcta'];
+			}
+
+			$rondaLog = new RondasLog();
+			$log = ['ID_CONCURSO'=>$concurso_insertado, 'ID_RONDA'=> $concurso['ID_RONDA']];
+			if(!$rondaLog->guardar($log)){
+				$whereDelete = 'ID_CONCURSO = ?';
+				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
+				$concursante->eliminar(0,$whereDelete,$valuesDelete);
+				$this->delete(0,$whereDelete,$valuesDelete);
+				return ['estado'=>0,'mensaje'=>'NO se genero la ronda'];
 			}
 			
 			// seteamos los valores del courso creado a la sesion
@@ -136,6 +147,9 @@
 			return $response;
 		}
 
+		public function actualiza($id,$values,$where,$whereValues){
+			return $this->update($id,$values,$where,$whereValues);
+		}
 	}
 
 	/**

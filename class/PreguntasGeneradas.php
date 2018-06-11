@@ -28,13 +28,13 @@
 			if($this->cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria) 
 				>= $ronda['PREGUNTAS_POR_CATEGORIA']){
 				return ['estado'=>0, 
-				'mensaje'=> 'Se han completado la cantidad de preguntas para la categoria '
+				'mensaje'=> 'Se han completado la cantidad de preguntas para la categoria: '
 				.$ronda['PREGUNTAS_POR_CATEGORIA']];
 			}
 
 			if($this->cantidadPreguntasTotal($idConcurso,$idRonda) >= $ronda['CANTIDAD_PREGUNTAS']){
 				return ['estado'=>0, 
-				'mensaje'=> 'Se han completado la cantidad de preguntas para la ronda '
+				'mensaje'=> 'Se han completado la cantidad de preguntas para la ronda: '
 				.$ronda['CANTIDAD_PREGUNTAS']];
 			}
 
@@ -57,8 +57,13 @@
 						$valida *= 0;
 					}
 			}
-			if($valida)
-				return ['estado'=> 1, 'mensaje'=>'Se generaron las preguntas'];
+			if($valida){
+				return ['estado'=> 1,
+					'mensaje'=>'Se generaron las preguntas',
+					'counts'=> $this->getCantidadGeneradas($idConcurso,$idRonda)];
+			}
+
+				
 
 			return ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
 
@@ -105,6 +110,14 @@
 			$query = 'SELECT COUNT(preguntas_generadas.ID_PREGUNTA) as total FROM preguntas_generadas LEFT JOIN preguntas ON preguntas_generadas.ID_PREGUNTA = preguntas.ID_PREGUNTA WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA = ?';
 			$valores = ['ID_CONCURSO'=>$idConcurso , 'ID_RONDA'=> $idRonda, 'ID_CATEGORIA'=>$idCategoria];
 			return $this->query($query , $valores, true)[0]['total'];
+		}
+
+		public function getCantidadGeneradas($concurso,$ronda){
+			$query = "SELECT SUM(CASE WHEN p.ID_CATEGORIA= 1 then 1 else 0 end) geofisica,SUM(CASE WHEN p.ID_CATEGORIA= 2 then 1 else 0 end) geologia,SUM(CASE WHEN p.ID_CATEGORIA= 3 then 1 else 0 end) petroleros,SUM(CASE WHEN p.ID_CATEGORIA= 4 then 1 else 0 end) generales FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA= p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? and pg.ID_RONDA = ?";
+
+			$values = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda];
+
+			return $this->query($query,$values);
 		}
 
 	}

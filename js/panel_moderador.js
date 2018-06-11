@@ -10,6 +10,21 @@ function generaPreguntas(concurso,ronda){
 					'ID_CATEGORIA':categoria,
 					'functionGeneradas':'generaPreguntas'},
 			success: function(response){
+				if(response.estado==1){
+					var counts = response.counts;
+					var contenido="";
+					var total = 0;
+					for(var x=0; x < counts.length ; x++){
+						contenido +="<tr><td>Geofisica</td><td>"+counts[x].geofisica+"</td></tr>";
+						contenido +="<tr><td>Geologia</td><td>"+counts[x].geologia+"</td></tr>";
+						contenido +="<tr><td>Petroleros</td><td>"+counts[x].petroleros+"</td></tr>";
+						contenido +="<tr><td>Generales</td><td>"+counts[x].generales+"</td></tr>";
+						total = (parseInt(counts[x].geofisica) + parseInt(counts[x].geologia) 
+						+ parseInt(counts[x].petroleros) + parseInt(counts[x].generales));
+						contenido +="<tr><td><b>TOTAL</b></td><td>"+total+"</td></tr>";
+					}
+					$("#tbl-generadas tbody").html(contenido);
+				}
 				alert(response.mensaje);
 			},
 			error:function(error){
@@ -20,4 +35,24 @@ function generaPreguntas(concurso,ronda){
 	}else{
 		alert("Debes seleccionar una categoria");
 	}
+}
+
+function cambiarFinalizarRonda(concurso,rondaActual){
+	var rondaNueva = $("#RONDA_NUEVA").val();
+	if(rondaNueva !=""){
+		$.post('class/RondasLog.php',
+			{'functionRondasLog': 'cambiarFinalizar',
+			 'ID_CONCURSO':concurso,
+			 'RONDA_ACTUAL': rondaActual,
+			 'RONDA_NUEVA':rondaNueva}, 
+			function(data, textStatus, xhr) {
+				alert(data.mensaje);
+				if(data.estado == 1){
+					location.reload();
+				}
+		},'json');
+	}else{
+		alert("Elige una ronda");
+	}
+	
 }

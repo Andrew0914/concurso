@@ -4,6 +4,8 @@
 	require_once 'class/Rondas.php';
 	require_once 'class/Etapas.php';
 	require_once 'class/Categorias.php';
+	require_once 'class/Concursante.php';
+	require_once 'class/RondasLog.php';
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
 	$sesion = new Sesion();
@@ -36,10 +38,15 @@
 			</div>
 			<div class="col-md-6">
 				<b class="monserrat-bold">Ronda elegida:</b> <?php echo $ronda['RONDA']; ?>
+				<br>
+				<button class="btn btn-link btn-sm" style="float: right;" data-toggle="modal" data-target="#mdl-finaliza-ronda">
+					Finalizar y cambiar ronda
+				</button>
 			</div>
 		</div>
 		<hr>
 		<!-- TERMINA INFORMACION GENERAL -->
+		<!--  GENERACION DE PREGUNTAS -->
 		<div class="row">
 			<div class="col-md-8">
 				<b class="monserrat-bold">Generar Preguntas</b>
@@ -61,9 +68,111 @@
 				</button>
 			</div>
 		</div>
+		<br>
+		<div class="row">
+			<div class="col-md-10 offset-md-1">
+				<table  class="table table-sm table-bordered" id="tbl-generadas">
+					<thead>
+						<tr>
+							<th>Categoria</th>
+							<th>Preguntas generadas</th>
+						</tr>
+						<tbody></tbody>
+					</thead>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<form action="lanzador_preguntas.php" method="post" target="_blank">
+					<button class="btn-geo">
+						Inicar ronda
+					</button>
+				</form>
+			</div>
+			<div class="col-md-6">
+				<button class="btn-geo">
+					Finalizar ronda
+				</button>
+			</div>
+		</div>
+		<!--  GENERACION DE PREGUNTAS -->
+		<hr>
+		<!-- INFORMACION CONCURSANTES -->
+		<div class="row">
+			<div class="col-md-12">
+				<b class="monserrat-bold" onclick="$('#tbl-concursantes').slideToggle(500)" style="cursor: pointer;text-decoration: underline;">
+					Ver Concursantes
+				</b>
+				<br>
+				<table class="table table-sm" style="display: none" id="tbl-concursantes">
+					<thead>
+						<tr>
+							<th>Concursante</th>
+							<th>Password</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php 
+							$concursantes = new Concursante();
+							$concursantes = $concursantes->getConcursantes($sesion->getOne(SessionKey::ID_CONCURSO));
+							$concursantes = $concursantes['concursantes'];
+							foreach ($concursantes as  $concursante) {
+								echo "<tr><td>".$concursante['CONCURSANTE']
+									."</td><td>".$concursante['PASSWORD']."</td></tr>";
+							}
+						 ?>
+					</tbody>
+				</table>
+			</div>	
+		</div>
+		<!-- INFORMACION CONCURSANTES -->
+		<!-- SALIR SESION-->
+		<div class="col-md-1 offset-md-11">
+			<form method="post" name="form-out"  action="class/util/Sesion.php">
+				<input type="hidden" name="functionSesion" id="functionSesion" value="out">
+				<button type="submit" class="btn btn-primary btn-sm">
+					<b>Salir</b>
+				</button>
+			</form>
+		</div>
+		<!-- SALIR SESION-->
 	</div>
+	<!-- MODAL FIN RONDA-->
+	<div class="modal fade" id="mdl-finaliza-ronda" tabindex="-1" role="dialog" aria-labelledby="mdl-finaliza-rondaLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-md" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="mdl-finaliza-rondaLabel">Cambiar y Finalizar Ronda Actual</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	      	<select name="RONDA_NUEVA" id="RONDA_NUEVA" class="select-geo">
+	      		<option value="">Selecciona la ronda</option>
+	      		<?php 
+	      			$rondasLog = new RondasLog();
+	      			$rondas = $rondasLog->getRondasDisponibles($sesion->getOne(SessionKey::ID_CONCURSO), $sesion->getOne(SessionKey::ID_RONDA), $sesion->getOne(SessionKey::ID_ETAPA))['rondas'];
+      				foreach ($rondas as $ronda) {
+      					echo "<option value='".$ronda['ID_RONDA']."'>".$ronda['RONDA']."</option>";
+      				}
+	      		 ?>
+	      	</select>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+	        <button type="button" class="btn btn-primary" onclick="cambiarFinalizarRonda(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).",".$sesion->getOne(SessionKey::ID_RONDA); ?>)">
+	        	Guardar
+	        </button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<!-- MODAL FIN RONDA-->
 	<!-- SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.js"></script>
 	<script type="text/javascript" src="js/panel_moderador.js"></script>
 </body>
 </html>
