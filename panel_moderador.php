@@ -6,6 +6,7 @@
 	require_once 'class/Categorias.php';
 	require_once 'class/Concursante.php';
 	require_once 'class/RondasLog.php';
+	require_once 'class/PreguntasGeneradas.php';
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
 	$sesion = new Sesion();
@@ -69,6 +70,7 @@
 			</div>
 		</div>
 		<br>
+		<!--  GENERACION DE PREGUNTAS -->
 		<div class="row">
 			<div class="col-md-10 offset-md-1">
 				<table  class="table table-sm table-bordered" id="tbl-generadas">
@@ -77,14 +79,28 @@
 							<th>Categoria</th>
 							<th>Preguntas generadas</th>
 						</tr>
-						<tbody></tbody>
+						<tbody>
+							<?php 
+								$generadas = new PreguntasGeneradas();
+								$generadas = $generadas->getCantidadGeneradas($sesion->getOne(SessionKey::ID_CONCURSO),  $sesion->getOne(SessionKey::ID_RONDA));
+								foreach ($generadas as $generada) {
+									echo "<tr><td>Geofisica</td><td>".$generada['geofisica']."</td></tr>";
+									echo "<tr><td>Geologia</td><td>".$generada['geologia']."</td></tr>";
+									echo "<tr><td>Petroleras</td><td>".$generada['petroleros']."</td></tr>";
+									echo "<tr><td>Generales</td><td>".$generada['generales']."</td></tr>";
+									$total = $generada['geofisica'] + $generada['geologia'] + $generada['petroleros'] + $generada['generales'];
+									echo "<tr><td>Total</td><td>".$total."</td></tr>";
+								}
+							 ?>	
+						</tbody>
 					</thead>
 				</table>
 			</div>
 		</div>
+		<br>
 		<div class="row">
 			<div class="col-md-6">
-				<form action="lanzador_preguntas.php" method="post" target="_blank">
+				<form action="leer_preguntas" method="post" target="_blank">
 					<button class="btn-geo">
 						Inicar ronda
 					</button>

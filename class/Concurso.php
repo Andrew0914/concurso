@@ -77,26 +77,12 @@
 		}
 
 		/**
-		 * Inicia el concurso, es decir lo activa para que comiencen a funcionar las preguntas
-		 * @param  [int] $id [description]
-		 * @return [assoc_array]  
-		 */
-		public function iniciarConcurso($id){
-			$values = ['INICIO_CONCURSO' => 1];
-			if($this->update($id,$values)){
-				return ['estado'=>1,'mensaje'=>'Se inicio el concurso exitosamente, les han comenzado a salir las preguntas a los concursantes.'];
-			}
-			return ['estado'=>0,'mensaje'=>'No se ha podido iniciar el concurso.']; 
-		}
-
-		/**
 		 * Devuelve la lista de concursos disponibles no iniciados
 		 * @return [assoc_array]
 		 */
 		public function getConcursosDisponible(){
-			$whereClause = 'INICIO_CONCURSO = ?';
-			$values = ['INICIO_CONCURSO'=>0];
-			return $this->get($whereClause,$values);
+			$whereClause = 'ISNULL(FECHA_CIERRE)';
+			return $this->get($whereClause,null);
 		}
 
 		/**

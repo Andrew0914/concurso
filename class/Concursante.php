@@ -47,8 +47,11 @@
 							SessionKey::ID_RONDA => $aConcurso['ID_RONDA']];
 
 			$sesion->setMany($valuesSesion);
+
 			
-			return json_encode(['estado'=>1, 'mensaje'=> 'Inicio exitoso','concursante'=>$valuesSesion]); 
+			return json_encode(['estado'=>1, 
+				'mensaje'=> 'Inicio exitoso',
+				'concursante'=>$valuesSesion]); 
 		}
 
 		public function getConcursantes($concurso){

@@ -74,49 +74,7 @@
 			return ['estado'=>0 , 'mensaje'=> 'No se guardo el puntaje'];
 		}
 
-		public function getTableroDisplay($concurso, $ronda){
-			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
-			try{
-				$query = "SELECT c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA
-					WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ?";
 
-				$values = [':ID_CONCURSO'=>$concurso , ':ID_RONDA'=>$ronda];
-
-				$tablero = $this->query($query,$values,true);
-
-				$response['tablero'] = $tablero;
-				$response['estado'] = 1;
-				$response['mensaje'] = "Se obtuvo el puntaje";
-			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = "No se obtuvo el puntaje:" . $ex->getMessage();
-			}
-
-			return $response;
-		}
-
-		public function getMejoresPuntajes($concurso, $ronda){
-			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
-			try{
-				$query = "SELECT c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos
-						FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
-						WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ? GROUP BY c.ID_CONCURSANTE 
-						ORDER BY totalPuntos DESC";
-
-				$values = [':ID_CONCURSO'=>$concurso , ':ID_RONDA'=>$ronda];
-
-				$mejores = $this->query($query,$values,true);
-
-				$response['mejores'] = $mejores;
-				$response['estado'] = 1;
-				$response['mensaje'] = "Se obtuvo el puntaje total";
-			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = "No se obtuvo el puntaje total:" . $ex->getMessage();
-			}
-
-			return $response;
-		}
 
 	}
 	/**
@@ -143,12 +101,6 @@
 		$function = $_GET['functionTablero'];
 		$tablero = new TableroPuntaje();
 		switch ($function) {
-			case 'getTableroDisplay':
-				echo json_encode($tablero->getTableroDisplay($_GET['ID_CONCURSO'] , $_GET['ID_RONDA']));
-				break;
-			case 'getMejoresPuntajes':
-				echo json_encode($tablero->getMejoresPuntajes($_GET['ID_CONCURSO'] , $_GET['ID_RONDA']));
-				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:GET']);
 				break;

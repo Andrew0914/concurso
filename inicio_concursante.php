@@ -15,11 +15,9 @@
             <h1>
                 <img src="image/logo_geollin.png" />
             </h1>
-            <br>
             <h2 class="monserrat-bold">
                 <b>Bienvenido</b>
             </h2>
-            <br>
             <h4>
                 El juego esta por comenzar por favor elige el concurso y el equipo al que perteneces.
             </h4>

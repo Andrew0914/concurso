@@ -10,7 +10,29 @@ function accederConcurso(formulario){
         dataType: "json",
         success : function(response){
           if(response.estado == 1){
-          	window.location.replace("individual_ronda1");
+            switch(response.concursante.ID_RONDA){
+              case 1:
+                window.location.replace("individual_ronda1");
+              break;
+              case 2:
+                window.location.replace("individual_ronda2");
+              break;
+              case 3:
+                window.location.replace("individual_desempate");
+              break;
+              case 4:
+                window.location.replace("grupal_ronda1");
+              break;
+              case 5:
+                window.location.replace("grupal_ronda2");
+              break;
+              case 6:
+                window.location.replace("grupal_desempate");
+              break;
+              default:
+                alert("No pudimos redirigirte a tu concurso, intenta de nuevo");
+            }
+          	
           }else{
           	alert(response.mensaje);
           }

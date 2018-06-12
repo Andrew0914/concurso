@@ -66,7 +66,6 @@
 				
 
 			return ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
-
 		}
 
 		/**
@@ -82,23 +81,35 @@
 			return count($this->get($where,$values));
 		}
 
+		/**
+		 * Obtiene las preguntas generadas para el concurso y la ronda 
+		 * @param  [int] $concurso 
+		 * @param  [int] $ronda    
+		 * @return [assoc array]           
+		 */
 		public function getPreguntasByConcursoRonda($concurso,$ronda){
-			$where = 'ID_RONDA = ? AND ID_CONCURSO = ?';
+			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,pg.ID_GENERADA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_RONDA = ? AND ID_CONCURSO = ? ";
             $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
-			return $this->get($where,$values);
+			return $this->query($query,$values);
 		}
 
+		/**
+		 * Elimina las preguntas generadas
+		 * @param  [int] $id     
+		 * @param  [string] $where  
+		 * @param  [array] $values 
+		 * @return [assoc array]         
+		 */
 		public function eliminar($id,$where,$values){
 			return $this->delete($id, $where, $values);
 		}
 
-		public function getRegla($concurso,$ronda,$pregunta){
-			$whereClause = "ID_PREGUNTA = ? AND ID_RONDA= ? AND ID_CONCURSO= ?";
-			$whereValues= ["ID_PREGUNTA" => $pregunta , "ID_RONDA" => $ronda , "ID_CONCURSO"=> $concurso];
-			$objRegla = new Reglas();
-			return $objRegla->getRegla($this->get($whereClause , $whereValues)[0]['ID_REGLA']);
-		}
-
+		/**
+		 * Devuelve la cantidad de preguntas generadas para la ronda y concurso
+		 * @param  [int] $idConcurso 
+		 * @param  [int] $idRonda    
+		 * @return [assoc_array]             
+		 */
 		public function cantidadPreguntasTotal($idConcurso,$idRonda){
 			$sentencia = 'SELECT COUNT(ID_PREGUNTA) as total FROM preguntas_generadas WHERE ID_CONCURSO = ? AND ID_RONDA = ?';
 			$values = ['ID_CONCURSO'=>$idConcurso , 'ID_RONDA'=> $idRonda];
@@ -106,12 +117,25 @@
 			return $this->query($sentencia , $values, true)[0]['total'];
 		}
 
+		/**
+		 * Devueve la antidad de preguntas en la ronda y concurso por categoria
+		 * @param  [int] $idConcurso  
+		 * @param  [int] $idRonda     
+		 * @param  [int] $idCategoria 
+		 * @return [assoc_array]              
+		 */
 		public function cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria){
 			$query = 'SELECT COUNT(preguntas_generadas.ID_PREGUNTA) as total FROM preguntas_generadas LEFT JOIN preguntas ON preguntas_generadas.ID_PREGUNTA = preguntas.ID_PREGUNTA WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA = ?';
 			$valores = ['ID_CONCURSO'=>$idConcurso , 'ID_RONDA'=> $idRonda, 'ID_CATEGORIA'=>$idCategoria];
 			return $this->query($query , $valores, true)[0]['total'];
 		}
 
+		/**
+		 * Devuelve los cantidades de las preguntas por cada una de las categorias en la ronda y el concurso
+		 * @param  [int] $concurso 
+		 * @param  [int] $ronda    
+		 * @return [assoc_array]           
+		 */
 		public function getCantidadGeneradas($concurso,$ronda){
 			$query = "SELECT SUM(CASE WHEN p.ID_CATEGORIA= 1 then 1 else 0 end) geofisica,SUM(CASE WHEN p.ID_CATEGORIA= 2 then 1 else 0 end) geologia,SUM(CASE WHEN p.ID_CATEGORIA= 3 then 1 else 0 end) petroleros,SUM(CASE WHEN p.ID_CATEGORIA= 4 then 1 else 0 end) generales FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA= p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? and pg.ID_RONDA = ?";
 

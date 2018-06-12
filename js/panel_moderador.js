@@ -1,3 +1,8 @@
+/**
+ * Dispara la peticion que genera lasp reguntas y setea los contadores en la tabla
+ * @param  {[int]} concurso 
+ * @param  {[int]} ronda    
+ */
 function generaPreguntas(concurso,ronda){
 	var categoria = $("#ID_CATEGORIA").val();
 	if(categoria != ""){
@@ -37,6 +42,11 @@ function generaPreguntas(concurso,ronda){
 	}
 }
 
+/**
+ * Cambiar y finaliza la ronda actual
+ * @param  {[int]} concurso    
+ * @param  {[int]} rondaActual 
+ */
 function cambiarFinalizarRonda(concurso,rondaActual){
 	var rondaNueva = $("#RONDA_NUEVA").val();
 	if(rondaNueva !=""){
@@ -54,5 +64,4 @@ function cambiarFinalizarRonda(concurso,rondaActual){
 	}else{
 		alert("Elige una ronda");
 	}
-	
 }
