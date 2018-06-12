@@ -100,16 +100,14 @@
 		<br>
 		<div class="row">
 			<div class="col-md-6">
-				<form action="leer_preguntas" method="post" target="_blank">
-					<button class="btn-geo">
-						Inicar ronda
-					</button>
-				</form>
+				<a href="leer_preguntas" target="_blank" class="btn btn-geo" style="width: 50%">
+					Inicar ronda
+				</a>
 			</div>
 			<div class="col-md-6">
-				<button class="btn-geo">
+				<a href="#" target="_blank" class="btn btn-geo" style="width: 50%">
 					Finalizar ronda
-				</button>
+				</a>
 			</div>
 		</div>
 		<!--  GENERACION DE PREGUNTAS -->

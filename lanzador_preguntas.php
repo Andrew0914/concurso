@@ -7,12 +7,21 @@
 	require_once 'class/PreguntasGeneradas.php';
 	require_once 'class/Rondas.php';
 	require_once 'class/Etapas.php';
+	require_once 'class/RondasLog.php';
 	$sesion = new Sesion();
 	$generadas = new PreguntasGeneradas();
 	$etapa = new Etapas();
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
 	$ronda = new Rondas();
-	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA))
+	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
+	$segundosPorPregunta = $ronda['SEGUNDOS_POR_PREGUNTA'];
+	$idConcurso = $sesion->getOne(SessionKey::ID_CONCURSO);
+	$idRonda = $sesion->getOne(SessionKey::ID_RONDA);
+	// iniciamos la ronda
+	$log = new RondasLog();
+	if(!$log->iniciarRonda($idConcurso,$idRonda)){
+		die('No pudimos iniciar la ronda , vuelve a intentarlo por vaor <a href="moderador">Click aqui</a>');
+	}
  ?>
 <head>
 	<meta charset="utf-8">
@@ -24,6 +33,8 @@
 </head>
 <body class="content content-lg azul">
 	<section class="card-lg">
+		<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>">
+		<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>">
 		<!-- INFORMACION GENERAL-->
 		<div class="row">
 			<div class="col-md-4">
@@ -66,16 +77,20 @@
 					</thead>
 					<tbody>
 						<?php 
-							$preguntas = $generadas->getPreguntasByConcursoRonda($sesion->getOne(SessionKey::ID_CONCURSO),$sesion->getOne(SessionKey::ID_RONDA));
+							$preguntas = $generadas->getPreguntasByConcursoRonda($idConcurso,$idRonda);
 							$onclick = "";
 							foreach ($preguntas as $pregunta) {
 								echo "<tr>";
 								echo "<td>" . $pregunta['PREGUNTA_POSICION']. "</td>";
 								echo "<td>" . $pregunta['PREGUNTA']. "</td>";
-								$onclick = " onclick='leer(\"".$pregunta['PREGUNTA']."\",";
+								$onclick = " onclick='leer(\"".addslashes ($pregunta['PREGUNTA'])."\",";
 								$onclick .= $pregunta['ID_PREGUNTA']. ",";
 								$onclick .= $pregunta['ID_GENERADA'].")'"; 
-								echo "<td><button class='btn-geo'".$onclick.">Leer</button></td>";
+								$button = "<td><button class='btn-geo'".$onclick.">Leer</button></td>";
+								if($pregunta['HECHA'] == 1){
+									$button= "<td><button class='btn btn-sm btn-dark'>HECHA</button></td>";
+								}
+								echo $button;
 								echo  "</tr>";
 							}
 						 ?>
@@ -94,14 +109,37 @@
 		          	<button type="button" class="close" data-dismiss="modal">&times;</button>
 	        	</div>
 		        <div class="modal-body">
-		          <div class="row">
-		          	<div class="col-md-12">
-		          		<h4 id="p-pregunta" class="monserrat-bold centrado"></h4>
+		         	<div class="row">
+			          	<div class="col-md-12">
+			          		<h4 id="p-pregunta" class="monserrat-bold centrado"></h4>
+			          	</div>
 		          	</div>
-		          </div>
+		          <!-- CRONOMETRO -->
+					<div class="row" id="cronometro-content" style="display: none">
+						<div class="col-md-8 offset-md-2 centrado">
+							<svg id="animated" viewbox="0 0 100 100">
+							  <circle cx="50" cy="50" r="45" fill="#FFF"/>
+							  <path id="progress" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
+							        d="M50 10
+							           a 40 40 0 0 1 0 80
+							           a 40 40 0 0 1 0 -80">
+							  </path>
+							  <text id="cronometro" x="50" y="50" text-anchor="middle" dy="7" font-size="11">
+							  	00:00
+							  </text>
+							</svg>	
+						</div>
+					</div>
+					<!-- CRONOMETRO -->
 		        </div>
 		        <div class="modal-footer">
-		          <button type="button" class="btn btn-geo" data-dismiss="modal">Lanzar pregunta</button>
+		        	<form id="form-lanzar">
+		        		<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA">
+		        		<input type="hidden" id="ID_GENERADA" name="ID_GENERADA">
+		        		<button type="button" class="btn btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>)">
+		        			Lanzar pregunta
+	        			</button>
+		        	</form>
 		        </div>
 	      	</div>
 	    </div>
@@ -110,6 +148,8 @@
 	<!-- SCRIPt-->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/bootstrap.js"></script>
+	<script type="text/javascript" src="js/snap.svg-min.js"></script>
+	<script type="text/javascript" src="js/cronometro.js"></script>
 	<script type="text/javascript" src="js/lanzador_preguntas.js"></script>
 </body>
 </html>

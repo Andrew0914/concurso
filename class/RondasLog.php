@@ -54,6 +54,30 @@
 			return ['estado'=>0 , 'mensaje'=>'No se pudo cambiar de ronda'];
 		}
 
+		public function iniciarRonda($concurso,$ronda){
+			$values = ['INICIO'=>1];
+			$where = "ID_CONCURSO = ? AND ID_RONDA= ?";
+			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
+			if($this->update(0, $values, $where, $whereValues))
+				return ['estado'=> 1 , 'mensaje'=> 'Ronda iniciada con exito'];
+			return ['estado'=> 0 , 'mensaje'=> 'No se pudo iniciar la ronda'];
+		}
+
+		public function finalizarRonda(){
+			$values = ['FIN'=>1];
+			$where = "ID_CONCURSO = ? AND ID_RONDA= ?";
+			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
+			if($this->update(0, $values, $where, $whereValues))
+				return ['estado'=> 1 , 'mensaje'=> 'Ronda finalizada con exito'];
+			return ['estado'=> 0 , 'mensaje'=> 'No se pudo finalizar la ronda'];
+		}
+
+		public function isStartOrFinish($concurso,$ronda){
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND (INICIO = 1 OR FIN = 1)";
+			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
+			$rs = $this->get($where,$whereValues);
+			return count($rs) > 0;
+		}
 	}
 	/**
 	 * POST REQUESTS

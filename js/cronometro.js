@@ -2,7 +2,8 @@
  * Funcion que inicia un cronometro a partir de un svg con los segundos indicados
  * @param  {int} segundos 
  */
-function cronometro(segundos){
+function cronometro(segundos, callback){
+	$("#cronometro-content").css("display","block");
 	$("#animated text").text(segundos);
 	var ms = segundos * 1000;
 	var count = $(('#cronometro'));
@@ -16,6 +17,9 @@ function cronometro(segundos){
 	  		display = "00:0"+real;
 	  	}
 	    count.text(display);
+	    if(real == segundos){
+	    	callback();
+	    }
 	  }
 	});
 	var s = Snap('#animated');

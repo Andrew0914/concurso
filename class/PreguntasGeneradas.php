@@ -88,7 +88,7 @@
 		 * @return [assoc array]           
 		 */
 		public function getPreguntasByConcursoRonda($concurso,$ronda){
-			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,pg.ID_GENERADA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_RONDA = ? AND ID_CONCURSO = ? ";
+			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,pg.ID_GENERADA,pg.LANZADA,pg.HECHA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_RONDA = ? AND ID_CONCURSO = ? ";
             $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
 			return $this->query($query,$values);
 		}
@@ -144,6 +144,39 @@
 			return $this->query($query,$values);
 		}
 
+		/**
+		 * Marca como hecha la pregunta y lanza para que aparezca dicha pregunta al concursante
+		 * @param  [int] $idGenerada 
+		 * @param  [int] $concurso   
+		 * @param  [int] $ronda      
+		 * @return [assoc array]             
+		 */
+		public function lanzarPregunta($idGenerada,$concurso,$ronda){
+			// la marcamos como hecha
+			$values = ['HECHA' => 1];
+			if(!$this->update($idGenerada , $values))
+				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+			// la ponemos como lanzada para que sea la que aparezca al participante
+			$sentancia  = "SELECT * FROM preguntas_generadas WHERE ID_CONCURSO =? AND ID_RONDA = ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
+			$result = $this->query($sentancia, $valores);
+			// si no hay lanzadas ponemos la primera en 1
+			if(count($result) <= 0){
+				$values = ['LANZADA' => 1];
+				if(!$this->update($idGenerada , $values))
+					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+			}else{
+				// si ya se lanzaron previamente otras
+				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas WHERE ID_CONCURSO = ? AND ID_RONDA =?";
+				$rs = $this->query($otraSentencia, $valores);
+				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
+				if(!$this->update($idGenerada , $values))
+					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
+			}
+
+			return ['estado'=> 1 , 'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'];
+		}
+
 	}
 
 	/**
@@ -156,6 +189,10 @@
 			case 'generaPreguntas':
 				echo json_encode($genera->generaPreguntas($_POST['ID_CONCURSO'] 
 					, $_POST['ID_RONDA'] , $_POST['ID_CATEGORIA'] ));
+				break;
+			case 'lanzarPregunta':
+				echo json_encode($genera->lanzarPregunta($_POST['ID_GENERADA'] ,$_POST['ID_CONCURSO'] 
+					, $_POST['ID_RONDA']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida PreguntasGeneradas:POST']);
