@@ -177,6 +177,14 @@
 			return ['estado'=> 1 , 'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'];
 		}
 
+		public function ultimaLanzada($concurso,$ronda){
+			$sentancia  = "SELECT * FROM preguntas_generadas WHERE ID_CONCURSO =? AND ID_RONDA = ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
+			$result = $this->query($sentancia, $valores);
+
+			return $result;
+		}
+
 	}
 
 	/**

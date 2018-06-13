@@ -1,45 +1,26 @@
-<?php 
-	require_once dirname(__FILE__) . '/../util/Sesion.php';
-	require_once dirname(__FILE__) . '/../util/SessionKey.php';
-	require_once dirname(__FILE__) . '/../Concurso.php';
-	require_once dirname(__FILE__) . '/../PreguntasGeneradas.php';
-	require_once dirname(__FILE__) . '/../Preguntas.php';
-	require_once dirname(__FILE__) . '/../Respuestas.php';
-	require_once dirname(__FILE__) . '/../Rondas.php';
+<?php
+  require_once '../PreguntasGeneradas.php';
 
-	$sesion = new Sesion();
-	if($sesion->getOne(SessionKey::ID_CONCURSANTE) > 0 ){
-		$objConcurso = new Concurso();
-		$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
-		// mientras el concurso no se inicie, se queda esperando y renueva la info del concurso para validar el inicio
-		while ($concurso['INICIO_CONCURSO'] == 0 ) {
-			usleep(50000);
-			$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
-		}
-		// cuando ya inicio obtiene lasp reguntas generadas para el concurso para la primer ronda individual
-		try{
-			$objPregunta = new Preguntas();
-			$preguntasGeneradas = new PreguntasGeneradas();
-			$preguntas = $preguntasGeneradas->getPreguntasByConcursoRonda($concurso['ID_CONCURSO'],1);
-			$respeusta = new Respuestas();
-			// agregamos las respuestas para cada pregunta
-			for ($cont = 0 ; $cont < count($preguntas); $cont++) {
-				$preguntas[$cont]["PREGUNTA"]= $objPregunta->findPregunta($preguntas[$cont]['ID_PREGUNTA'])['PREGUNTA'];
-				$preguntas[$cont]['respuestas'] = $respeusta->getRespuestasByPregunta($preguntas[$cont]['ID_PREGUNTA']);
-			}
-			// devolvemos la informacion de la ronda tambien
-			$ronda = new Rondas();
-			$ronda = $ronda->getRonda(1);
-			echo json_encode(array('estado'=>1,
-				'mensaje'=>'Preguntas generadas para la ronda.',
-				'preguntas'=>$preguntas,
-				'ronda'=>$ronda));
-		}catch(Exception $ex){
-			echo json_encode(array('estado'=>0,'mensaje'=>'Fallo la obtencion dep reguntas'.$ex->getMessage()));
-		}
-		
-	}else{
-		echo json_encode(array('estado'=>0,'mensaje'=>'Fallo la sesion'));
-	}
-
-?>
+  if(!isset($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],$_GET['lanzada'])){
+    die("Mal uso del listener de pregunts, sin algun parametros");
+  }
+  $idConcurso = $_GET['ID_CONCURSO'];
+  $idRonda = $_GET['ID_RONDA'];
+  // infinite loop until the data file is not modified
+  $lastLanzada    = isset($_GET['lanzada']) ? $_GET['lanzada'] : 0;
+  $generada = new PreguntasGeneradas();
+  $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda); 
+  $currentLanzada = $lanzadaBD[0]['LANZADA'];
+  while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
+  {
+    usleep(10000); // sleep 10ms to unload the CPU
+    $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda); 
+    $currentLanzada = $lanzadaBD[0]['LANZADA'];
+  }
+ 
+  // return a json array
+  $response = array();
+  $response['pregunta']= $lanzadaBD;
+  $response['lanzada'] = $currentLanzada;
+  echo json_encode($response);
+  ?>
