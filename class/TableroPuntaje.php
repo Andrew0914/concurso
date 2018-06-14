@@ -29,12 +29,15 @@
 
 		public function generaPuntaje($concursante,$concurso,$ronda,$pregunta,$respuesta,$correcta,$paso = 0){
 			$v_puntaje = ['PUNTAJE'=>0];
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ? ";
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante];
 			$regla = new Reglas();
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
-			$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+			if($correcta == 1){
+				$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+			}
+			
 			if(count($reglas) == 1){
 				if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ){
 					$v_puntaje['PUNTAJE'] *= -1;

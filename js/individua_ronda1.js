@@ -1,3 +1,4 @@
+// LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
 var Comet = Class.create();
   Comet.prototype = {
     lanzada: 0,
@@ -40,6 +41,10 @@ var Comet = Class.create();
 var comet = new Comet();
 comet.connect();
 
+/**
+ * Muestra la pregunta y las respuestas correspondientes
+ * @param  {json} response [description]
+ */
 function showPregunta(response){
    // segundo para cada pregunta
    var segundos = $jq("#segundos_ronda").val();
@@ -120,6 +125,9 @@ function sendPreRespuestas(){
    },'json');
 }
 
+/**
+ * Lanza la peticion para saber si todos los participantes contestaron
+ */
 function todosContestaron(){
    var concurso = $jq("#ID_CONCURSO").val();
    var ronda = $jq("#ID_RONDA").val();
@@ -127,49 +135,68 @@ function todosContestaron(){
    $jq.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta, 
       function(data) {
          if(data.estado == 1){
-            prepareSend();
             stopExecPerSecond= true;
             sendRespuesta();
          }
    },'json');
 }
 
+/**
+ * Manda la respuesta final del participante
+ */
 function sendRespuesta(){
    var concurso = $jq("#ID_CONCURSO").val();
    var ronda = $jq("#ID_RONDA").val();
    var pregunta = $jq("#ID_PREGUNTA").val();
    var concursante = $jq("#ID_CONCURSANTE").val();
-   
    var respuestas = document.getElementsByName("mRespuesta-" + pregunta );
    var respuesta = '';
+
    for (var i = 0, length = respuestas.length; i < length; i++){
       if (respuestas[i].checked){
         respuesta = respuestas[i].value;
         break;
       }
    }
-   $jq.post('class/TableroPuntaje.php', 
-      {'functionTablero': 'saveRespuesta',
+   $jq.ajax({
+     url: 'class/TableroPuntaje.php',
+     type: 'POST',
+     dataType: 'json',
+     data: {'functionTablero': 'saveRespuesta',
          'ID_CONCURSO':concurso,
          'ID_RONDA':ronda,
          'ID_CONCURSANTE':concursante,
          'ID_PREGUNTA': pregunta,
          'ID_RESPUESTA':respuesta
       },
-      function(data, textStatus, xhr) {
-         if(data.estado == 1){
-            prepareSend();
+      success:function(data){
+        if(data.estado == 1){
+            afterSend();
             stopExecPerSecond= true;
          }else{
-            sendRespuesta();
+          console.log(data.mensaje)
          }
-   },'json');
- 
+      },
+      error:function(error){
+        console.log(error)
+      },
+      complete:function(data){
+        if(data.estado == 1){
+            afterSend();
+            stopExecPerSecond= true;
+         }else{
+          console.log(data.mensaje)
+         }
+      }
+   });
 }
 
-function prepareSend(){
+/**
+ * Prepara la pantalla para el envio de respuesta y lo posterior a ello
+ */
+function afterSend(){
    $jq("#cronometro-content").css("display","none");
    $jq("#animated text").text(0);
-   $jq("#pregunta p").text("Termino la pregunta, por favor espera a que el moderador lance la siguiente");
+   $jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
    $jq("#content-respuestas").html("");
 }

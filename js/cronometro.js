@@ -4,6 +4,7 @@ var stopExecPerSecond = false;
  * @param  {int} segundos 
  */
 function cronometro(segundos, callbackPerSecond, finishCallback){
+	stopExecPerSecond= false;
 	// usando variable sin conflictos por si uso prototype
 	try {
 		$ = $jq;
