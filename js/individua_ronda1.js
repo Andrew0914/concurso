@@ -24,7 +24,6 @@ var Comet = Class.create();
             setTimeout(function(){ comet.connect() }, 1000); 
           }
           else{
-            console.log("connect");
             this.comet.connect();
           }
           this.comet.noerror = false;
@@ -35,8 +34,142 @@ var Comet = Class.create();
     },
     disconnect: function(){},
     handleResponse: function(response){
-      console.log(response);
+      showPregunta(response);
     }
   }
 var comet = new Comet();
 comet.connect();
+
+function showPregunta(response){
+   // segundo para cada pregunta
+   var segundos = $jq("#segundos_ronda").val();
+   //cambiamos la vista
+   $jq("body").removeClass('azul');
+   $jq("body").addClass('blanco');
+   $jq("#card-inicio").hide(300);
+   $jq("#pregunta").show(300);
+   // seteamos los valores de lap regunta a mostrar
+   $jq("#pregunta p").text(response.pregunta[0].PREGUNTA);
+   $jq("#ID_PREGUNTA").val(response.pregunta[0].ID_PREGUNTA);
+   $jq("#PREGUNTA_POSICION").val(response.pregunta[0].PREGUNTA_POSICION);
+   // mostramos las respuestas posibles para la pregunta
+   var respuestas = response.pregunta.respuestas;
+   var incisos =['a','b','c','d'];
+   var contenido = "<div class='row'>";
+   for(var x= 0; x < respuestas.length ; x++){
+      contenido += "<div class='col-md-3 centrado text-answer'>";
+      contenido += "<button type='button' class='btn-answer' onclick='eligeInciso(this)'>"+incisos[x]+"</button><br><br>";
+      contenido += "<input type='radio' name='mRespuesta-"+response.pregunta[0].ID_PREGUNTA+"' value='"+ respuestas[x].ID_RESPUESTA +"' style='display:none'/>";
+      if(respuestas[x].ES_IMAGEN == 1){
+         contenido += "<img src='image/respuestas/" + respuestas[x].RESPUESTA + "'/>";
+      }else{
+         contenido += respuestas[x].RESPUESTA;
+      }
+      contenido += "</div>";
+     }
+   contenido += "</div>";
+
+   $jq("#content-respuestas").html(contenido);
+
+   var fnSegundo = function(){
+      todosContestaron();
+   };
+   var fnTermino = function(){
+      sendRespuesta();
+   };
+
+   cronometro(segundos,fnSegundo,fnTermino);
+}
+
+/**
+ * Selecciona la respuesta que sera enviada
+ * @param  {button} boton [opcion oprimida]
+ */
+function eligeInciso(boton){
+    // reseteamos los estilos de los no checados
+    $jq(boton).parent().parent().children('div').children('button').removeClass('btn-checked');
+    $jq(boton).addClass('btn-checked');
+    // checamos el radio oculto
+    $jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked',true);
+    sendPreRespuestas();
+}
+
+/**
+ * Rregistra la accion previa a mandar la respuesta , para validar que todos hayan contestado
+ */
+function sendPreRespuestas(){
+   var posicion = $jq("#PREGUNTA_POSICION").val();
+   var concurso = $jq("#ID_CONCURSO").val();
+   var ronda = $jq("#ID_RONDA").val();
+   var concursante = $jq("#ID_CONCURSANTE").val();
+   var pregunta = $jq("#ID_PREGUNTA").val();
+   $jq.post('class/TableroPuntaje.php', 
+      {'functionTablero': 'preRespuesta',
+         'ID_CONCURSO':concurso,
+         'ID_RONDA':ronda,
+         'ID_CONCURSANTE':concursante,
+         'PREGUNTA_POSICION':posicion,
+         'PREGUNTA': pregunta
+      },
+      function(data, textStatus, xhr) {
+         if(data.estado == 0){
+            sendPreRespuestas(idPregunta);
+         }else{
+            console.log(data.mensaje);
+         }
+   },'json');
+}
+
+function todosContestaron(){
+   var concurso = $jq("#ID_CONCURSO").val();
+   var ronda = $jq("#ID_RONDA").val();
+   var pregunta = $jq("#ID_PREGUNTA").val();
+   $jq.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta, 
+      function(data) {
+         if(data.estado == 1){
+            prepareSend();
+            stopExecPerSecond= true;
+            sendRespuesta();
+         }
+   },'json');
+}
+
+function sendRespuesta(){
+   var concurso = $jq("#ID_CONCURSO").val();
+   var ronda = $jq("#ID_RONDA").val();
+   var pregunta = $jq("#ID_PREGUNTA").val();
+   var concursante = $jq("#ID_CONCURSANTE").val();
+   
+   var respuestas = document.getElementsByName("mRespuesta-" + pregunta );
+   var respuesta = '';
+   for (var i = 0, length = respuestas.length; i < length; i++){
+      if (respuestas[i].checked){
+        respuesta = respuestas[i].value;
+        break;
+      }
+   }
+   $jq.post('class/TableroPuntaje.php', 
+      {'functionTablero': 'saveRespuesta',
+         'ID_CONCURSO':concurso,
+         'ID_RONDA':ronda,
+         'ID_CONCURSANTE':concursante,
+         'ID_PREGUNTA': pregunta,
+         'ID_RESPUESTA':respuesta
+      },
+      function(data, textStatus, xhr) {
+         if(data.estado == 1){
+            prepareSend();
+            stopExecPerSecond= true;
+         }else{
+            sendRespuesta();
+         }
+   },'json');
+ 
+}
+
+function prepareSend(){
+   $jq("#cronometro-content").css("display","none");
+   $jq("#animated text").text(0);
+   $jq("#pregunta p").text("Termino la pregunta, por favor espera a que el moderador lance la siguiente");
+   $jq("#content-respuestas").html("");
+}

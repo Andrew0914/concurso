@@ -13,7 +13,7 @@
 	$etapa = new Etapas();
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
 	$ronda = new Rondas();
-	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA))
+	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
  ?>
 <head>
 	<meta charset="utf-8">

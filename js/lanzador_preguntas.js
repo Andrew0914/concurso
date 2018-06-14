@@ -25,9 +25,9 @@ function lanzarPregunta(segundos){
         dataType: "json",
         success : function(response){
         	if(response.estado == 1){
-				cronometro(segundos,function(){
-					location.reload();	
-				});
+				cronometro(segundos,null,function(){
+                    location.reload();
+                });
         	}else{
         		alert(response.mensaje);
         	}

@@ -1,20 +1,24 @@
 <?php
   require_once '../PreguntasGeneradas.php';
+  require_once '../Respuestas.php';
 
   if(!isset($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],$_GET['lanzada'])){
     die("Mal uso del listener de pregunts, sin algun parametros");
   }
+  $objRespuesta = new Respuestas();
   $idConcurso = $_GET['ID_CONCURSO'];
   $idRonda = $_GET['ID_RONDA'];
   // infinite loop until the data file is not modified
   $lastLanzada    = isset($_GET['lanzada']) ? $_GET['lanzada'] : 0;
   $generada = new PreguntasGeneradas();
   $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda); 
+  $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
   $currentLanzada = $lanzadaBD[0]['LANZADA'];
   while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
   {
     usleep(10000); // sleep 10ms to unload the CPU
-    $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda); 
+    $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda);
+    $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
     $currentLanzada = $lanzadaBD[0]['LANZADA'];
   }
  

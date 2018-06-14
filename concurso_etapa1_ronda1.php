@@ -3,10 +3,13 @@
 <?php 
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
+	require_once 'class/Rondas.php';
 	$sesion = new Sesion();
 	if($sesion->getOne(SessionKey::ID_RONDA) != 1){
 		header('Location: inicio');
 	}
+	$ronda = new Rondas();
+	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
  ?>
 <head>
 	<meta charset="utf-8">
@@ -17,8 +20,10 @@
 </head>
 <body class="content content-lg azul">
 	<section>
-		<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>">
-		<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>">
+		<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>" />
+		<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>" />
+		<input type="hidden" id="segundos_ronda" name="segundos_ronda" value="<?php echo $ronda['SEGUNDOS_POR_PREGUNTA']; ?>" />
+		<input type="hidden" id="ID_CONCURSANTE" name="ID_CONCURSANTE" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSANTE); ?>" />
 		<div class="card-md centrado" id="card-inicio">
 			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
 			<h4 id="mensaje_concurso">
@@ -44,11 +49,20 @@
 			</div>
 		</div>
 		<!-- CRONOMETRO -->
+		<article id="pregunta" class="card-lg" style="display: none;">
+			<input type="hidden" id="PREGUNTA_POSICION" name="PREGUNTA_POSICION" />
+			<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA" />
+			<p class="text-pregunta"></p>
+			<p id="content-respuestas"></p>
+		</article>
 	</section>
 	<!-- INICIO SCRIPTS -->
-	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
-	<script type="text/javascript" src="js/snap.svg-min.js"></script>
 	<script type="text/javascript" src="js/libs/prototype.js"></script>
+	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+	<script>
+		var $jq = jQuery.noConflict();
+	</script>
+	<script type="text/javascript" src="js/snap.svg-min.js"></script>
 	<script type="text/javascript" src="js/cronometro.js"></script>
 	<script type="text/javascript" src="js/individua_ronda1.js"></script>
 	<!-- FIN SCRIPTS  -->

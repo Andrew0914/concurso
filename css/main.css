@@ -164,7 +164,7 @@ svg#animated{
 }
 
 .btn-checked{
-	background-color: rgb(114,203,145);
+	background-color: rgb(52,141,83);
 	border:1px solid rgb(41,116,68);
 	box-shadow: 1px 2px 3px rgb(41,116,68);
 }
@@ -176,4 +176,11 @@ svg#animated{
 
 .title{
 	background-color: rgba(255,255,255,0.75);
+}
+
+.text-pregunta{
+	font-family: 'monserrat';
+	font-size: 175%;
+	color: #545454;
+	font-weight: bold;
 }

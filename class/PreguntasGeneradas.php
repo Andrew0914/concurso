@@ -178,7 +178,7 @@
 		}
 
 		public function ultimaLanzada($concurso,$ronda){
-			$sentancia  = "SELECT * FROM preguntas_generadas WHERE ID_CONCURSO =? AND ID_RONDA = ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
+			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
 			$result = $this->query($sentancia, $valores);
 

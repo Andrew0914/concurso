@@ -72,6 +72,12 @@
 		public function eliminar($id,$where,$values){
 			return $this->delete($id, $where, $values);
 		}
+
+		public function getCountConcursates($concurso){
+			$sentencia = "SELECT COUNT(ID_CONCURSANTE) as total FROM concursantes WHERE ID_CONCURSO = ?";
+			$valores = ['ID_CONCURSO' => $concurso];
+			return $this->query($sentencia, $valores, true);
+		}
 	}
 
 	// POST REQUEST
