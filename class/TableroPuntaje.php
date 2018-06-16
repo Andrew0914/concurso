@@ -27,6 +27,17 @@
 			return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
 		}
 
+		/**
+		 * Genera el punta por la respuesta y condiciones dada
+		 * @param  integer  $concursante 
+		 * @param  integer  $concurso    
+		 * @param  integer  $ronda       
+		 * @param  integer  $pregunta    
+		 * @param  integer  $respuesta   
+		 * @param  integer  $correcta    
+		 * @param  integer 	$paso        
+		 * @return boolean               
+		 */
 		public function generaPuntaje($concursante,$concurso,$ronda,$pregunta,$respuesta,$correcta,$paso = 0){
 			$v_puntaje = ['PUNTAJE'=>0];
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
@@ -50,6 +61,13 @@
 			return $this->update(0, $v_puntaje, $where, $whereValues);
 		}
 
+		/**
+		 * Verifica si todos los concursantes de concurso han contestado ya
+		 * @param  integer $concurso 
+		 * @param  integer $ronda    
+		 * @param  integer $pregunta 
+		 * @return boolean
+		 */
 		public function todosContestaron($concurso,$ronda,$pregunta){
 			$query = "SELECT COUNT(ID_CONCURSANTE) as total FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ?";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'PREGUNTA'=> $pregunta];
@@ -61,6 +79,16 @@
 			return  $total_concursantes == $contestaron;
 		}
 
+		/**
+		 * Guarda la respuesta una vez que se genero la pre respuestas
+		 * @param  integer  $concursante 
+		 * @param  integer  $concurso    
+		 * @param  integer  $ronda       
+		 * @param  integer  $pregunta    
+		 * @param  integer  $respuesta   
+		 * @param  integer $paso        
+		 * @return array               
+		 */
 		public function saveRespuesta($concursante,$concurso,$ronda,$pregunta,$respuesta,$paso = 0){
 			$objRespuesta = new Respuestas();
 			$valores = ['RESPUESTA' => $respuesta];

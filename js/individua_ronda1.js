@@ -158,38 +158,47 @@ function sendRespuesta(){
         break;
       }
    }
-   $jq.ajax({
-     url: 'class/TableroPuntaje.php',
-     type: 'POST',
-     dataType: 'json',
-     data: {'functionTablero': 'saveRespuesta',
-         'ID_CONCURSO':concurso,
-         'ID_RONDA':ronda,
-         'ID_CONCURSANTE':concursante,
-         'ID_PREGUNTA': pregunta,
-         'ID_RESPUESTA':respuesta
-      },
-      success:function(data){
-        if(data.estado == 1){
-            afterSend();
-            stopExecPerSecond= true;
-         }else{
-          console.log(data.mensaje)
-         }
-      },
-      error:function(error){
-        console.log(error)
-      },
-      complete:function(data){
-        if(data.estado == 1){
-            afterSend();
-            stopExecPerSecond= true;
-         }else{
-          console.log(data.mensaje)
-         }
-      }
-   });
-}
+   // SI NO EXISTE OPCION SELECCIONADA
+   if(respuesta == ''){
+      // solo mandamso la pre respuesta (con la respuesta nula)
+      sendPreRespuestas();
+      afterSend();
+   }else{
+      // MANDAMOS LA RESPUESTA SELECCIONADA
+     $jq.ajax({
+       url: 'class/TableroPuntaje.php',
+       type: 'POST',
+       dataType: 'json',
+       data: {'functionTablero': 'saveRespuesta',
+           'ID_CONCURSO':concurso,
+           'ID_RONDA':ronda,
+           'ID_CONCURSANTE':concursante,
+           'ID_PREGUNTA': pregunta,
+           'ID_RESPUESTA':respuesta
+        },
+        success:function(data){
+          if(data.estado == 1){
+              afterSend();
+              stopExecPerSecond= true;
+           }else{
+            console.log(data.mensaje)
+           }
+        },
+        error:function(error){
+          console.log(error)
+        },
+        complete:function(data){
+          if(data.estado == 1){
+              afterSend();
+              stopExecPerSecond= true;
+           }else{
+            console.log(data.mensaje)
+           }
+        }
+     });
+
+   }
+   }
 
 /**
  * Prepara la pantalla para el envio de respuesta y lo posterior a ello
