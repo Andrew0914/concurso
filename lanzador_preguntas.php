@@ -131,13 +131,33 @@
 						</div>
 					</div>
 					<!-- CRONOMETRO -->
+					<!-- MARCADOR PARA LA PREGUNTA ACTUAL-->
+					<br>
+					<div class="row">
+			          	<div class="col-md-10 offset-md-1 centrado">
+			          		<table class="table table-sm table-geo" id="tbl-marcador-pregunta" style="display: none">
+								<thead>
+									<tr>
+										<th>Concursante</th>
+										<th>Resultado</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+			          	</div>
+		          	</div>
+					<!-- MARCADOR PARA LA PREGUNTA ACTUAL-->
 		        </div>
 		        <div class="modal-footer">
 		        	<form id="form-lanzar">
 		        		<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA">
 		        		<input type="hidden" id="ID_GENERADA" name="ID_GENERADA">
-		        		<button type="button" class="btn btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>)">
+		        		<button type="button" class="btn btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>,this)" id='btn-lanzar'>
 		        			Lanzar pregunta
+	        			</button>
+	        			<button type="button" class="btn btn-geo" onclick="location.reload();" id="btn-siguiente" style="display: none;">
+		        			Siguiente
 	        			</button>
 		        	</form>
 		        </div>

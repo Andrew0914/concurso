@@ -108,6 +108,28 @@
 			return ['estado'=>0, 'mensaje'=>'No se almaceno tu respuesta'];
 		}
 
+		/**
+		 * Devuelve los marcadores por pregunta para el concurso y la ronda
+		 * @param  integer $concurso 
+		 * @param  integer $ronda    
+		 * @param  integer $pregunta 
+		 * @return array
+		 */
+		public function getMarcadorPregunta($concurso,$ronda,$pregunta){
+			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
+			try{
+			$sentencia = 'SELECT c.ID_CONCURSANTE,c.CONCURSANTE,if(tp.RESPUESTA_CORRECTA = 1 , "correcta","incorrecta") as RESULTADO FROM tablero_puntajes tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE WHERE tp.ID_CONCURSO = ? and tp.ID_RONDA =? AND tp.PREGUNTA = ? GROUP BY tp.ID_CONCURSANTE';
+				$valores =['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda, 'PREGUNTA'=>$pregunta];
+				$response['marcadores']= $this->query($sentencia,$valores,true);
+				$response['estado']= 1;
+				$response['mensaje']='Marcadores obtenidos con exito';
+			}catch(Exception $ex){
+				$response['mensaje']= 'Fallo al obtener marcadores:'.$ex->getMessage();
+			}
+			
+			return $response;
+		}
+
 	}
 	/**
 	 * POST REQUESTS
@@ -143,9 +165,12 @@
 					echo json_encode(['estado'=>0, 'mensaje'=>'Aun falta por contestar']);
 				}
 			break;
+			case 'getMarcadorPregunta':
+				echo json_encode($tablero->getMarcadorPregunta($_GET['ID_CONCURSO'], $_GET['ID_RONDA'], $_GET['ID_PREGUNTA']));
+			break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:GET']);
-				break;
+			break;
 		}
 	}
  ?>

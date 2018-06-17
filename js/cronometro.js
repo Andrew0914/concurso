@@ -1,10 +1,12 @@
 var stopExecPerSecond = false;
+var notFinish = false;
 /**
  * Funcion que inicia un cronometro a partir de un svg con los segundos indicados
  * @param  {int} segundos 
  */
 function cronometro(segundos, callbackPerSecond, finishCallback){
 	stopExecPerSecond= false;
+	notFinish = false;
 	// usando variable sin conflictos por si uso prototype
 	try {
 		$ = $jq;
@@ -32,7 +34,7 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 	    	callbackPerSecond();
 	    	aSegundos.push(real);
 	    }   
-	    if( real == segundos  && typeof finishCallback === 'function' && !final){
+	    if( real == segundos  && typeof finishCallback === 'function' && !final && !notFinish){
 	    	finishCallback();
 	    	final = true;
 	    }
