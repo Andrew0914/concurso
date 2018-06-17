@@ -95,6 +95,8 @@ function getMarcadorPregunta(){
         data: 'ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta,
         success:function(response){
             if(response.estado == 1){
+                notFinish = true;
+                stopExecPerSecond= true;
                 $("#cronometro-content").css("display","none");
                 $("#animated text").text(0);
                 var marcadores = response.marcadores;

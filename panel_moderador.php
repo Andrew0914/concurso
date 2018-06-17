@@ -43,6 +43,7 @@
 				<button class="btn btn-link btn-sm" style="float: right;" data-toggle="modal" data-target="#mdl-finaliza-ronda">
 					Finalizar y cambiar ronda
 				</button>
+				<br>
 			</div>
 		</div>
 		<hr>
@@ -151,6 +152,13 @@
 			</form>
 		</div>
 		<!-- SALIR SESION-->
+		<div class="row">
+			<div class="col-md-12 centrado">
+				<a href="tablero" class="btn btn-sm btn-link" target="_blank">
+					<u>Ver Puntajes</u>
+				</a>
+			</div>
+		</div>
 	</div>
 	<!-- MODAL FIN RONDA-->
 	<div class="modal fade" id="mdl-finaliza-ronda" tabindex="-1" role="dialog" aria-labelledby="mdl-finaliza-rondaLabel" aria-hidden="true">

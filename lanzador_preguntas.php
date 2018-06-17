@@ -56,9 +56,14 @@
 		<!-- INFORMACION GENERAL-->
 		<!-- RECARGAR PREGUNTAD-->
 		<div class="row">
-			<div class="col-md-2 offset-md-10">
-				<button class="btn btn-sm btn-link" onclick="location.reload()" style="text-decoration: underline;">
-					Recargar preguntas
+			<div class="col-md-2 offset-md-8">
+				<a href="tablero" class="btn btn-sm btn-link" target="_blank">
+					<u> Ver Puntajes</u>
+				</a>
+			</div>
+			<div class="col-md-2">
+				<button class="btn btn-sm btn-link" onclick="location.reload()">
+					<u>Recargar preguntas</u>
 				</button>
 			</div>
 		</div>
@@ -96,6 +101,13 @@
 						 ?>
 					</tbody>
 				</table>
+			</div>
+			<div class="row">
+				<div class="col-md-12 centrado">
+					<a href="tablero" class="btn btn-sm btn-link" target="_blank">
+						<u>Ver Puntajes</u>
+					</a>
+				</div>
 			</div>
 		</div>
 		<!-- PREGUNTAS GENERADAS-->

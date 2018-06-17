@@ -12,6 +12,7 @@ require_once 'class/util/Route.php';
     $route->add('individual_ronda2', '../concurso_etapa1_ronda2.php');
     $route->add('moderador', '../inicio_moderador.php');
     $route->add('leer_preguntas', '../lanzador_preguntas.php');
+    $route->add('tablero', '../tablero.php');
     
 	$route->submit();
 ?>
