@@ -96,7 +96,6 @@ function eligeInciso(boton){
     $jq(boton).addClass('btn-checked');
     // checamos el radio oculto
     $jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked',true);
-    console.log('eligeInciso');
     sendPreRespuestas();
 }
 
@@ -138,6 +137,8 @@ function todosContestaron(){
       function(data) {
          if(data.estado == 1){
             stopExecPerSecond= true;
+            notFinish = true;
+            console.log('todosContestaron');
             sendRespuesta();
          }
    },'json');
@@ -162,7 +163,6 @@ function sendRespuesta(){
    }
    // SI NO EXISTE OPCION SELECCIONADA
    if(respuesta == ''){
-      console.log("no responde sendRespuesta");
       // solo mandamso la pre respuesta (con la respuesta nula)
       sendPreRespuestas();
       afterSend();
@@ -190,14 +190,6 @@ function sendRespuesta(){
         },
         error:function(error){
           console.log(error)
-        },
-        complete:function(data){
-          if(data.estado == 1){
-              afterSend();
-              stopExecPerSecond= true;
-           }else{
-            console.log(data.mensaje)
-           }
         }
      });
 

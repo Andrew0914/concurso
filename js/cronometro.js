@@ -17,44 +17,50 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 	$("#animated text").text(segundos);
 	var ms = segundos * 1000;
 	var count = $(('#cronometro'));
-	var final = false;
-	var aSegundos =[0];
 	$({ Counter: 0 }).animate({ Counter: count.text() }, {
 	  duration: ms,
 	  easing: 'linear',
 	  step: function (a,b) {
-	  	
 	  	var real = Math.ceil(this.Counter);
 	  	var display = "00:"+real;
 	  	if(real < 10){
 	  		display = "00:0"+real;
 	  	}
 	    count.text(display);
-	    if(!stopExecPerSecond && typeof callbackPerSecond === 'function' && (real % 2) == 0 && segundoReady(aSegundos,real)){
-	    	callbackPerSecond();
-	    	aSegundos.push(real);
-	    }   
-	    if( real == segundos  && typeof finishCallback === 'function' && !final && !notFinish){
-	    	finishCallback();
-	    	final = true;
-	    }
 	  }
 	});
+
 	var s = Snap('#animated');
 	var progress = s.select('#progress');
 	progress.attr({strokeDasharray: '0, 251.2'});
 	Snap.animate(0,251.2, function( value ) {
 	    progress.attr({ 'stroke-dasharray':value+',251.2'});
 	}, ms);
+	// iniciamos los coronometros reales, el resto es una animacion
+	initTimerPerSecond(segundos,callbackPerSecond,finishCallback);
 }
 
-function segundoReady(aSegundos,segundo){
-	var listo = true;
-	for(var popo = 0; popo<= aSegundos.length ; popo++){
-		if(aSegundos[popo] == segundo){
-			listo = false;
-			break;
+/**
+ * Es el temporizador que ejecutara la funcion cada segundo
+ * @param  integer segundos       
+ * @param  callback functionPerSecond 
+ */
+function initTimerPerSecond(segundos,functionPerSecond, finishFunction){
+	var contador = 1;
+	var timerPerSecond = setInterval(function(){
+		console.log(contador);
+		if((contador % 2) == 0){
+			functionPerSecond();
 		}
-	}
-	return listo;
+
+		if(contador == segundos && !notFinish){
+			finishFunction();
+		}
+
+		if(contador == segundos || stopExecPerSecond){
+			clearInterval(timerPerSecond);
+		}
+
+		contador ++;
+	},1000);
 }

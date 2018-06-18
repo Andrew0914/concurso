@@ -5,7 +5,7 @@
  * @param  {[int]} idGenerada 
  */
 function leer(pregunta,idPregunta, idGenerada){
-    $("#mdl-leer-pregunta").modal();
+    $("#mdl-leer-pregunta").modal({backdrop: 'static', keyboard: false});
     $("#p-pregunta").text(pregunta);
     $("#ID_PREGUNTA").val(idPregunta);
     $("#ID_GENERADA").val(idGenerada);
