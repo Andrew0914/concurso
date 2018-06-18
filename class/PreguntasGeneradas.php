@@ -185,6 +185,18 @@
 			return $result;
 		}
 
+		/**
+		 * Verifica que todas las preguntas generadas para el concurso y la ronda esten hechas
+		 * @param  integer $concurso 
+		 * @param  integer $ronda    
+		 * @return boolean           
+		 */
+		public function todasHechas($concurso,$ronda){
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND HECHA  = 0";
+			$whereValues = ['ID_CONCURSO' => $concurso , 'ID_RONDA' => $ronda];
+			return count($this->get($where,$whereValues)) <= 0;
+		}
+
 	}
 
 	/**
