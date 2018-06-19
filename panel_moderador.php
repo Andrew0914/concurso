@@ -101,12 +101,12 @@
 		<br>
 		<div class="row">
 			<div class="col-md-6">
-				<a href="leer_preguntas" target="_blank" class="btn btn-geo" style="width: 50%">
+				<a href="leer_preguntas" target="_self" class="btn btn-geo" style="width: 50%">
 					Inicar ronda
 				</a>
 			</div>
 			<div class="col-md-6">
-				<a href="#" target="_blank" class="btn btn-geo" style="width: 50%">
+				<a href="#" target="_self" class="btn btn-geo" style="width: 50%">
 					Finalizar ronda
 				</a>
 			</div>

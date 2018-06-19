@@ -48,7 +48,6 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 function initTimerPerSecond(segundos,functionPerSecond, finishFunction){
 	var contador = 1;
 	var timerPerSecond = setInterval(function(){
-		console.log(contador);
 		if((contador % 2) == 0){
 			functionPerSecond();
 		}

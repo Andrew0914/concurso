@@ -19,7 +19,7 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				Has concluido la ronda 1 de la etapa individual, en cuanto todo este listo el moderador dará inicio a la ronda 2.
+				En cuanto todo este listo el moderador dará inicio a la ronda 2 de la etapa individual.
 			</h4>
 		</div>
 	</section>

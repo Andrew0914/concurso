@@ -13,6 +13,7 @@ require_once 'class/util/Route.php';
     $route->add('moderador', '../inicio_moderador.php');
     $route->add('leer_preguntas', '../lanzador_preguntas.php');
     $route->add('tablero', '../tablero.php');
+    $route->add('404', '../404.php');
     
 	$route->submit();
 ?>

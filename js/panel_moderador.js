@@ -58,7 +58,7 @@ function cambiarFinalizarRonda(concurso,rondaActual){
 			function(data, textStatus, xhr) {
 				alert(data.mensaje);
 				if(data.estado == 1){
-					location.reload();
+					window.location.replace('panel');
 				}
 		},'json');
 	}else{

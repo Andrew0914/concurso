@@ -72,11 +72,23 @@
 			return ['estado'=> 0 , 'mensaje'=> 'No se pudo finalizar la ronda'];
 		}
 
-		public function isStartOrFinish($concurso,$ronda){
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND (INICIO = 1 OR FIN = 1)";
+		public function isInProccessOrFinish($concurso,$ronda){
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND FIN = 1";
 			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
 			$rs = $this->get($where,$whereValues);
-			return count($rs) > 0;
+			if(count($rs) > 0){
+				return true;
+			}
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND INICIO = 1";
+			$rs = $this->get($where,$whereValues);
+			if(count($rs) > 0){
+				$query = "SELECT * FROM preguntas_generadas WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND HECHA = 1";
+				$rs = $this->query($query,$whereValues);
+				if(count($rs)> 0 ){
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 	/**
