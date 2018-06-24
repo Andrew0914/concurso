@@ -105,6 +105,7 @@
 			}else{
 				$statement = $this->connection->prepare($query);
 			}
+			
 			if($this->connection->error != null){
 					die ($this->connection->error);
 			}

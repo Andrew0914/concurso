@@ -39,7 +39,18 @@ var Comet = Class.create();
 		return false;
 	 },
 	 handleResponse: function(response){
-		showPregunta(response);
+	 	if(response.TIENE_TURNOS == 1){
+		 	var yoConcursante = document.getElementById("ID_CONCURSANTE").value;
+		 	// si es el turno del concursante se muestra
+		 	if(yoConcursante == response.LAST_TURNO.ID_CONCURSANTE){
+				showPregunta(response);
+		 	}else{
+		 		console.log('No es tu turno ' + yoConcursante);
+		 	}
+	 	}else {
+	 		showPregunta(response);
+	 	}
+	 	
 	 }
   }
 var comet = new Comet();
@@ -79,15 +90,22 @@ function showPregunta(response){
 	contenido += "</div>";
 
 	$jq("#content-respuestas").html(contenido);
-
+	if($jq("#botonera")){
+		$jq("#botonera").show();
+	}
 	var fnSegundo = function(){
-		todosContestaron();
+			todosContestaron();
 	};
 	var fnTermino = function(){
 		sendRespuesta();
 	};
-
-	cronometro(segundos,fnSegundo,fnTermino);
+	if(response.TIENE_TURNOS == 1){
+		var test = function(){};
+		cronometro(segundos,test,fnTermino);
+	}else{
+		cronometro(segundos,fnSegundo,fnTermino);
+	}
+	
 }
 
 /**
@@ -124,7 +142,7 @@ function sendPreRespuestas(){
 			if(data.estado == 0){
 				sendPreRespuestas(idPregunta);
 			}else{
-				console.log(data.mensaje);
+				console.log('Se mando pre respuesta');
 			}
 	},'json');
 }
@@ -191,6 +209,9 @@ function sendRespuesta(){
 				}
 				stopExecPerSecond= true;
 				notFinish = true;
+				if($jq("#botonera")){
+					$jq("#botonera").hide();
+				}
 			  }else{
 				console.log(data.mensaje)
 			  }
@@ -229,6 +250,26 @@ function finalizarRonda(){
   $jq("#PREGUNTA_POSICION").val("");
   // aparecer boton pasar a siguinte ronda
   initListenerCambioRonda(document.getElementById("ID_RONDA").value);
+}
+
+function contestarAhora(){
+	var pregunta = $jq("#ID_PREGUNTA").val();
+	var respuestas = document.getElementsByName("mRespuesta-" + pregunta );
+	console.log(respuestas);
+	var respuesta = '';
+	for (var i = 0, length = respuestas.length; i < length; i++){
+		if (respuestas[i].checked){
+		  respuesta = respuestas[i].value;
+		  break;
+		}
+	}
+	if(respuesta != ''){
+		stopExecPerSecond = true;
+		notFinish = true;
+		sendRespuesta();
+	}else{
+		alert("No has elegido una respuesta para contestar ahora, apresurate el tiempo corre , click en ACEPTAR");
+	}
 }
 
 //cachamos el evento de refresh para evita trampas

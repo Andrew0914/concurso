@@ -77,7 +77,7 @@
 	<script type="text/javascript" src="js/snap.svg-min.js"></script>
 	<script type="text/javascript" src="js/cronometro.js"></script>
 	<script type="text/javascript" src="js/ronda.js"></script>
-	<script type="text/javascript" src="js/individua_ronda1.js"></script>
+	<script type="text/javascript" src="js/mecanica_general.js"></script>
 	<!-- FIN SCRIPTS  -->
 </body>
 </html>

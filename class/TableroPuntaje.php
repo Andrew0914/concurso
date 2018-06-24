@@ -27,6 +27,8 @@
 			return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
 		}
 
+		
+
 		/**
 		 * Genera el punta por la respuesta y condiciones dada
 		 * @param  integer  $concursante 

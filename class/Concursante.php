@@ -78,6 +78,28 @@
 			$valores = ['ID_CONCURSO' => $concurso];
 			return $this->query($sentencia, $valores, true);
 		}
+
+		public function getFirst($concurso){
+			$sentencia = "SELECT * FROM concursantes WHERE ID_CONCURSO = ? ORDER BY CONCURSANTE_POSICION ASC LIMIT 1";
+			$valores = [$concurso];
+			return $this->query($sentencia,$valores)[0];
+		}
+
+		public function getLast($concurso){
+			$sentencia = "SELECT * FROM concursantes WHERE ID_CONCURSO = ? ORDER BY CONCURSANTE_POSICION DESC LIMIT 1";
+			$valores = [$concurso];
+			return $this->query($sentencia,$valores)[0];
+		}
+
+		public function getConcursanteByPosicion($concurso,$posicion){
+			$where = "ID_CONCURSO = ? AND CONCURSANTE_POSICION = ? ";
+			$valores = ['ID_CONCURSO'=>$concurso,"CONCURSANTE_POSICION"=>$posicion];
+			return $this->get($where,$valores)[0];
+		}
+
+		public function getConcursante($id){
+			return $this->find($id);
+		}
 	}
 
 	// POST REQUEST
