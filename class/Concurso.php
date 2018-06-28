@@ -29,6 +29,7 @@
 			$concurso['ID_ETAPA'] = $values['ID_ETAPA'];
 			$concurso['CONCURSO'] = $values['CONCURSO'];
 			$concurso['ID_RONDA'] = $values['ID_RONDA'];
+			$concurso['ID_CATEGORIA'] = $values['ID_CATEGORIA'];
 			// obtenemos la primer ronda de la etapa elegida para el concurso
 			$concurso_insertado = $this->save($concurso);
 			$concursante = new Concursante();
@@ -54,9 +55,11 @@
 				$this->delete(0,$whereDelete,$valuesDelete);
 				return ['estado'=>0,'mensaje'=>'NO se generaron los concursantes de manera correcta'];
 			}
-
+			// se guarda el log de la ronda
 			$rondaLog = new RondasLog();
-			$log = ['ID_CONCURSO'=>$concurso_insertado, 'ID_RONDA'=> $concurso['ID_RONDA']];
+			$log = ['ID_CONCURSO'=>$concurso_insertado, 
+					'ID_RONDA'=> $concurso['ID_RONDA'],
+					'ID_CATEGORIA'=>$concurso['ID_CATEGORIA']];
 			if(!$rondaLog->guardar($log)){
 				$whereDelete = 'ID_CONCURSO = ?';
 				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
@@ -64,16 +67,27 @@
 				$this->delete(0,$whereDelete,$valuesDelete);
 				return ['estado'=>0,'mensaje'=>'NO se genero la ronda'];
 			}
-			
+			// genereamos las preguntas para la categoria con la que abren
+			$generar = new PreguntasGeneradas();
+			if($generar->generaPreguntas($concurso_insertado,$concurso['ID_RONDA'], $concurso['ID_CATEGORIA'])['estado'] == 0){
+				$whereDelete = 'ID_CONCURSO = ?';
+				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
+				$generar->eliminar(0,$whereDelete,$valuesDelete);
+				$log->eliminar(0,$whereDelete,$valuesDelete);
+				$concursante->eliminar(0,$whereDelete,$valuesDelete);
+				$this->delete(0,$whereDelete,$valuesDelete);
+				return ['estado'=>0,'mensaje'=>'NO se generaron las preguntas iniciales'];
+			}
 			// seteamos los valores del courso creado a la sesion
 			$sesion = new Sesion();
 			$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
-							SessionKey::ID_RONDA =>$concurso['ID_RONDA']];
+							SessionKey::ID_RONDA =>$concurso['ID_RONDA'],
+							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'] ];
 			$sesion->setMany($sessionValues);
 
-			return ['estado'=>1,'mensaje'=>'Se genero el concurso y concursantes exitosamente'];
+			return ['estado'=>1,'mensaje'=>'CONCURSO CREADO CON EXITO'];
 		}
 
 		/**
@@ -121,7 +135,8 @@
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
 							SessionKey::ETAPA => $etapa['ETAPA'],
 							SessionKey::RONDA => $ronda['RONDA'],
-							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
+							SessionKey::ID_RONDA => $concurso['ID_RONDA'],
+							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA']];
 				$sesion->setMany($sessionValues);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Acceso al concurso exitoso';

@@ -14,6 +14,8 @@
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
 	$ronda = new Rondas();
 	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
+	$categoria = new Categorias();
+	$categoria = $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
  ?>
 <head>
 	<meta charset="utf-8">
@@ -31,19 +33,16 @@
 		</div>
 		<br>
 		<!-- INFORMACION GENERAL-->
-		<div class="row">
-			<div class="col-md-6">
+		<div class="row" >
+			<div class="col-md-6 sm-text">
 				<b class="monserrat-bold">Concurso:</b> <?php echo $sesion->getOne(SessionKey::CONCURSO); ?>
 				<br>
 				<b class="monserrat-bold">Etapa:</b> <?php echo $etapa['ETAPA']; ?>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-6 sm-text">
+				<b class="monserrat-bold">Categoria:</b> <?php echo $categoria['CATEGORIA']; ?>
+				<br>
 				<b class="monserrat-bold">Ronda elegida:</b> <?php echo $ronda['RONDA']; ?>
-				<br>
-				<button class="btn btn-link btn-sm" style="float: right;" data-toggle="modal" data-target="#mdl-finaliza-ronda">
-					Finalizar y cambiar ronda
-				</button>
-				<br>
 			</div>
 		</div>
 		<hr>
@@ -56,7 +55,7 @@
 					<option value="">Selecciona categoria</option>
 					<?php 
 						$categoria = new Categorias();
-						$categorias = $categoria->getCategorias()['categorias'];
+						$categorias = $categoria->getCategoriasPermitidas($sesion->getOne(SessionKey::ID_RONDA))['categorias'];
 						foreach ($categorias as $cat) {
 							echo "<option value='".$cat['ID_CATEGORIA']."'>" .$cat['CATEGORIA']. "</option>";
 						}

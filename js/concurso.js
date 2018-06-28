@@ -3,17 +3,21 @@
  */
 function generaConcursantes(){
 	var cantidad = $("#CANTIDAD_PARTICIPANTES").val();
-	var concursantesData = "";
-	for(var i=1; i<=cantidad ; i++){
-		concursantesData+= "<tr>";
-		concursantesData+= "<td><input type='text' name='CONCURSANTE[]' class='form-control' placeholder='Concursante'></td>";
-		concursantesData+= "<td><input type='text' name='PASSWORD[]' class='form-control' placeholder='Password'></td>";
-		concursantesData+= "<td><input type='numeric' name='CONCURSANTE_POSICION[]' class='form-control' readonly value='"+i+"'></td>";
-		concursantesData+= "</tr>";
-	}
-	$("#tbl-concursantes tbody").html(concursantesData);
-	$("#btn_generar_concursantes").hide(300);
-	$("#btn_generar_concurso").show(400);
+  if(!isNaN(cantidad)){
+    var concursantesData = "";
+    for(var i=1; i<=cantidad ; i++){
+      concursantesData+= "<tr>";
+      concursantesData+= "<td><input type='text' name='CONCURSANTE[]' class='form-control' placeholder='Concursante'></td>";
+      concursantesData+= "<td><input type='text' name='PASSWORD[]' class='form-control' placeholder='Password'></td>";
+      concursantesData+= "<td><input type='numeric' name='CONCURSANTE_POSICION[]' class='form-control' readonly value='"+i+"'></td>";
+      concursantesData+= "</tr>";
+    }
+    $("#tbl-concursantes tbody").html(concursantesData);
+    $("#btn_generar_concursantes").hide(300);
+    $("#btn_generar_concurso").show(400);
+  }else{
+    alert("Por favor pon una cantidad real de concursantes");
+  }	
 }
 
 /**
@@ -77,5 +81,19 @@ function setRondas(etapa){
         content += "'>" + rondas[d].RONDA + "</option>";
       }
       $("#ID_RONDA").html(content);
+  },'json');
+}
+
+function setCategorias(ronda){
+    var idRonda = ronda.value;
+    $.get('class/Categorias.php?ID_RONDA='+idRonda+"&functionCategorias=getCategoriasPermitidas",
+    function(data) {
+      var categorias = data.categorias;
+      var content = "<option value=''>Selecciona una Categoria para iniciar</option>";
+      for(var d=0; d<categorias.length; d++){
+        content += "<option value='" + categorias[d].ID_CATEGORIA;
+        content += "'>" + categorias[d].CATEGORIA + "</option>";
+      }
+      $("#ID_CATEGORIA").html(content);
   },'json');
 }

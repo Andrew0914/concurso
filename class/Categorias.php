@@ -23,6 +23,26 @@
 			return $response;
 		}
 
+		/**
+		 * Devuelve las categorias permitidas para la ronda
+		 * @param  Integer $ronda 
+		 * @return array
+		 */
+		public function getCategoriasPermitidas($ronda){
+			$rs = ['estado'=>0 , 'mensaje'=>'No se obtuvieron las categorias'];
+			try {
+				$sentencia = "SELECT c.* FROM categorias c INNER JOIN categorias_ronda cr ON c.ID_CATEGORIA = cr.ID_CATEGORIA WHERE cr.ID_RONDA = ?";
+				$valores = ['ID_RONDA'=>$ronda];
+				$rs['categorias'] =  $this->query($sentencia,$valores);
+				$rs['estado']=1;
+				$rs['mensaje']= 'Categorias obtenidas exitosamente'; 
+			} catch (Exception $e) {
+				$rs = ['estado'=>0 , 'mensaje'=>$e->getMessage()];
+			}
+			
+			return $rs;
+		}
+
 		public function getCategoria($id){
 			return $this->find($id);
 		}
@@ -37,6 +57,9 @@
 		switch ($function) {
 			case 'getCategorias':
 				echo json_encode($categoria->getCategorias());
+				break;
+			case 'getCategoriasPermitidas':
+				echo json_encode($categoria->getCategoriasPermitidas($_GET['ID_RONDA']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida Categorias:GET']);
