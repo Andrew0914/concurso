@@ -69,7 +69,7 @@
 			}
 			// genereamos las preguntas para la categoria con la que abren
 			$generar = new PreguntasGeneradas();
-			if($generar->generaPreguntas($concurso_insertado,$concurso['ID_RONDA'], $concurso['ID_CATEGORIA'])['estado'] == 0){
+			if($generar->generaPreguntas($concurso_insertado,$concurso['ID_CATEGORIA'],$concurso['ID_ETAPA'])['estado'] == 0){
 				$whereDelete = 'ID_CONCURSO = ?';
 				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
 				$generar->eliminar(0,$whereDelete,$valuesDelete);

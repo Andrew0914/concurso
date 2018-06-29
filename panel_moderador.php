@@ -64,7 +64,7 @@
 			</div>
 			<div class="col-md-4">
 				<br>
-				<button class="btn-geo" onclick="generaPreguntas(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$ronda['ID_RONDA']; ?>)">
+				<button class="btn-geo" onclick="generaPreguntas(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$ronda['ID_RONDA'].','.$sesion->getOne(SessionKey::ID_ETAPA); ?>)">
 					Generar
 				</button>
 			</div>
@@ -72,42 +72,54 @@
 		<br>
 		<!--  GENERACION DE PREGUNTAS -->
 		<div class="row">
-			<div class="col-md-10 offset-md-1">
-				<table  class="table table-sm table-bordered" id="tbl-generadas">
+			<div class="col-md-12">
+				<table  class="table table-sm table-bordered table-striped" id="tbl-generadas">
 					<thead>
 						<tr>
-							<th>Categoria</th>
-							<th>Preguntas generadas</th>
+							<th>Rondas</th>
+							<th>Geogísica</th>
+							<th>Geolofía</th>
+							<th>Petroleros</th>
+							<th>Generales</th>
 						</tr>
+					</thead>
 						<tbody>
 							<?php 
 								$generadas = new PreguntasGeneradas();
-								$generadas = $generadas->getCantidadGeneradas($sesion->getOne(SessionKey::ID_CONCURSO),  $sesion->getOne(SessionKey::ID_RONDA));
-								foreach ($generadas as $generada) {
-									echo "<tr><td>Geofisica</td><td>".$generada['geofisica']."</td></tr>";
-									echo "<tr><td>Geologia</td><td>".$generada['geologia']."</td></tr>";
-									echo "<tr><td>Petroleras</td><td>".$generada['petroleros']."</td></tr>";
-									echo "<tr><td>Generales</td><td>".$generada['generales']."</td></tr>";
-									$total = $generada['geofisica'] + $generada['geologia'] + $generada['petroleros'] + $generada['generales'];
-									echo "<tr><td>Total</td><td>".$total."</td></tr>";
+								$generadas = $generadas->getCantidadGeneradas($sesion->getOne(SessionKey::ID_ETAPA),  
+									$sesion->getOne(SessionKey::ID_CONCURSO));
+								$contadores = $generadas['contadores'];
+								for ($i=0; $i < count($contadores) ; $i++) { 
+									echo "<tr>";
+									echo "<td>". $contadores[$i]['ronda'] . "</td>";
+									echo "<td>". $contadores[$i]['geofisica'] . "</td>";
+									echo "<td>". $contadores[$i]['geologia'] . "</td>";
+									echo "<td>". $contadores[$i]['petroleros'] . "</td>";
+									echo "<td>". $contadores[$i]['generales'] . "</td>";
+									echo "</tr>";
 								}
-							 ?>	
+							 ?>
 						</tbody>
-					</thead>
 				</table>
-			</div>
-		</div>
-		<br>
-		<div class="row">
-			<div class="col-md-6">
-				<a href="leer_preguntas" target="_self" class="btn btn-geo" style="width: 50%">
-					Inicar ronda
-				</a>
-			</div>
-			<div class="col-md-6">
-				<a href="#" target="_self" class="btn btn-geo" style="width: 50%">
-					Finalizar ronda
-				</a>
+				<table  class="table table-sm table-bordered">
+					<tr>
+					 	<td>
+					 		Elige una categoria a iniciar:&nbsp;&nbsp;&nbsp;&nbsp;
+					 	</td>
+					 	<td>
+					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 	</td>
+					 	<td>
+					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 	</td>
+					 	<td>
+					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 	</td>
+					 	<td>
+					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 	</td>
+					</tr>
+				</table>
 			</div>
 		</div>
 		<!--  GENERACION DE PREGUNTAS -->
@@ -159,38 +171,6 @@
 			</div>
 		</div>
 	</div>
-	<!-- MODAL FIN RONDA-->
-	<div class="modal fade" id="mdl-finaliza-ronda" tabindex="-1" role="dialog" aria-labelledby="mdl-finaliza-rondaLabel" aria-hidden="true">
-	  <div class="modal-dialog modal-md" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title" id="mdl-finaliza-rondaLabel">Cambiar y Finalizar Ronda Actual</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	      	<select name="RONDA_NUEVA" id="RONDA_NUEVA" class="select-geo">
-	      		<option value="">Selecciona la ronda</option>
-	      		<?php 
-	      			$rondasLog = new RondasLog();
-	      			$rondas = $rondasLog->getRondasDisponibles($sesion->getOne(SessionKey::ID_CONCURSO), $sesion->getOne(SessionKey::ID_RONDA), $sesion->getOne(SessionKey::ID_ETAPA))['rondas'];
-      				foreach ($rondas as $ronda) {
-      					echo "<option value='".$ronda['ID_RONDA']."'>".$ronda['RONDA']."</option>";
-      				}
-	      		 ?>
-	      	</select>
-	      </div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-	        <button type="button" class="btn btn-primary" onclick="cambiarFinalizarRonda(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).",".$sesion->getOne(SessionKey::ID_RONDA); ?>)">
-	        	Guardar
-	        </button>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-	<!-- MODAL FIN RONDA-->
 	<!-- SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/bootstrap.js"></script>

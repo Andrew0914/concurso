@@ -16,54 +16,64 @@
 		}
 
 		/**
-		 * Genera las preguntas para la ronda para la cateforia
-		 * @param  [int] $idConcurso  
-		 * @param  [int] $idRonda     
-		 * @param  [int] $idCategoria 
-		 * @return boolean              
+		 * Genera las preguntas  para la cateforia
+		 * @param  integer $idConcurso    
+		 * @param  integer $idCategoria 
+		 * @param integer $etapa
+		 * @return array              
 		 */
-		public function generaPreguntas($idConcurso, $idRonda, $idCategoria){
-			$ronda = new Rondas();
-			$ronda = $ronda->getRonda($idRonda);
-			$regla = new Reglas();
-			$regla = $regla->getReglasByRonda($idRonda)[0];
-			// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
-			$grados = explode(',',$regla['GRADOS']);
+		public function generaPreguntas($idConcurso, $idCategoria,$etapa){
+			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
+			$mensaje ="";
+			$objRonda = new Rondas();
+			$rondas = $objRonda->getRondas($etapa)['rondas'];
+			$objRegla = new Reglas();
 			$valida= 1;
-			if($this->cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria) 
-				>= $ronda['PREGUNTAS_POR_CATEGORIA']){
-				return ['estado'=>0, 
-				'mensaje'=> 'Se han completado la cantidad de preguntas para la categoria: '
-				.$ronda['PREGUNTAS_POR_CATEGORIA']];
-			}
-			if($this->cantidadPreguntasTotal($idConcurso,$idRonda) >= $ronda['CANTIDAD_PREGUNTAS']){
-				return ['estado'=>0, 
-				'mensaje'=> 'Se han completado la cantidad de preguntas para la ronda: '
-				.$ronda['CANTIDAD_PREGUNTAS']];
-			}
-			for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
-				$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
-				$key = array_rand($preguntas);
-				$preguntaAleatoria = $preguntas[$key];
-				while ($this->existePreguntaEnConcursoRonda($idConcurso,$idRonda,
-					$preguntaAleatoria['ID_PREGUNTA'])) {
-					$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
-					$preguntaAleatoria = array_rand($preguntas);
-				}
-				$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
-					, 'ID_CONCURSO' => $idConcurso 
-					, 'ID_RONDA' => $idRonda
-					, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
-					if($this->save($valoresInsert) <= 0){
-						$valida *= 0;
+			foreach ($rondas as $ronda) {
+				if($ronda['IS_DESEMPATE'] == 0){
+					$idRonda = $ronda['ID_RONDA'];
+					$regla = $objRegla->getReglasByRonda($idRonda)[0];
+					// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
+					$grados = explode(',',$regla['GRADOS']);
+					if($this->cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria) 
+						>= $ronda['PREGUNTAS_POR_CATEGORIA']){
+						$mensaje .= 'Se han generado todas las preguntas para la categoria de la ronda '.$idRonda .' ; ';
+						continue;
 					}
+					if($this->cantidadPreguntasTotal($idConcurso,$idRonda) >= $ronda['CANTIDAD_PREGUNTAS']){
+						$mensaje .= 'Se han generado todas las preguntas para  la ronda '.$idRonda .' ; ';
+						continue;
+					}
+					for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
+						$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+						$key = array_rand($preguntas);
+						$preguntaAleatoria = $preguntas[$key];
+						while ($this->existePreguntaEnConcursoRonda($idConcurso,$idRonda,
+							$preguntaAleatoria['ID_PREGUNTA'])) {
+							$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+							$preguntaAleatoria = array_rand($preguntas);
+						}
+						$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
+							, 'ID_CONCURSO' => $idConcurso 
+							, 'ID_RONDA' => $idRonda
+							, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
+							if($this->save($valoresInsert) <= 0){
+								$valida *= 0;
+							}
+					}
+				}
 			}
 			if($valida){
-				return ['estado'=> 1,
-					'mensaje'=>'Se generaron las preguntas',
-					'counts'=> $this->getCantidadGeneradas($idConcurso,$idRonda)];
+				if($mensaje ==''){
+					$mensaje = "GENERACION DE PREGUNTAS EXITOSA !";
+				}
+
+				$rs = ['estado'=> 1,
+					'mensaje'=>$mensaje,
+					'counts'=> $this->getCantidadGeneradas($etapa,$idConcurso)];
 			}
-			return ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
+
+			return $rs;
 		}
 		/**
 		 * Obtiene las preguntas de la categoria y grado de dificultad indicado
@@ -135,7 +145,9 @@
 		 */
 		public function cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria){
 			$query = 'SELECT COUNT(preguntas_generadas.ID_PREGUNTA) as total FROM preguntas_generadas LEFT JOIN preguntas ON preguntas_generadas.ID_PREGUNTA = preguntas.ID_PREGUNTA WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA = ?';
+			
 			$valores = ['ID_CONCURSO'=>$idConcurso , 'ID_RONDA'=> $idRonda, 'ID_CATEGORIA'=>$idCategoria];
+
 			return $this->query($query , $valores, true)[0]['total'];
 		}
 
@@ -145,14 +157,37 @@
 		 * @param  [int] $ronda    
 		 * @return [assoc_array]           
 		 */
-		public function getCantidadGeneradas($concurso,$ronda){
-			$query = "SELECT SUM(CASE WHEN p.ID_CATEGORIA= 1 then 1 else 0 end) geofisica,SUM(CASE WHEN p.ID_CATEGORIA= 2 then 1 else 0 end) geologia,SUM(CASE WHEN p.ID_CATEGORIA= 3 then 1 else 0 end) petroleros,SUM(CASE WHEN p.ID_CATEGORIA= 4 then 1 else 0 end) generales FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA= p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? and pg.ID_RONDA = ?";
+		public function getCantidad($concurso,$ronda){
+			$query = "SELECT r.RONDA AS ronda ,SUM(CASE WHEN p.ID_CATEGORIA= 1 then 1 else 0 end) geofisica,SUM(CASE WHEN p.ID_CATEGORIA= 2 then 1 else 0 end) geologia,SUM(CASE WHEN p.ID_CATEGORIA= 3 then 1 else 0 end) petroleros,SUM(CASE WHEN p.ID_CATEGORIA= 4 then 1 else 0 end) generales FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA= p.ID_PREGUNTA INNER JOIN rondas r ON pg.ID_RONDA = r.ID_RONDA  WHERE pg.ID_CONCURSO = ? and pg.ID_RONDA = ? ";
 
 			$values = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda];
 
 			return $this->query($query,$values);
 		}
 
+		public function getCantidadGeneradas($etapa,$concurso){
+			$rs = ['estado'=>0,'mensaje'=>'No se obtuvieron los contadores'];
+			try {
+				$rondas = new Rondas();
+				$rondas = $rondas->getRondas($etapa);
+				foreach ($rondas['rondas'] as $ronda) {
+					if($ronda['ALIAS'] == 'ind_primer_ronda' || $ronda['ALIAS'] == 'grp_primer_ronda' )
+						$rs['contadores'][0] = $this->getCantidad($concurso, $ronda['ID_RONDA'])[0];
+					if($ronda['ALIAS'] == 'ind_segunda_ronda' || $ronda['ALIAS'] == 'grp_segunda_ronda' )
+						$rs['contadores'][1] = $this->getCantidad($concurso, $ronda['ID_RONDA'])[0];
+					if($ronda['ALIAS'] == 'ind_desempate' || $ronda['ALIAS'] == 'grp_desempate' )
+						$rs['contadores'][2] = $this->getCantidad($concurso, $ronda['ID_RONDA'])[0];
+				}
+				$rs['estado']= 1;
+				$rs['mensaje']='Contadores obtenidos con exito';
+
+			} catch (Exception $e) {
+				$rs['estado']= 0;
+				$rs['mensaje']='No se pudieron obtener los contadores';
+			}
+			
+			return $rs;
+		}
 		/**
 		 * Marca como hecha la pregunta y lanza para que aparezca dicha pregunta al concursante
 		 * @param  [int] $idGenerada 
@@ -230,8 +265,8 @@
 		$genera = new PreguntasGeneradas();
 		switch ($function) {
 			case 'generaPreguntas':
-				echo json_encode($genera->generaPreguntas($_POST['ID_CONCURSO'] 
-					, $_POST['ID_RONDA'] , $_POST['ID_CATEGORIA'] ));
+				echo json_encode($genera->generaPreguntas($_POST['ID_CONCURSO'],
+					$_POST['ID_CATEGORIA'],$_POST['ID_ETAPA'] ));
 				break;
 			case 'lanzarPregunta':
 				echo json_encode($genera->lanzarPregunta($_POST['ID_GENERADA'] ,$_POST['ID_CONCURSO'] 

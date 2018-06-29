@@ -3,7 +3,7 @@
  * @param  {[int]} concurso 
  * @param  {[int]} ronda    
  */
-function generaPreguntas(concurso,ronda){
+function generaPreguntas(concurso,ronda,etapa){
 	var categoria = $("#ID_CATEGORIA").val();
 	if(categoria != ""){
 		$.ajax({
@@ -11,22 +11,21 @@ function generaPreguntas(concurso,ronda){
 			type: 'POST',
 			dataType: 'json',
 			data: {'ID_CONCURSO': concurso,
-					'ID_RONDA':ronda,
 					'ID_CATEGORIA':categoria,
+					'ID_ETAPA':etapa,
 					'functionGeneradas':'generaPreguntas'},
 			success: function(response){
 				if(response.estado==1){
-					var counts = response.counts;
+					var contadores = response.counts.contadores;
 					var contenido="";
-					var total = 0;
-					for(var x=0; x < counts.length ; x++){
-						contenido +="<tr><td>Geofisica</td><td>"+counts[x].geofisica+"</td></tr>";
-						contenido +="<tr><td>Geologia</td><td>"+counts[x].geologia+"</td></tr>";
-						contenido +="<tr><td>Petroleros</td><td>"+counts[x].petroleros+"</td></tr>";
-						contenido +="<tr><td>Generales</td><td>"+counts[x].generales+"</td></tr>";
-						total = (parseInt(counts[x].geofisica) + parseInt(counts[x].geologia) 
-						+ parseInt(counts[x].petroleros) + parseInt(counts[x].generales));
-						contenido +="<tr><td><b>TOTAL</b></td><td>"+total+"</td></tr>";
+					for(var x=0; x < contadores.length ; x++){
+						contenido += "<tr>";
+						contenido += "<td>" + esNull(contadores[x]['ronda']) + "</td>";
+						contenido += "<td>" + esNull(contadores[x]['geofisica']) + "</td>";
+						contenido += "<td>" + esNull(contadores[x]['geologia']) + "</td>";
+						contenido += "<td>" + esNull(contadores[x]['petroleros']) + "</td>";
+						contenido += "<td>" + esNull(contadores[x]['generales'] ) + "</td>";
+						contenido += "</tr>";
 					}
 					$("#tbl-generadas tbody").html(contenido);
 				}
@@ -42,6 +41,12 @@ function generaPreguntas(concurso,ronda){
 	}
 }
 
+function esNull(valor){
+	if(valor === "null" || valor === undefined || valor === null){
+		return '';
+	}
+	return valor;
+}
 /**
  * Cambiar y finaliza la ronda actual
  * @param  {[int]} concurso    
