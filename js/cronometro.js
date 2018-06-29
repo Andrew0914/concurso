@@ -13,7 +13,7 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 	} catch(e) {
 		console.log(e);
 	}
-	$("#cronometro-content").css("display","block");
+	$("#cronometro-content").css("display","flex");
 	$("#animated text").text(segundos);
 	var ms = segundos * 1000;
 	var count = $(('#cronometro'));

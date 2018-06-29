@@ -63,10 +63,10 @@
 			return ['estado'=> 0 , 'mensaje'=> 'No se pudo iniciar la ronda'];
 		}
 
-		public function finalizarRonda(){
+		public function finalizarRondaCategoria($concurso,$ronda,$categoria){
 			$values = ['FIN'=>1];
-			$where = "ID_CONCURSO = ? AND ID_RONDA= ?";
-			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
+			$where = "ID_CONCURSO = ? AND ID_RONDA= ? AND ID_CATEGORIA = ?";
+			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda , 'ID_CATEGORIA'=>$categoria];
 			if($this->update(0, $values, $where, $whereValues))
 				return ['estado'=> 1 , 'mensaje'=> 'Ronda finalizada con exito'];
 			return ['estado'=> 0 , 'mensaje'=> 'No se pudo finalizar la ronda'];
@@ -107,6 +107,35 @@
 		public function eliminar($id,$where,$values){
 			return $this->delete($id, $where, $values);
 		}
+
+		public function siguienteRonda($idConcurso,$categoria){
+			$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ?";
+			$valores = ['ID_CONCURSO'=>$idConcurso, 'ID_CATEGORIA'=>$categoria];
+			$logs = $this->get($where,$valores);
+			$todasFinalizadas = 0;
+			foreach ($logs as $log) {
+				if($log['FIN'] == 0){
+					$sesion = new Sesion();
+					$sesion->setMany([SessionKey::ID_RONDA=>$log['ID_RONDA'],
+									SessionKey::ID_CATEGORIA=>$log['ID_CATEGORIA']]);
+					return ['estado'=>1,'mensaje'=>'Cambio de ronda exitoso'];
+					break;
+				}else{
+					$todasFinalizadas ++;
+				}
+			}
+
+			if($todasFinalizadas == 2){
+				return ['estado'=>2,'mensaje'=>'Terminaron las rondas para la categoria'];
+			}
+			return ['estado'=>0,'mensaje'=>'No se cambio la ronda'];
+		}
+
+		public function rondasTerminadas($concurso){
+			$where = "ID_CONCURSO = ? AND FIN = 0";
+			$valores= ['ID_CONCURSO' => $concurso];
+			return count($this->get($where,$valores)) <= 0;
+		}
 	}
 	/**
 	 * POST REQUESTS
@@ -116,8 +145,8 @@
 		$function = $_POST['functionRondasLog'];
 		$log = new RondasLog();
 		switch ($function) {
-			case 'cambiarFinalizar':
-				echo json_encode($log->cambiarFinalizar($_POST['ID_CONCURSO'],$_POST['RONDA_ACTUAL'] , $_POST['RONDA_NUEVA']));
+			case 'siguienteRonda':
+				echo json_encode($log->siguienteRonda($_POST['ID_CONCURSO'],$_POST['ID_CATEGORIA'] ));
 				break;
 			default:
 				echo  json_encode(['estado'=>0,'Operacion no valida RondasLog:POST']);

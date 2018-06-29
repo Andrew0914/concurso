@@ -164,12 +164,14 @@
 
 			$validaLog= 1;
 			foreach ($rondas as $ronda){
-				if(!$log->guardar(['ID_RONDA'=>$ronda['ID_RONDA'] , 
-								'ID_CATEGORIA'=>$idCategoria, 
-								'ID_CONCURSO'=> $idConcurso,
-								'INICIO'=>1,
-								'FIN'=>0])){
-					$validaLog *= 0;
+				if($ronda['IS_DESEMPATE'] == 0){
+					if(!$log->guardar(['ID_RONDA'=>$ronda['ID_RONDA'] , 
+									'ID_CATEGORIA'=>$idCategoria, 
+									'ID_CONCURSO'=> $idConcurso,
+									'INICIO'=>1,
+									'FIN'=>0])){
+						$validaLog *= 0;
+					}
 				}
 			}
 

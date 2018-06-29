@@ -38,6 +38,7 @@
 		<section class="card-lg">
 			<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>">
 			<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>">
+			<input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="<?php echo $sesion->getOne(SessionKey::ID_CATEGORIA); ?>">
 			<!-- INFORMACION GENERAL-->
 			<div class="row">
 				<div class="col-md-4">
@@ -108,22 +109,23 @@
 					</table>
 				</div>
 				<?php 
-					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda);
+					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
 					if($todasHechas){
+						$log = new RondasLog();
+						if($log->finalizarRondaCategoria($idConcurso,$idRonda,$categoria['ID_CATEGORIA'])['estado']){
 				?> 
-				<div class="row">
-					<div class="col-md-6 centrado">
-						<a href="tablero" class="btn btn-lg btn-geo" target="_self">
-							<u>Ver Puntajes</u>
-						</a>
-					</div>
-					<div class="col-md-6 centrado">
-						<button class="btn btn-link btn-sm" style="float: right;" data-toggle="modal" data-target="#mdl-finaliza-ronda">
-							Finalizar y cambiar ronda
+				<div class="row" style="width: 100%">
+					<div class="col-md-5 offset-md-7 centrado">
+						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
+							Siguiente ->
 						</button>
 					</div>
 				</div>
-				<?php } ?>
+				<?php 
+					} else{
+						echo "Error , no se pudo finalizar la ronda adecuadamente refresca la pagina";
+					}
+						 } ?>
 			</div>
 			<!-- PREGUNTAS GENERADAS-->
 		</section>
@@ -143,7 +145,16 @@
 			        <div class="modal-body">
 			        	<!-- CRONOMETRO -->
 						<div class="row" id="cronometro-content" style="display: none">
-							<div class="col-md-4 offset-md-4 centrado">
+							<!-- HISTOGRAMA -->
+							<div class="col-md-4" id="histograma">
+								2&nbsp;<div style="display:inline-block;width: 20%;background-color: red;height: 15px;border-radius: 5px"></div>
+								<br>
+								5&nbsp;<div style="display:inline-block;width: 50%;background-color: green;height: 15px;border-radius: 5px"></div>
+								<br>
+								3&nbsp;<div style="display:inline-block;width: 30%;background-color: gray;height: 15px;border-radius: 5px"></div>
+							</div>
+							<!-- HISTOGRAMA -->
+							<div class="col-md-4 centrado">
 								<svg id="animated" viewbox="0 0 100 100">
 								  <circle cx="50" cy="50" r="45" fill="#FFF"/>
 								  <path id="progress" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
@@ -158,13 +169,6 @@
 							</div>
 						</div>
 						<!-- CRONOMETRO -->
-						<!-- HISTOGRAMA -->
-						<div class="row">
-							<div class="col-md-4" id="histograma">
-								HISTOGRAMA
-							</div>			
-						</div>
-						<!-- HISTOGRAMA -->
 						<!-- PREGUNTA-->
 			         	<div class="row">
 				          	<div class="col-md-12">
@@ -174,7 +178,13 @@
 			          	</div>
 			          	<!-- PREGUNTA-->
 			          	<!-- RESPUESTAS -->
-			          	<div class="row" id="content-respuestas">
+			          	<br><br>
+			          	<div class="row">
+			          		<div class="col-md-12">
+			          			<table class="table table-bordered table-geo" id="content-respuestas">
+			          				<tbody class="monserrat-bold"></tbody>
+			          			</table>
+			          		</div>
 			          	</div>
 			          	<!-- RESPUESTAS -->
 			        </div>

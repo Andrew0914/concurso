@@ -6,6 +6,7 @@
 	require_once dirname(__FILE__) . '/Categorias.php';
 	require_once dirname(__FILE__) . '/Preguntas.php';
 	require_once dirname(__FILE__) . '/Turnos.php';
+	require_once dirname(__FILE__) . '/Respuestas.php';
 
 	class PreguntasGeneradas extends BaseTable{
 
@@ -16,7 +17,7 @@
 		}
 
 		/**
-		 * Genera las preguntas  para la cateforia
+		 * Genera las preguntas  para la categoria
 		 * @param  integer $idConcurso    
 		 * @param  integer $idCategoria 
 		 * @param integer $etapa
@@ -201,7 +202,7 @@
 		 * @param  [int] $ronda      
 		 * @return [assoc array]             
 		 */
-		public function lanzarPregunta($idGenerada,$concurso,$idRonda){
+		public function lanzarPregunta($idGenerada,$concurso,$idRonda,$idCategoria){
 			//objeto del a ronda 
 			$ronda = new Rondas();
 			$ronda = $ronda->getRonda($idRonda);
@@ -220,8 +221,8 @@
 			if(!$this->update($idGenerada , $values))
 				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
 			// la ponemos como lanzada para que sea la que aparezca al participante
-			$sentancia  = "SELECT * FROM preguntas_generadas WHERE ID_CONCURSO =? AND ID_RONDA = ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
-			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda];
+			$sentancia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda , 'ID_CATEGORIA'=>$idCategoria];
 			$result = $this->query($sentancia, $valores);
 			// si no hay lanzadas ponemos la primera en 1
 			if(count($result) <= 0){
@@ -230,19 +231,22 @@
 					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
 			}else{
 				// si ya se lanzaron previamente otras
-				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas WHERE ID_CONCURSO = ? AND ID_RONDA =?";
+				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ?";
 				$rs = $this->query($otraSentencia, $valores);
 				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
 				if(!$this->update($idGenerada , $values))
 					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
 			}
-			
-			return ['estado'=> 1 , 'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'];
+			$objRespuesta = new Respuestas();
+			$respuestas = $objRespuesta->getRespuestasByPregunta($this->find($idGenerada)['ID_PREGUNTA']);
+			return ['estado'=> 1 , 
+				'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'
+				,'respuestas'=>$respuestas];
 		}
 
-		public function ultimaLanzada($concurso,$ronda){
-			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
-			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
+		public function ultimaLanzada($concurso,$ronda,$categoria){
+			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda, 'ID_CATEGORIA'=>$categoria];
 			$result = $this->query($sentancia, $valores);
 
 			return $result;
@@ -252,12 +256,13 @@
 		 * Verifica que todas las preguntas generadas para el concurso y la ronda esten hechas
 		 * @param  integer $concurso 
 		 * @param  integer $ronda    
+		 * @param integer $categoria
 		 * @return boolean           
 		 */
-		public function todasHechas($concurso,$ronda){
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND HECHA  = 0";
-			$whereValues = ['ID_CONCURSO' => $concurso , 'ID_RONDA' => $ronda];
-			return count($this->get($where,$whereValues)) <= 0;
+		public function todasHechas($concurso,$ronda,$categoria){
+			$sentencia = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA= ? AND HECHA  = 0";
+			$whereValues = ['ID_CONCURSO' => $concurso , 'ID_RONDA' => $ronda, 'ID_CATEGORIA'=>$categoria];
+			return count($this->query($sentencia,$whereValues)) <= 0;
 		}
 
 	}
@@ -275,7 +280,7 @@
 				break;
 			case 'lanzarPregunta':
 				echo json_encode($genera->lanzarPregunta($_POST['ID_GENERADA'] ,$_POST['ID_CONCURSO'] 
-					, $_POST['ID_RONDA']));
+					, $_POST['ID_RONDA'],$_POST['ID_CATEGORIA']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida PreguntasGeneradas:POST']);

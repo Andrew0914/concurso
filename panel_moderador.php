@@ -5,6 +5,7 @@
 	require_once 'class/Categorias.php';
 	require_once 'class/Concursante.php';
 	require_once 'class/PreguntasGeneradas.php';
+	require_once 'class/RondasLog.php';
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
 	$sesion = new Sesion();
@@ -41,6 +42,22 @@
 		</div>
 		<hr>
 		<!-- TERMINA INFORMACION GENERAL -->
+		<!-- PUNTAJES SI ES EL CASO-->
+		<?php 
+			$log = new RondasLog();
+			if($log->rondasTerminadas($sesion->getOne(SessionKey::ID_CONCURSO))){
+		?>
+		<br>
+		<div class="row">
+			<div class="col-md-12 centrado">
+				<a href="tablero" class="btn btn-block btn-geo" target="_self">
+					<h5 class="monserrat-bold">Ver Puntajes</h5>
+				</a>
+			</div>
+		</div>
+		<br>
+		<?php } ?>
+		<!-- PUNTAJES SI ES EL CASO-->
 		<!--  GENERACION DE PREGUNTAS -->
 		<div class="row">
 			<div class="col-md-8">
@@ -166,13 +183,6 @@
 			</form>
 		</div>
 		<!-- SALIR SESION-->
-		<div class="row">
-			<div class="col-md-12 centrado">
-				<a href="tablero" class="btn btn-sm btn-link" target="_blank">
-					<u>Ver Puntajes</u>
-				</a>
-			</div>
-		</div>
 	</div>
 	<!-- SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>

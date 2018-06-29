@@ -3,7 +3,7 @@
  * @param  {[int]} concurso 
  * @param  {[int]} ronda    
  */
-function generaPreguntas(concurso,ronda,etapa){
+function generaPreguntas(concurso,etapa){
 	var categoria = $("#ID_CATEGORIA").val();
 	if(categoria != ""){
 		$.ajax({

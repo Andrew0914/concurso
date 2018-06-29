@@ -21,13 +21,15 @@ function lanzarPregunta(segundos,boton){
 	var generada = $("#ID_GENERADA").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
+    var categoria = $("#ID_CATEGORIA").val();
 	$.ajax({
 		type : 'POST',
         url  : 'class/PreguntasGeneradas.php',
         data :{'functionGeneradas':'lanzarPregunta',
     			'ID_GENERADA':generada,
     			'ID_CONCURSO':concurso,
-    			'ID_RONDA':ronda},
+    			'ID_RONDA':ronda,
+                'ID_CATEGORIA':categoria},
         dataType: "json",
         success : function(response){
         	if(response.estado == 1){
@@ -39,7 +41,13 @@ function lanzarPregunta(segundos,boton){
                     stopExecPerSecond= true;
                     getMarcadorPregunta();
                 });
-
+                var respuestas = response.respuestas;
+                var contenido = "<tr>";
+                for(var r = 0; r < respuestas.length; r++){
+                    contenido += "<td><h4>" + respuestas[r].INCISO + " ) "+ respuestas[r].RESPUESTA + "</h4></td>";
+                }
+                contenido += "</tr>";
+                $("#content-respuestas tbody").html(contenido);
         	}else{
         		alert(response.mensaje);
         	}
@@ -118,6 +126,31 @@ function getMarcadorPregunta(){
         },
         error:function(error){}
     });
+}
+
+function siguienteRonda(){
+    var concurso = $("#ID_CONCURSO").val();
+    var categoria = $("#ID_CATEGORIA").val();
+    $.ajax({
+        url: 'class/RondasLog.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {'ID_CONCURSO': concurso , 'ID_CATEGORIA': categoria , 'functionRondasLog':'siguienteRonda'},
+        success:function(response){
+            if(response.estado == 1 ){
+                location.reload();
+            }else if(response.estado == 2){
+                alert(response.mensaje);
+                window.location.replace('panel');
+            }else{
+                alert(response.mensaje);
+            }
+        },
+        error:function(error){
+            alert("ERROR");
+            console.log(error);
+        }
+    })
 }
 
 $(document).ready(function(){
