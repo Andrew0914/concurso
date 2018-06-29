@@ -29,7 +29,7 @@
 		<form id="form-genera-concurso" class="form-group centrado">
 			<input type="text" class="form-control" id="CONCURSO" name="CONCURSO" placeholder="Nombre del concurso">
 			<br>
-			<select id="ID_ETAPA" name="ID_ETAPA" class="select-geo" onchange="setRondas(this)">
+			<select id="ID_ETAPA" name="ID_ETAPA" class="select-geo" onchange="setCategorias(this)">
 				<option value="">Selecciona una etapa de concurso</option>>
 				<?php 
 					$etapas = new Etapas();
@@ -38,10 +38,6 @@
 						echo "<option value='".$etapa['ID_ETAPA']."'>".$etapa['ETAPA'] . "</option>";
 					}
 				 ?>
-			</select>
-			<br>
-			<select id="ID_RONDA" name="ID_RONDA" class="select-geo" onchange="setCategorias(this)">
-				<option value=''>Selecciona una ronda</option>
 			</select>
 			<br>
 			<select id="ID_CATEGORIA" name="ID_CATEGORIA" class="select-geo">

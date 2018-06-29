@@ -41,12 +41,18 @@ function generaPreguntas(concurso,ronda,etapa){
 	}
 }
 
+/**
+ * Funciaon para verificar si un campo es null y no pintar 'null'
+ * @param  object valor 
+ * @return object
+ */
 function esNull(valor){
 	if(valor === "null" || valor === undefined || valor === null){
 		return '';
 	}
 	return valor;
 }
+
 /**
  * Cambiar y finaliza la ronda actual
  * @param  {[int]} concurso    
@@ -69,4 +75,30 @@ function cambiarFinalizarRonda(concurso,rondaActual){
 	}else{
 		alert("Elige una ronda");
 	}
+}
+
+/**
+ * Inicia las preguntas para la categoria elegida
+ * @param  integer categoria 
+ * @param  integer concurso  
+ * @param  integer etapa     
+ */
+function iniciarCategoria(categoria,concurso){
+	$.ajax({
+		url: 'class/Concurso.php',
+		type: 'POST',
+		dataType: 'json',
+		data: {'ID_CONCURSO':concurso, 'ID_CATEGORIA' : categoria, 'functionConcurso':'iniciarCategoriaRonda' },
+		success: function(response){
+			if(response.estado == 1){
+				window.location.replace('leer_preguntas');
+			}else{
+				alert(response.mensaje);
+			}
+		},
+		error: function(xhr , text , error){
+			console.log(error);
+			alert("Ocurrio error inesperado: " + text);
+		}
+	});
 }

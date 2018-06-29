@@ -75,6 +75,7 @@
 
 			return $rs;
 		}
+
 		/**
 		 * Obtiene las preguntas de la categoria y grado de dificultad indicado
 		 * @param  integer $categoria 
@@ -106,9 +107,14 @@
 		 * @param  [int] $ronda    
 		 * @return [assoc array]           
 		 */
-		public function getPreguntasByConcursoRonda($concurso,$ronda){
-			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,pg.ID_GENERADA,pg.LANZADA,pg.HECHA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_RONDA = ? AND ID_CONCURSO = ? ";
-            $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
+		public function getPreguntasByConcursoRonda($concurso,$ronda,$categoria){
+			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,
+				pg.ID_GENERADA,pg.LANZADA,pg.HECHA,g.*,c.*
+				FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
+				INNER JOIN grados_dificultad g ON p.ID_GRADO = g.ID_GRADO
+				INNER JOIN categorias c ON p.ID_CATEGORIA = c.ID_CATEGORIA
+				WHERE ID_RONDA = ? AND ID_CONCURSO = ? AND p.ID_CATEGORIA = ?";
+            $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso,'ID_CATEGORIA'=>$categoria);
 			return $this->query($query,$values);
 		}
 
@@ -233,7 +239,6 @@
 			
 			return ['estado'=> 1 , 'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'];
 		}
-
 
 		public function ultimaLanzada($concurso,$ronda){
 			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";

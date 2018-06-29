@@ -25,14 +25,14 @@
 
 		/**
 		 * Devuelve las categorias permitidas para la ronda
-		 * @param  Integer $ronda 
+		 * @param  Integer $etapa 
 		 * @return array
 		 */
-		public function getCategoriasPermitidas($ronda){
+		public function getCategoriasPermitidas($etapa){
 			$rs = ['estado'=>0 , 'mensaje'=>'No se obtuvieron las categorias'];
 			try {
-				$sentencia = "SELECT c.* FROM categorias c INNER JOIN categorias_ronda cr ON c.ID_CATEGORIA = cr.ID_CATEGORIA WHERE cr.ID_RONDA = ?";
-				$valores = ['ID_RONDA'=>$ronda];
+				$sentencia = "SELECT c.* FROM categorias c INNER JOIN categorias_etapa ce ON c.ID_CATEGORIA = ce.ID_CATEGORIA WHERE ce.ID_ETAPA = ?";
+				$valores = ['ID_ETAPA'=>$etapa];
 				$rs['categorias'] =  $this->query($sentencia,$valores);
 				$rs['estado']=1;
 				$rs['mensaje']= 'Categorias obtenidas exitosamente'; 
@@ -59,7 +59,7 @@
 				echo json_encode($categoria->getCategorias());
 				break;
 			case 'getCategoriasPermitidas':
-				echo json_encode($categoria->getCategoriasPermitidas($_GET['ID_RONDA']));
+				echo json_encode($categoria->getCategoriasPermitidas($_GET['ID_ETAPA']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida Categorias:GET']);

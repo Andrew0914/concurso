@@ -84,9 +84,9 @@ function setRondas(etapa){
   },'json');
 }
 
-function setCategorias(ronda){
-    var idRonda = ronda.value;
-    $.get('class/Categorias.php?ID_RONDA='+idRonda+"&functionCategorias=getCategoriasPermitidas",
+function setCategorias(etapa){
+    var idEtapa = etapa.value;
+    $.get('class/Categorias.php?ID_ETAPA='+idEtapa+"&functionCategorias=getCategoriasPermitidas",
     function(data) {
       var categorias = data.categorias;
       var content = "<option value=''>Selecciona una Categoria para iniciar</option>";

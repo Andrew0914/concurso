@@ -91,6 +91,19 @@
 			return false;
 		}
 
+		/**
+		 * Devuelve true si ya termino la ronda de la categoria
+		 * @param  [type] $concurso  [description]
+		 * @param  [type] $categoria [description]
+		 * @return [type]            [description]
+		 */
+		public function rondaCategoriaFinish($concurso,$categoria){
+			$sentencia = "SELECT l.* FROM rondas_log l INNER JOIN rondas r ON l.ID_RONDA = r.ID_RONDA 
+							WHERE r.IS_DESEMPATE = 0 AND l.ID_CONCURSO = ? AND ID_CATEGORIA = ? AND FIN = 1";
+			$valores = ['ID_CONCURSO'=>$concurso, 'ID_CATEGORIA' => $categoria];
+			return count($this->query($sentencia, $valores)) == 2 ;
+		}
+
 		public function eliminar($id,$where,$values){
 			return $this->delete($id, $where, $values);
 		}

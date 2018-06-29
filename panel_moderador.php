@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html>
 <?php 
-	require_once 'class/Rondas.php';
 	require_once 'class/Etapas.php';
 	require_once 'class/Categorias.php';
 	require_once 'class/Concursante.php';
-	require_once 'class/RondasLog.php';
 	require_once 'class/PreguntasGeneradas.php';
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
 	$sesion = new Sesion();
 	$etapa = new Etapas();
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
-	$ronda = new Rondas();
-	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
 	$categoria = new Categorias();
 	$categoria = $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
  ?>
@@ -41,8 +37,6 @@
 			</div>
 			<div class="col-md-6 sm-text">
 				<b class="monserrat-bold">Categoria:</b> <?php echo $categoria['CATEGORIA']; ?>
-				<br>
-				<b class="monserrat-bold">Ronda elegida:</b> <?php echo $ronda['RONDA']; ?>
 			</div>
 		</div>
 		<hr>
@@ -55,7 +49,7 @@
 					<option value="">Selecciona categoria</option>
 					<?php 
 						$categoria = new Categorias();
-						$categorias = $categoria->getCategoriasPermitidas($sesion->getOne(SessionKey::ID_RONDA))['categorias'];
+						$categorias = $categoria->getCategoriasPermitidas($sesion->getOne(SessionKey::ID_ETAPA))['categorias'];
 						foreach ($categorias as $cat) {
 							echo "<option value='".$cat['ID_CATEGORIA']."'>" .$cat['CATEGORIA']. "</option>";
 						}
@@ -64,7 +58,7 @@
 			</div>
 			<div class="col-md-4">
 				<br>
-				<button class="btn-geo" onclick="generaPreguntas(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$ronda['ID_RONDA'].','.$sesion->getOne(SessionKey::ID_ETAPA); ?>)">
+				<button class="btn-geo" onclick="generaPreguntas(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_ETAPA); ?>)">
 					Generar
 				</button>
 			</div>
@@ -105,18 +99,27 @@
 					<tr>
 					 	<td>
 					 		Elige una categoria a iniciar:&nbsp;&nbsp;&nbsp;&nbsp;
+
 					 	</td>
 					 	<td>
-					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(1,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
+					 			Iniciar
+					 		</button>
 					 	</td>
 					 	<td>
-					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(2,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
+					 			Iniciar
+					 		</button>
 					 	</td>
 					 	<td>
-					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(3,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
+					 			Iniciar
+					 		</button>
 					 	</td>
 					 	<td>
-					 		<button class="btn btn-sm btn-geo">Iniciar</button>
+					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(4,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
+					 			Iniciar
+					 		</button>
 					 	</td>
 					</tr>
 				</table>
@@ -174,6 +177,7 @@
 	<!-- SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/bootstrap.js"></script>
+	<script type="text/javascript" src="js/ronda.js"></script>
 	<script type="text/javascript" src="js/panel_moderador.js"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@
 		require_once 'class/Rondas.php';
 		require_once 'class/Etapas.php';
 		require_once 'class/RondasLog.php';
+		require_once 'class/Categorias.php';
 		$sesion = new Sesion();
 		$generadas = new PreguntasGeneradas();
 		$etapa = new Etapas();
@@ -17,6 +18,8 @@
 		$segundosPorPregunta = $ronda['SEGUNDOS_POR_PREGUNTA'];
 		$idConcurso = $sesion->getOne(SessionKey::ID_CONCURSO);
 		$idRonda = $sesion->getOne(SessionKey::ID_RONDA);
+		$categoria = new Categorias();
+		$categoria= $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
 		// iniciamos la ronda
 		$log = new RondasLog();
 		if(!$log->iniciarRonda($idConcurso,$idRonda)){
@@ -49,6 +52,8 @@
 					<b class="monserrat-bold">Etapa:</b> <?php echo $etapa['ETAPA']; ?>
 				</div>
 				<div class="col-md-6">
+					<b class="monserrat-bold">Categoria elegida:</b> <?php echo $categoria['CATEGORIA']; ?>
+					<br>
 					<b class="monserrat-bold">Ronda elegida:</b> <?php echo $ronda['RONDA']; ?>
 				</div>
 			</div>
@@ -72,23 +77,28 @@
 							<tr>
 								<th>#Pregunta</th>
 								<th>Pregunta</th>
-								<th>Acciones</th>
+								<th>Dificultad</th>
+								<th>Puntaje</th>
+								<th>&nbsp;</th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php 
-								$preguntas = $generadas->getPreguntasByConcursoRonda($idConcurso,$idRonda);
+								$preguntas = $generadas->getPreguntasByConcursoRonda($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
 								$onclick = "";
 								foreach ($preguntas as $pregunta) {
-									echo "<tr>";
+									echo "<tr class='monserrat-bold'>";
 									echo "<td>" . $pregunta['PREGUNTA_POSICION']. "</td>";
-									echo "<td>" . $pregunta['PREGUNTA']. "</td>";
+									echo "<td>" . $pregunta['CATEGORIA']. "</td>";
+									echo  "<td>".$pregunta['DIFICULTAD'] ."</td>";
+									echo "<td>". $pregunta['PUNTAJE']."</td>";
 									$onclick = " onclick='leer(\"".addslashes ($pregunta['PREGUNTA'])."\",";
 									$onclick .= $pregunta['ID_PREGUNTA']. ",";
+									$onclick .= $pregunta['PUNTAJE']. ",";
 									$onclick .= $pregunta['ID_GENERADA'].")'"; 
-									$button = "<td><button class='btn-geo'".$onclick.">Leer</button></td>";
+									$button = "<td class='centrado'><button class='btn-geo'".$onclick.">Leer</button></td>";
 									if($pregunta['HECHA'] == 1){
-										$button= "<td><button class='btn btn-sm btn-dark'>HECHA</button></td>";
+										$button= "<td class='centrado'><button class='btn btn-sm btn-dark'>HECHA</button></td>";
 									}
 									echo $button;
 									echo  "</tr>";
@@ -118,21 +128,22 @@
 			<!-- PREGUNTAS GENERADAS-->
 		</section>
 		<!--MODAL LEER-->
-		<div class="modal fade" id="mdl-leer-pregunta" role="dialog">
-		    <div class="modal-dialog modal-lg">
+		<div id="mdl-leer-pregunta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		    <div class="modal-dialog modal-full" role="document">
 		    	<div class="modal-content blanco">
-		        	<div class="modal-header">
-			          	<h5 class="modal-title">Leer pregunta</h5>
-		        	</div>
+		    		<div class="modal-header">
+		    			<div class="row" style="width:100%">
+		    				<div class="col-md-4 offset-md-8">
+		    					<h3 id="titulo_modal" class="modal-title monserrat-bold" style="float: right;">
+						          	Leer pregunta
+						        </h3>
+		    				</div>
+		    			</div>
+				    </div>
 			        <div class="modal-body">
-			         	<div class="row">
-				          	<div class="col-md-12">
-				          		<h4 id="p-pregunta" class="monserrat-bold centrado"></h4>
-				          	</div>
-			          	</div>
-			          <!-- CRONOMETRO -->
+			        	<!-- CRONOMETRO -->
 						<div class="row" id="cronometro-content" style="display: none">
-							<div class="col-md-8 offset-md-2 centrado">
+							<div class="col-md-4 offset-md-4 centrado">
 								<svg id="animated" viewbox="0 0 100 100">
 								  <circle cx="50" cy="50" r="45" fill="#FFF"/>
 								  <path id="progress" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
@@ -147,32 +158,34 @@
 							</div>
 						</div>
 						<!-- CRONOMETRO -->
-						<!-- MARCADOR PARA LA PREGUNTA ACTUAL-->
-						<br>
+						<!-- HISTOGRAMA -->
 						<div class="row">
-				          	<div class="col-md-10 offset-md-1 centrado">
-				          		<table class="table table-sm table-geo" id="tbl-marcador-pregunta" style="display: none">
-									<thead>
-										<tr>
-											<th>Concursante</th>
-											<th>Resultado</th>
-										</tr>
-									</thead>
-									<tbody>
-									</tbody>
-								</table>
+							<div class="col-md-4" id="histograma">
+								HISTOGRAMA
+							</div>			
+						</div>
+						<!-- HISTOGRAMA -->
+						<!-- PREGUNTA-->
+			         	<div class="row">
+				          	<div class="col-md-12">
+				          		<br><br>
+				          		<h2 id="p-pregunta" class="monserrat-bold centrado"></h2>
 				          	</div>
 			          	</div>
-						<!-- MARCADOR PARA LA PREGUNTA ACTUAL-->
+			          	<!-- PREGUNTA-->
+			          	<!-- RESPUESTAS -->
+			          	<div class="row" id="content-respuestas">
+			          	</div>
+			          	<!-- RESPUESTAS -->
 			        </div>
 			        <div class="modal-footer">
 			        	<form id="form-lanzar">
 			        		<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA">
 			        		<input type="hidden" id="ID_GENERADA" name="ID_GENERADA">
-			        		<button type="button" class="btn btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>,this)" id='btn-lanzar'>
+			        		<button type="button" class="btn btn-lg btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>,this)" id='btn-lanzar'>
 			        			Lanzar pregunta
 		        			</button>
-		        			<button type="button" class="btn btn-geo" onclick="location.reload();" id="btn-siguiente" style="display: none;">
+		        			<button type="button" class="btn btn-lg btn-geo" onclick="location.reload();" id="btn-siguiente" style="display: none;">
 			        			Siguiente
 		        			</button>
 			        	</form>
@@ -181,38 +194,16 @@
 		    </div>
 		</div>
 		<!--MODAL LEER-->
-		<!-- MODAL FIN RONDA-->
-		<div class="modal fade" id="mdl-finaliza-ronda" tabindex="-1" role="dialog" aria-labelledby="mdl-finaliza-rondaLabel" aria-hidden="true">
-		  <div class="modal-dialog modal-md" role="document">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <h5 class="modal-title" id="mdl-finaliza-rondaLabel">Cambiar y Finalizar Ronda Actual</h5>
-		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		          <span aria-hidden="true">&times;</span>
-		        </button>
-		      </div>
-		      <div class="modal-body">
-		      	<select name="RONDA_NUEVA" id="RONDA_NUEVA" class="select-geo">
-		      		<option value="">Selecciona la ronda</option>
-		      		<?php 
-		      			$rondasLog = new RondasLog();
-		      			$rondas = $rondasLog->getRondasDisponibles($sesion->getOne(SessionKey::ID_CONCURSO), $sesion->getOne(SessionKey::ID_RONDA), $sesion->getOne(SessionKey::ID_ETAPA))['rondas'];
-	      				foreach ($rondas as $ronda) {
-	      					echo "<option value='".$ronda['ID_RONDA']."'>".$ronda['RONDA']."</option>";
-	      				}
-		      		 ?>
-		      	</select>
-		      </div>
-		      <div class="modal-footer">
-		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-		        <button type="button" class="btn btn-primary" onclick="cambiarFinalizarRonda(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).",".$sesion->getOne(SessionKey::ID_RONDA); ?>)">
-		        	Guardar
-		        </button>
-		      </div>
-		    </div>
-		  </div>
-		</div>
-		<!-- MODAL FIN RONDA-->
+		<style type="text/css">
+			.modal-full {
+			    min-width: 100%;
+			    margin: 0;
+			}
+
+			.modal-full .modal-content {
+			    min-height: 100vh;
+			}
+		</style>
 		<!-- SCRIPt-->
 		<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="js/libs/bootstrap.js"></script>

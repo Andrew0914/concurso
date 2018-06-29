@@ -4,9 +4,11 @@
  * @param  {[int]} idPregunta 
  * @param  {[int]} idGenerada 
  */
-function leer(pregunta,idPregunta, idGenerada){
+function leer(pregunta,idPregunta,puntaje, idGenerada){
     $("#mdl-leer-pregunta").modal({backdrop: 'static', keyboard: false});
+    $("#mdl-leer-pregunta").css("padding","1px");
     $("#p-pregunta").text(pregunta);
+    $("#titulo_modal").text(" Valor de la pregunta: "+ puntaje);
     $("#ID_PREGUNTA").val(idPregunta);
     $("#ID_GENERADA").val(idGenerada);
 }
