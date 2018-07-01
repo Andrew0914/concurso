@@ -1,6 +1,8 @@
 <?php
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/Concurso.php';
+	require_once dirname(__FILE__) . '/Rondas.php';
+	require_once dirname(__FILE__) . '/Categorias.php';
 	require_once dirname(__FILE__) . '/util/Sesion.php';
 	require_once dirname(__FILE__) . '/util/SessionKey.php';
 
@@ -131,10 +133,45 @@
 			return ['estado'=>0,'mensaje'=>'No se cambio la ronda'];
 		}
 
-		public function rondasTerminadas($concurso){
-			$where = "ID_CONCURSO = ? AND FIN = 0";
-			$valores= ['ID_CONCURSO' => $concurso];
-			return count($this->get($where,$valores)) <= 0;
+		/**
+		 * Verifica si absolutamente todas las rodas(no sempate) para las categorias esten terminadas
+		 * @param  integer $idConcurso 
+		 * @return boolean             
+		 */
+		public function rondasTerminadas($idConcurso){
+			// obtenemos la etapa del concurso sus rondas y categorias permitidas
+			$concurso = new Concurso();
+			$concurso = $concurso->getConcurso($idConcurso);
+			$ronda = new Rondas();
+			$rondas = $ronda->getRondas($concurso['ID_ETAPA'])['rondas'];
+			$categorias = new Categorias();
+			$categorias = $categorias->getCategoriasPermitidas($concurso['ID_ETAPA'])['categorias'];
+			$totales = 0;
+			$finalizadas = 0;
+			//iteramos categorias y ronda de de cada una
+			foreach ($categorias as $cat) {
+				foreach ($rondas as $ronda) {
+					if($ronda['IS_DESEMPATE'] == 0){
+						$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ? AND ID_RONDA = ?";
+						$valores = ['ID_CONCURSO' => $idConcurso 
+									, 'ID_CATEGORIA' => $cat['ID_CATEGORIA']
+									, 'ID_RONDA' => $ronda['ID_RONDA']];
+						$rs = $this->get($where , $valores);
+						// si no arroja resultado para CONCURSO & CATEGORIA & RONDA
+						// quiere decir que ni siquiera ha sido lanzada entonces no an terminado las rondas
+						if(count($rs) <= 0){
+							return false;
+						}
+						// contador si finalizo
+						if($rs[0]['FIN'] == 1){
+							$finalizadas++;
+						}
+						//contabilizad todas
+						$totales++;
+					}
+				}
+			}
+			return $totales == $finalizadas;
 		}
 	}
 	/**

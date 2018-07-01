@@ -5,8 +5,10 @@
 	require_once 'class/util/SessionKey.php';
 	require_once 'class/Concurso.php';
 	require_once 'class/TableroPuntaje.php';
+	$concurso = new Concurso();
 	$sesion = new Sesion();
 	$tablero = new TableroPuntaje();
+	$concurso = $concurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
  ?>
 <head>
 	<meta charset="utf-8">
@@ -19,59 +21,24 @@
 	<section class="centrado">
 		<br>
 		<div class="row">
-			<div class="col-md-4 offset-md-8">
-				<button class="btn btn-geo btn-sm" style="float: right;" data-toggle="modal" data-target="#mdl-finaliza-ronda">
-					Finalizar y cambiar ronda
+			<div class="col-md-2 offset-md-10">
+				<button class="btn btn-geo btn-block" id="btnObtenerPuntaje" onclick="location.reload();" >
+					Actualizar tablero 
 				</button>
 			</div>
 		</div>
 		<h1 class="title">
-			Concurso: <?php  echo $sesion->getOne(SessionKey::CONCURSO); ?>
+			Concurso: <?php  echo $concurso['CONCURSO']; ?>
 		</h1>
-		<h4 class="title"> 
-			<b>Etapa:</b> <?php  echo $sesion->getOne(SessionKey::ETAPA); ?> &nbsp;&nbsp; 
-			<b>Ronda:</b> <?php  echo $sesion->getOne(SessionKey::RONDA); ?>	
+		<h4>
+			Inicio : <?php echo $concurso['FECHA_INICIO']; ?>
 		</h4>
 		<br>
 		<!-- TABLERO PUNTAJE -->
 		<div class="row">
-			<div class="col-md-7">
-				<div style="max-height: 360px;overflow-y: scroll;" id="divtablero">
-					<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%;">
-						<thead>
-							<tr>
-								<th>Concursante</th>
-								<th># Pregunta</th>
-								<th>Respuesta</th>
-								<th>Paso</th>
-								<th>Puntaje</th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php 
-								$response = $tablero->getTableroDisplay($sesion->getOne(SessionKey::ID_CONCURSO),$sesion->getOne(SessionKey::ID_RONDA));
-								$tableros = $response['tablero'];
-								foreach ($tableros as $tab) {
-									echo "<tr>";
-									echo "<td>" . $tab['CONCURSANTE'] . '</td>';
-									echo "<td>".$tab['PREGUNTA_POSICION'].'</td>';
-									echo "<td><b>".$tab['INCISO'].')&nbsp;</b>';
-									if($tab['ES_IMAGEN'] == 1){
-										echo '<img src="image/respuestas/'.$tab['RESPUESTA'].'"></td>';;
-									}else{	
-										echo $tab['RESPUESTA'].'</td>';
-									}
-									echo "<td>".$tab['PASO_PREGUNTA'].'</td>';
-									echo "<td>".$tab['PUNTAJE'].'</td>';
-									echo "</tr>";	
-								}
-							 ?>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="col-md-5">
-				<div style="max-height: 360px;overflow-y: scroll;" id="divmejores">
+			<div class="col-md-12">
+				<!-- TABERO FINAL / PUNTUACIONES GENERALES-->
+				<div id="divmejores">
 					<table class="table table-bordered table-geo" id="tbl-mejores" style="width: 100%;">
 						<thead>
 							<tr>
@@ -104,51 +71,60 @@
 						</tbody>
 					</table>
 				</div>
+				<!-- TABERO FINAL / PUNTUACIONES GENERALES-->
+				<button class="btn btn-lg btn-geo" onclick="mostrarResumen()">
+					Ver Resumen Global de Puntaciones
+				</button>
+				<br>
+				<!-- TABLERO DE RESUMEN DETALLADO-->
+				<div id="divtablero" style="display: none;">
+					<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%;">
+						<thead>
+							<tr>
+								<th>Concursante</th>
+								<th># Pregunta</th>
+								<th>Respuesta</th>
+								<th>Paso</th>
+								<th>Puntaje</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+								$response = $tablero->getTableroDisplay($sesion->getOne(SessionKey::ID_CONCURSO),$sesion->getOne(SessionKey::ID_RONDA));
+								$tableros = $response['tablero'];
+								foreach ($tableros as $tab) {
+									echo "<tr>";
+									echo "<td>" . $tab['CONCURSANTE'] . '</td>';
+									echo "<td>".$tab['PREGUNTA_POSICION'].'</td>';
+									echo "<td><b>".$tab['INCISO'].')&nbsp;</b>';
+									if($tab['ES_IMAGEN'] == 1){
+										echo '<img src="image/respuestas/'.$tab['RESPUESTA'].'"></td>';;
+									}else{	
+										echo $tab['RESPUESTA'].'</td>';
+									}
+									echo "<td>".$tab['PASO_PREGUNTA'].'</td>';
+									echo "<td>".$tab['PUNTAJE'].'</td>';
+									echo "</tr>";	
+								}
+							 ?>
+						</tbody>
+					</table>
+				</div>
+				<!-- TABLERO DE RESUMEN DETALLADO-->
 			</div>
 		</div>
 		<!--/TABLERO PUNTAJE -->
-		<br>
-		<button class="btn btn-geo" id="btnObtenerPuntaje" onclick="location.reload();" >
-			Actualizar tablero
-		</button>
 	</section>
-	<!-- MODAL FIN RONDA-->
-	<div class="modal fade" id="mdl-finaliza-ronda" tabindex="-1" role="dialog" aria-labelledby="mdl-finaliza-rondaLabel" aria-hidden="true">
-	  <div class="modal-dialog modal-md" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title" id="mdl-finaliza-rondaLabel">Cambiar y Finalizar Ronda Actual</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	      	<select name="RONDA_NUEVA" id="RONDA_NUEVA" class="select-geo">
-	      		<option value="">Selecciona la ronda</option>
-	      		<?php 
-	      			$rondasLog = new RondasLog();
-	      			$rondas = $rondasLog->getRondasDisponibles($sesion->getOne(SessionKey::ID_CONCURSO), $sesion->getOne(SessionKey::ID_RONDA), $sesion->getOne(SessionKey::ID_ETAPA))['rondas'];
-      				foreach ($rondas as $ronda) {
-      					echo "<option value='".$ronda['ID_RONDA']."'>".$ronda['RONDA']."</option>";
-      				}
-	      		 ?>
-	      	</select>
-	      </div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-	        <button type="button" class="btn btn-primary" onclick="cambiarFinalizarRonda(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).",".$sesion->getOne(SessionKey::ID_RONDA); ?>)">
-	        	Guardar
-	        </button>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-	<!-- MODAL FIN RONDA-->
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/bootstrap.js"></script>
 	<script type="text/javascript" src="js/concurso.js"></script>
 	<script type="text/javascript" src="js/ronda.js"></script>
+	<script type="text/javascript">
+		function mostrarResumen(){
+			$("#divtablero").slideToggle(500);
+		}
+	</script>
 	<!-- FIN SCRIPTS  -->
 </body>
 </html>

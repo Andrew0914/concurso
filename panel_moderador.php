@@ -88,7 +88,7 @@
 					<thead>
 						<tr>
 							<th>Rondas</th>
-							<th>Geogísica</th>
+							<th>Geofísica</th>
 							<th>Geolofía</th>
 							<th>Petroleros</th>
 							<th>Generales</th>
