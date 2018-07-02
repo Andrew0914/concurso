@@ -20,11 +20,6 @@
 		$idRonda = $sesion->getOne(SessionKey::ID_RONDA);
 		$categoria = new Categorias();
 		$categoria= $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
-		// iniciamos la ronda
-		$log = new RondasLog();
-		if(!$log->iniciarRonda($idConcurso,$idRonda)){
-			die('No pudimos iniciar la ronda , vuelve a intentarlo por vaor <a href="moderador">Click aqui</a>');
-		}
 	 ?>
 	<head>
 		<meta charset="utf-8">

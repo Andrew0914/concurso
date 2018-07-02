@@ -44,7 +44,8 @@
 							SessionKey::CONCURSANTE => $objConcursante[0]['CONCURSANTE'],
 							SessionKey::ID_CONCURSO => $objConcursante[0]['ID_CONCURSO'],
 							SessionKey::CONCURSANTE_POSICION => $objConcursante[0]['CONCURSANTE_POSICION'],
-							SessionKey::ID_RONDA => $aConcurso['ID_RONDA']];
+							SessionKey::ID_RONDA => $aConcurso['ID_RONDA'],
+							SessionKey::ID_CATEGORIA => $aConcurso['ID_CATEGORIA']];
 
 			$sesion->setMany($valuesSesion);
 

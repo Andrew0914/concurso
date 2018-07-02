@@ -34,37 +34,13 @@
 			return $response;
 		}
 
-		public function cambiarFinalizar($idConcurso,$rondaActual,$rondaNueva){
-			$values = ['FIN'=>1];
-			$whereClause = "ID_RONDA= ? AND ID_CONCURSO = ?";
-			$whereValues = ['ID_RONDA'=> $rondaActual , 'ID_CONCURSO'=>$idConcurso];
-			if($this->update(0, $values, $whereClause, $whereValues)){
-				$log= ['ID_CONCURSO'=>$idConcurso, 'ID_RONDA'=>$rondaNueva];
-				if($this->save($log)){
-					$concurso = new Concurso();
-					$values = ['ID_RONDA'=>$rondaNueva];
-					if($concurso->actualiza($idConcurso,$values,null,null)){
-						$sesion = new Sesion();
-						$sesion->setOne(SessionKey::ID_RONDA , $rondaNueva);
-						return ['estado'=>1, 'mensaje'=> 'Se finalizo la ronda anterior y se cambio a la ronda elegida'];
-					}
-
-					return ['estado'=>0 , 'mensaje'=>'No se genero la ronda'];
-				}
-				return ['estado'=>0 , 'mensaje'=>'No se pudo finalizar la ronda actual'];
-			}
-			return ['estado'=>0 , 'mensaje'=>'No se pudo cambiar de ronda'];
-		}
-
-		public function iniciarRonda($concurso,$ronda){
-			$values = ['INICIO'=>1];
-			$where = "ID_CONCURSO = ? AND ID_RONDA= ?";
-			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
-			if($this->update(0, $values, $where, $whereValues))
-				return ['estado'=> 1 , 'mensaje'=> 'Ronda iniciada con exito'];
-			return ['estado'=> 0 , 'mensaje'=> 'No se pudo iniciar la ronda'];
-		}
-
+		/**
+		 * Inicia la ronda para la categoria establecida
+		 * @param  integer $concurso  
+		 * @param  integer $ronda     
+		 * @param  integer $categoria 
+		 * @return array 
+		 */
 		public function finalizarRondaCategoria($concurso,$ronda,$categoria){
 			$values = ['FIN'=>1];
 			$where = "ID_CONCURSO = ? AND ID_RONDA= ? AND ID_CATEGORIA = ?";
@@ -74,30 +50,11 @@
 			return ['estado'=> 0 , 'mensaje'=> 'No se pudo finalizar la ronda'];
 		}
 
-		public function isInProccessOrFinish($concurso,$ronda){
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND FIN = 1";
-			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda];
-			$rs = $this->get($where,$whereValues);
-			if(count($rs) > 0){
-				return true;
-			}
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND INICIO = 1";
-			$rs = $this->get($where,$whereValues);
-			if(count($rs) > 0){
-				$query = "SELECT * FROM preguntas_generadas WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND HECHA = 1";
-				$rs = $this->query($query,$whereValues);
-				if(count($rs)> 0 ){
-					return true;
-				}
-			}
-			return false;
-		}
-
 		/**
 		 * Devuelve true si ya termino la ronda de la categoria
-		 * @param  [type] $concurso  [description]
-		 * @param  [type] $categoria [description]
-		 * @return [type]            [description]
+		 * @param  integer $concurso  
+		 * @param  integer $categoria 
+		 * @return array
 		 */
 		public function rondaCategoriaFinish($concurso,$categoria){
 			$sentencia = "SELECT l.* FROM rondas_log l INNER JOIN rondas r ON l.ID_RONDA = r.ID_RONDA 
@@ -106,17 +63,38 @@
 			return count($this->query($sentencia, $valores)) == 2 ;
 		}
 
+		/**
+		 * Elimina un log
+		 * @param  integer $id     
+		 * @param  string $where  
+		 * @param  array $values 
+		 * @return boolean         
+		 */
 		public function eliminar($id,$where,$values){
 			return $this->delete($id, $where, $values);
 		}
 
+		/**
+		 * Pasa a la siguiente ronda normal no desempate si aun hay otra mas
+		 * @param  integer $idConcurso 
+		 * @param  integer $categoria  
+		 * @return array             
+		 */
 		public function siguienteRonda($idConcurso,$categoria){
+			$concurso = new Concurso();
 			$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ?";
 			$valores = ['ID_CONCURSO'=>$idConcurso, 'ID_CATEGORIA'=>$categoria];
 			$logs = $this->get($where,$valores);
 			$todasFinalizadas = 0;
 			foreach ($logs as $log) {
 				if($log['FIN'] == 0){
+					//actualizamos el cambio de ronda
+					if(!$concurso->actualiza($idConcurso,
+						['ID_CATEGORIA'=>$categoria,'ID_RONDA'=>$log['ID_RONDA']],
+						'ID_CONCURSO=?',
+						['ID_CONCURSO'=>$idConcurso])){
+						return ['estado'=>0,'mensaje'=>'No se pudo establecer el cambio de ronda'];
+					}
 					$sesion = new Sesion();
 					$sesion->setMany([SessionKey::ID_RONDA=>$log['ID_RONDA'],
 									SessionKey::ID_CATEGORIA=>$log['ID_CATEGORIA']]);
@@ -134,7 +112,7 @@
 		}
 
 		/**
-		 * Verifica si absolutamente todas las rodas(no sempate) para las categorias esten terminadas
+		 * Verifica si absolutamente todas las rodas(no desempate) para las categorias esten terminadas
 		 * @param  integer $idConcurso 
 		 * @return boolean             
 		 */
@@ -171,6 +149,44 @@
 					}
 				}
 			}
+			return $totales == $finalizadas;
+		}
+
+		/**
+		 * Verifica que las rondas de una categoria especifica hayan terminado
+		 * @param  integer $idConcurso  
+		 * @param  integer $idCategoria 
+		 * @return boolean              
+		 */
+		public function rondasTerminadasCategoria($idConcurso , $idCategoria){
+			// obtenemos la etapa del concurso sus rondas y categorias permitidas
+			$concurso = new Concurso();
+			$concurso = $concurso->getConcurso($idConcurso);
+			$ronda = new Rondas();
+			$rondas = $ronda->getRondas($concurso['ID_ETAPA'])['rondas'];
+			$totales = 0;
+			$finalizadas = 0;
+			foreach ($rondas as $ronda) {
+				if($ronda['IS_DESEMPATE'] == 0){
+					$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ? AND ID_RONDA = ?";
+					$valores = ['ID_CONCURSO' => $idConcurso 
+								, 'ID_CATEGORIA' => $idCategoria
+								, 'ID_RONDA' => $ronda['ID_RONDA']];
+					$rs = $this->get($where , $valores);
+					// si no arroja resultado para CONCURSO & CATEGORIA & RONDA
+					// quiere decir que ni siquiera ha sido lanzada entonces no an terminado las rondas
+					if(count($rs) <= 0){
+						return false;
+					}
+					// contador si finalizo
+					if($rs[0]['FIN'] == 1){
+						$finalizadas++;
+					}
+					//contabilizad todas
+					$totales++;
+				}
+			}
+			
 			return $totales == $finalizadas;
 		}
 	}

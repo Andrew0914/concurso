@@ -1,4 +1,3 @@
-var finalizaRonda = false;
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
 var Comet = Class.create();
   Comet.prototype = {
@@ -10,8 +9,9 @@ var Comet = Class.create();
 		this.ajax = new Ajax.Request(this.url, {
 		  method: 'get',
 		  parameters: { 'lanzada' : this.lanzada , 
-							 'ID_CONCURSO': document.getElementById("ID_CONCURSO").value,
-							 'ID_RONDA': document.getElementById("ID_RONDA").value},
+						'ID_CONCURSO': document.getElementById("ID_CONCURSO").value,
+						'ID_RONDA': document.getElementById("ID_RONDA").value,
+						'ID_CATEGORIA':document.getElementById('ID_CATEGORIA').value},
 		  onSuccess: function(transport) {
 			 var response = transport.responseText.evalJSON();
 			 this.comet.lanzada = response['lanzada'];
@@ -19,40 +19,40 @@ var Comet = Class.create();
 			 this.comet.noerror = true;
 		  },
 		  onComplete: function(transport) {
-			 if(this.comet.lanzada < document.getElementById('CANTIDAD_PREGUNTAS').value){
-				if (!this.comet.noerror){
-				  setTimeout(function(){ comet.connect() }, 1000); 
-				}
-				else{
-				  this.comet.connect();
-				}
-			 }else{
-				finalizaRonda = true;
-			 }
-			 this.comet.noerror = false;
+			if (!this.comet.noerror){
+				setTimeout(function(){ comet.connect() }, 1000); 
+			}
+			else{
+				this.comet.connect();
+				this.comet.noerror = false;
+		  	}
 		  }
 		});
-
 		this.ajax.comet = this;
 	 },
 	 disconnect: function(){
-		return false;
+		return true;
 	 },
 	 handleResponse: function(response){
-	 	if(response.TIENE_TURNOS == 1){
-		 	var yoConcursante = document.getElementById("ID_CONCURSANTE").value;
-		 	// si es el turno del concursante se muestra
-		 	if(yoConcursante == response.LAST_TURNO.ID_CONCURSANTE){
-				showPregunta(response);
-		 	}else{
-		 		console.log('No es tu turno ' + yoConcursante);
-		 	}
-	 	}else {
-	 		showPregunta(response);
+	 	// termino el concurso	
+	 	if(response.terminaron_todo == 1){
+	 		alert("El concurso  ha terminado, se estan verificando los puntajes para descartar posibles empates");
+	 		this.disconnect();
+	 	}else{
+	 		//seteamos los valores actuales del concurso
+		 	var concurso = response.concurso;
+		 	document.getElementById("ID_CONCURSO").value = concurso.ID_CONCURSO;
+			document.getElementById("ID_RONDA").value = concurso.ID_RONDA;
+			document.getElementById('ID_CATEGORIA').value = concurso.ID_CATEGORIA;
+	 		if(response.termina_categoria == 1){
+	 			finalizaCategoria();
+	 		}else{
+			 	showPregunta(response);
+	 		}
 	 	}
-	 	
-	 }
+	}
   }
+
 var comet = new Comet();
 comet.connect();
 
@@ -90,22 +90,13 @@ function showPregunta(response){
 	contenido += "</div>";
 
 	$jq("#content-respuestas").html(contenido);
-	if($jq("#botonera")){
-		$jq("#botonera").show();
-	}
 	var fnSegundo = function(){
 			todosContestaron();
 	};
 	var fnTermino = function(){
 		sendRespuesta();
 	};
-	if(response.TIENE_TURNOS == 1){
-		var test = function(){};
-		cronometro(segundos,test,fnTermino);
-	}else{
-		cronometro(segundos,fnSegundo,fnTermino);
-	}
-	
+	cronometro(segundos,fnSegundo,fnTermino);
 }
 
 /**
@@ -200,18 +191,9 @@ function sendRespuesta(){
 			  'ID_RESPUESTA':respuesta
 		  },success:function(data){
 			 if(data.estado == 1){
-				// si ya se completo la cantidad de preguntas reseteamos el front end informando
-				if(finalizaRonda){
-				  finalizarRonda();
-				}else{
-				  // Si aun no termina ponenmos la vista a espera de otra pregunta
-				  afterSend();
-				}
+				afterSend();
 				stopExecPerSecond= true;
 				notFinish = true;
-				if($jq("#botonera")){
-					$jq("#botonera").hide();
-				}
 			  }else{
 				console.log(data.mensaje)
 			  }
@@ -237,40 +219,19 @@ function afterSend(){
  * Metodo para finalizar la ronda reseteando y apareciendo el boton para pasar a la siguiente ronda
  * @return {[type]} [description]
  */
-function finalizarRonda(){
+function finalizaCategoria(){
   $jq("body").removeClass('blanco');
   $jq("body").addClass('azul');
   $jq("#card-inicio").show(300);
-  $jq("#mensaje_concurso").html("<p>Ha terminado esta ronda del concurso,espera a que el moderador lance la siguiente</p>");
-  $jq("#btn-pasarRonda").show(300);
+  $jq("#mensaje_concurso").html("<p>Han terminado las preguntas para esta categoria,por favor espera que el moderador avance</p>");
   $jq("#pregunta").hide(300);
   // seteamos los valores de lap regunta a mostrar
   $jq("#pregunta p").text("");
   $jq("#ID_PREGUNTA").val("");
   $jq("#PREGUNTA_POSICION").val("");
-  // aparecer boton pasar a siguinte ronda
-  initListenerCambioRonda(document.getElementById("ID_RONDA").value);
 }
 
-function contestarAhora(){
-	var pregunta = $jq("#ID_PREGUNTA").val();
-	var respuestas = document.getElementsByName("mRespuesta-" + pregunta );
-	console.log(respuestas);
-	var respuesta = '';
-	for (var i = 0, length = respuestas.length; i < length; i++){
-		if (respuestas[i].checked){
-		  respuesta = respuestas[i].value;
-		  break;
-		}
-	}
-	if(respuesta != ''){
-		stopExecPerSecond = true;
-		notFinish = true;
-		sendRespuesta();
-	}else{
-		alert("No has elegido una respuesta para contestar ahora, apresurate el tiempo corre , click en ACEPTAR");
-	}
-}
+
 
 //cachamos el evento de refresh para evita trampas
 $jq(document).ready(function() {

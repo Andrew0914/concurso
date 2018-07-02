@@ -23,13 +23,16 @@
 		 */
 		public function generaConcurso($values){
 			$valida = 1;
+			// obtenemos la primer ronda de la etapa elegida para el concurso
+			$objRonda = new Rondas();
+			$primerRonda = $objRonda->getPrimeraRonda($values['ID_ETAPA']);
 			// fecha por defecto
 			$concurso = ['FECHA_INICIO' => date('Y-m-d H:i:s') ]; 
 			//valores del formulario
 			$concurso['ID_ETAPA'] = $values['ID_ETAPA'];
 			$concurso['CONCURSO'] = $values['CONCURSO'];
 			$concurso['ID_CATEGORIA'] = $values['ID_CATEGORIA'];
-			// obtenemos la primer ronda de la etapa elegida para el concurso
+			$concurso['ID_RONDA']=$primerRonda['ID_RONDA'];
 			$concurso_insertado = $this->save($concurso);
 			$concursante = new Concursante();
 			if($concurso_insertado == 0 ){
@@ -69,7 +72,8 @@
 			$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
-							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'] ];
+							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'],
+							SessionKey::ID_RONDA=>$primerRonda['ID_RONDA'] ];
 			$sesion->setMany($sessionValues);
 
 			return ['estado'=>1,'mensaje'=>'CONCURSO CREADO CON EXITO'];
@@ -117,7 +121,8 @@
 							SessionKey::CONCURSO => $concurso['CONCURSO'],
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
 							SessionKey::ETAPA => $etapa['ETAPA'],
-							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA']];
+							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'],
+							SessionKey::ID_CATEGORIA => $concurso['ID_RONDA']];
 				$sesion->setMany($sessionValues);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Acceso al concurso exitoso';
@@ -142,6 +147,7 @@
 		public function iniciarCategoriaRonda($idConcurso,$idCategoria){
 			$concurso = $this->find($idConcurso);
 			$objRonda = new Rondas();
+			$primerRonda = $objRonda->getPrimeraRonda($concurso['ID_ETAPA']);
 			$rondas = $objRonda->getRondas($concurso['ID_ETAPA'])['rondas'];
 			$generadas = new PreguntasGeneradas();
 			$validPreguntasCompletas = 1;
@@ -168,6 +174,7 @@
 					if(!$log->guardar(['ID_RONDA'=>$ronda['ID_RONDA'] , 
 									'ID_CATEGORIA'=>$idCategoria, 
 									'ID_CONCURSO'=> $idConcurso,
+									'ID_RONDA'=>$primerRonda['ID_RONDA'],
 									'INICIO'=>1,
 									'FIN'=>0])){
 						$validaLog *= 0;
@@ -179,7 +186,6 @@
 				return ['estado'=>0, 'mensaje'=>'No se pudieron establecer las rondas para la categoria'];
 			}
 
-			$primerRonda = $objRonda->getPrimeraRonda($concurso['ID_ETAPA']);
 			$sesion = new Sesion();
 			$sesion->setOne(SessionKey::ID_CATEGORIA, $idCategoria);
 			$sesion->setOne(SessionKey::ID_RONDA, $primerRonda['ID_RONDA']);

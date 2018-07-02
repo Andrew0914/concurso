@@ -7,20 +7,15 @@
 	require_once 'class/RondasLog.php';
 	$sesion = new Sesion();
 	// si el concurso no esta en la ronda 1
-	if($sesion->getOne(SessionKey::ID_RONDA) != 2){
+	if( $sesion->getOne(SessionKey::ID_CONCURSANTE) == null || $sesion->getOne(SessionKey::ID_CONCURSANTE) == null ){
 		header('Location: inicio');
-	}
-	// si el concurso ya esta en proceso, evitar que entren externos
-	$objRondaLog = new RondasLog();
-	if($objRondaLog->isInProccessOrFinish($sesion->getOne(SessionKey::ID_CONCURSO),$sesion->getOne(SessionKey::ID_RONDA))){
-		header('Location: 404');
 	}
 	$ronda = new Rondas();
 	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
  ?>
 <head>
 	<meta charset="utf-8">
-	<title>Individual::Ronda 1</title>
+	<title>Concursante::Responder</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
@@ -29,6 +24,7 @@
 	<section>
 		<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>" />
 		<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>" />
+		<input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="<?php echo $sesion->getOne(SessionKey::ID_CATEGORIA); ?>" />
 		<input type="hidden" id="segundos_ronda" name="segundos_ronda" value="<?php echo $ronda['SEGUNDOS_POR_PREGUNTA']; ?>" />
 		<input type="hidden" id="ID_CONCURSANTE" name="ID_CONCURSANTE" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSANTE); ?>" />
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
@@ -37,7 +33,8 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				En cuanto todo este listo el moderador dará inicio a la ronda 2 de la etapa individual.
+				En cuanto todo este listo el moderador comenzara el concurso
+				<br>
 			</h4>
 			<small>
 				Por favor no refresques/actualices el navegador en ningún momento por que perderás tu avance en el concurso, el moderador aparecerá las preguntas en automático.
@@ -65,15 +62,6 @@
 			<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA" />
 			<p class="text-pregunta"></p>
 			<p id="content-respuestas"></p>
-			<br>
-			<div class="row" id="botonera" style="display: none;">
-				<div class="col-md-4 offset-md-2">
-					<button class="btn btn-block btn-geo" onclick="contestarAhora()">Contestar ahora!</button>
-				</div>
-				<div class="col-md-4 centrado">
-					<button class="btn btn-block btn-geo">Paso</button>
-				</div>
-			</div>
 		</article>
 	</section>
 	<!-- INICIO SCRIPTS -->
@@ -86,7 +74,6 @@
 	<script type="text/javascript" src="js/cronometro.js"></script>
 	<script type="text/javascript" src="js/ronda.js"></script>
 	<script type="text/javascript" src="js/mecanica_general.js"></script>
-	<script type="text/javascript" src="js/individual_ronda2.js"></script>
 	<!-- FIN SCRIPTS  -->
 </body>
 </html>
