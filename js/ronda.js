@@ -48,7 +48,16 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		data: {"rondaActual": rondaActual,'categoriaActual':categoriaActual},
 		success:function(response){
 			if(response.estado == 1){
-				accederRonda(response.ronda);
+				if(response.termino == 1){
+					if(response.empate == 1){
+						window.location.replace('inicio_desempate');
+					}else if(response.empate == 0){
+						window.location.replace('concurso_finalizado');
+					}
+					
+				}else{
+					accederRonda(response.ronda);	
+				}
 			}
 		},
 		error:function(error){

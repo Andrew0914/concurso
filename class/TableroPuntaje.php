@@ -185,6 +185,28 @@
 			return $response;
 		}
 
+		public function getActividadPregunta($concurso,$ronda,$pregunta){
+			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
+			try{
+				$concursante = new Concursante();
+				$sentencia = 'SELECT SUM(CASE WHEN NOT ISNULL (t.RESPUESTA)  then 1 else 0 end) contestadas ,
+					SUM(CASE WHEN ISNULL(t.RESPUESTA)  then 1 else 0 end) nocontestadas
+					FROM tablero_puntajes t  WHERE t.ID_CONCURSO = 	?
+					AND t.ID_RONDA = ? AND t.PREGUNTA = ?';
+
+				$valores =['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda, 'PREGUNTA'=>$pregunta];
+				$response['marcadores']= $this->query($sentencia,$valores,true);
+				$response['cont_concursantes'] = $concursante->getCountConcursates($concurso);
+				$response['estado']= 1;
+				$response['mensaje']='Marcadores obtenidos con exito';
+
+			}catch(Exception $ex){
+				$response['mensaje']= 'Fallo al obtener marcadores:'.$ex->getMessage();
+			}
+			
+			return $response;
+		}
+
 	}
 	/**
 	 * POST REQUESTS
@@ -222,6 +244,9 @@
 			break;
 			case 'getMarcadorPregunta':
 				echo json_encode($tablero->getMarcadorPregunta($_GET['ID_CONCURSO'], $_GET['ID_RONDA'], $_GET['ID_PREGUNTA']));
+			break;
+			case 'getActividadPregunta':
+				echo json_encode($tablero->getActividadPregunta($_GET['ID_CONCURSO'], $_GET['ID_RONDA'], $_GET['ID_PREGUNTA']));
 			break;
 			case 'getTableroDisplay':
 				echo json_encode($tablero->getTableroDisplay($_GET['ID_CONCURSO'] , $_GET['ID_RONDA']));

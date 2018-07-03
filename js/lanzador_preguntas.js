@@ -37,6 +37,7 @@ function lanzarPregunta(segundos,boton){
                 // activamos el cronometro
 				cronometro(segundos,function(){
                     todosContestaron();
+                    getActividadPregunta();
                 },function(){
                     stopExecPerSecond= true;
                     getMarcadorPregunta();
@@ -91,7 +92,7 @@ function closeModal(){
 }
 
 /**
- * Obtiene los marcadores para la pregunta
+ * Obtiene los numeros para el histograma de la pregunta correctas/incorrectas al final de la pregunta
  * @return {[type]} [description]
  */
 function getMarcadorPregunta(){
@@ -129,6 +130,53 @@ function getMarcadorPregunta(){
                 $("#histo-incorrectas").css({
                     'width': porcentajeIncorrectas,
                     'background-color': 'red'
+                });
+
+            }else{
+                alert(response.mensaje);
+            }
+        },
+        error:function(error){}
+    });
+}
+
+/**
+ * Obtiene los marcadores para la pregunta contestaron y no contestaron
+ */
+function getActividadPregunta(){
+    var concurso = $("#ID_CONCURSO").val();
+    var ronda = $("#ID_RONDA").val();
+    var pregunta = $("#ID_PREGUNTA").val();
+    $.ajax({
+        url: 'class/TableroPuntaje.php?functionTablero=getActividadPregunta',
+        type: 'GET',
+        dataType: 'json',
+        data: 'ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta,
+        success:function(response){
+            if(response.estado == 1){
+                var marcadores = response.marcadores;
+                var contestadas = 0;
+                var nocontestadas = 0;
+                for (var m= 0; m< marcadores.length ; m++ ){
+                    contestadas = marcadores[m].contestadas;
+                    nocontestadas = marcadores[m].nocontestadas;
+                }
+                var concursantes = response.cont_concursantes[0].total;
+                var porcentajaContestadas = ((contestadas * 100) / concursantes) + '%';
+                $("#num_contestadas").text(contestadas);
+                $("#histo-contestadas").css({
+                    'width': porcentajaContestadas,
+                    'background-color': '#BDBDBD'
+                });
+                var porcentajeNocontestadas = ((nocontestadas * 100) / concursantes) + '%';
+                if(nocontestadas == null){ 
+                    porcentajeNocontestadas = '100%';
+                    nocontestadas = concursantes;
+                }
+                $("#num_nocontestadas").text(nocontestadas);
+                $("#histo-nocontestadas").css({
+                    'width': porcentajeNocontestadas,
+                    'background-color': '#848484'
                 });
 
             }else{
