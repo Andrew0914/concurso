@@ -164,8 +164,12 @@
 
 			$log = new RondasLog();
 
-			if($log->rondaCategoriaFinish($idConcurso,$idCategoria)){
+			if($log->rondasTerminadasCategoria($idConcurso,$idCategoria)){
 				return ['estado'=>0 , 'mensaje' => 'Ya has finalizado las rondas de esta categoria'];
+			}
+
+			if(!$this->update($idConcurso,['ID_CATEGORIA'=>$idCategoria , 'ID_RONDA'=> $primerRonda['ID_RONDA'] ])){
+				return ['estado'=>0 , 'mensaje'=>'No se establecio la ronda y categoria en el concurso:Table'];
 			}
 
 			$validaLog= 1;
@@ -174,7 +178,7 @@
 					if(!$log->guardar(['ID_RONDA'=>$ronda['ID_RONDA'] , 
 									'ID_CATEGORIA'=>$idCategoria, 
 									'ID_CONCURSO'=> $idConcurso,
-									'ID_RONDA'=>$primerRonda['ID_RONDA'],
+									'ID_RONDA'=>$ronda['ID_RONDA'],
 									'INICIO'=>1,
 									'FIN'=>0])){
 						$validaLog *= 0;

@@ -107,19 +107,30 @@ function getMarcadorPregunta(){
             if(response.estado == 1){
                 notFinish = true;
                 stopExecPerSecond= true;
-                $("#cronometro-content").css("display","none");
+                //$("#cronometro-content").css("display","none");
                 $("#animated text").text(0);
                 var marcadores = response.marcadores;
-                var contenido = "";
+                var correctas = 0;
+                var incorrectas = 0;
                 for (var m= 0; m< marcadores.length ; m++ ){
-                    contenido += "<tr>";
-                    contenido += "<td>" + marcadores[m].CONCURSANTE + "</td>";
-                    contenido += "<td> <img src='image/" + marcadores[m].RESULTADO + ".png'/></td>";
-                    contenido += "</tr>";
+                    correctas = marcadores[m].correctas;
+                    incorrectas = marcadores[m].incorrectas;
                 }
-                $("#tbl-marcador-pregunta tbody").html(contenido);
-                $("#tbl-marcador-pregunta").show(300);
+                var concursantes = response.cont_concursantes[0].total;
                 $("#btn-siguiente").show(300);
+                var porcentajeCorrectas = ((correctas * 100) / concursantes) + '%';
+                $("#num_correctas").text(correctas);
+                $("#histo-correctas").css({
+                    'width': porcentajeCorrectas,
+                    'background-color': 'green'
+                });
+                var porcentajeIncorrectas = ((incorrectas * 100) / concursantes) + '%';
+                $("#num_incorrectas").text(incorrectas);
+                $("#histo-incorrectas").css({
+                    'width': porcentajeIncorrectas,
+                    'background-color': 'red'
+                });
+
             }else{
                 alert(response.mensaje);
             }
@@ -131,11 +142,15 @@ function getMarcadorPregunta(){
 function siguienteRonda(){
     var concurso = $("#ID_CONCURSO").val();
     var categoria = $("#ID_CATEGORIA").val();
+    var rondaActual = $("#ID_RONDA").val();
     $.ajax({
         url: 'class/RondasLog.php',
         type: 'POST',
         dataType: 'json',
-        data: {'ID_CONCURSO': concurso , 'ID_CATEGORIA': categoria , 'functionRondasLog':'siguienteRonda'},
+        data: {'ID_CONCURSO': concurso , 
+                'ID_CATEGORIA': categoria ,
+                'functionRondasLog':'siguienteRonda',
+                'rondaActual':rondaActual},
         success:function(response){
             if(response.estado == 1 ){
                 location.reload();

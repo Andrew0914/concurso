@@ -106,8 +106,6 @@
 				<?php 
 					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
 					if($todasHechas){
-						$log = new RondasLog();
-						if($log->finalizarRondaCategoria($idConcurso,$idRonda,$categoria['ID_CATEGORIA'])['estado']){
 				?> 
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
@@ -116,11 +114,7 @@
 						</button>
 					</div>
 				</div>
-				<?php 
-					} else{
-						echo "Error , no se pudo finalizar la ronda adecuadamente refresca la pagina";
-					}
-						 } ?>
+				<?php } ?>
 			</div>
 			<!-- PREGUNTAS GENERADAS-->
 		</section>
@@ -142,11 +136,30 @@
 						<div class="row" id="cronometro-content" style="display: none">
 							<!-- HISTOGRAMA -->
 							<div class="col-md-4" id="histograma">
-								2&nbsp;<div style="display:inline-block;width: 20%;background-color: red;height: 15px;border-radius: 5px"></div>
-								<br>
-								5&nbsp;<div style="display:inline-block;width: 50%;background-color: green;height: 15px;border-radius: 5px"></div>
-								<br>
-								3&nbsp;<div style="display:inline-block;width: 30%;background-color: gray;height: 15px;border-radius: 5px"></div>
+								<div class="row">
+									<div class="col-md-1" id="num_correctas"></div>
+									<div class="col-md-10">
+										<div class="barra-histograma" id="histo-correctas"></div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-1" id="num_incorrectas"></div>
+									<div class="col-md-10">
+										<div class="barra-histograma" id="histo-incorrectas"></div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-1" id="num_contestadas"></div>
+									<div class="col-md-10">
+										<div class="barra-histograma" id="histo-contestadas"></div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-1" id="num_nocontestadas"></div>
+									<div class="col-md-10">
+										<div class="barra-histograma" id="histo-nocontestadas"></div>
+									</div>
+								</div>
 							</div>
 							<!-- HISTOGRAMA -->
 							<div class="col-md-4 centrado">

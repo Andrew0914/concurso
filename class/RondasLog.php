@@ -35,7 +35,7 @@
 		}
 
 		/**
-		 * Inicia la ronda para la categoria establecida
+		 * Finaliza la ronda para la categoria establecida
 		 * @param  integer $concurso  
 		 * @param  integer $ronda     
 		 * @param  integer $categoria 
@@ -50,19 +50,7 @@
 			return ['estado'=> 0 , 'mensaje'=> 'No se pudo finalizar la ronda'];
 		}
 
-		/**
-		 * Devuelve true si ya termino la ronda de la categoria
-		 * @param  integer $concurso  
-		 * @param  integer $categoria 
-		 * @return array
-		 */
-		public function rondaCategoriaFinish($concurso,$categoria){
-			$sentencia = "SELECT l.* FROM rondas_log l INNER JOIN rondas r ON l.ID_RONDA = r.ID_RONDA 
-							WHERE r.IS_DESEMPATE = 0 AND l.ID_CONCURSO = ? AND ID_CATEGORIA = ? AND FIN = 1";
-			$valores = ['ID_CONCURSO'=>$concurso, 'ID_CATEGORIA' => $categoria];
-			return count($this->query($sentencia, $valores)) == 2 ;
-		}
-
+	
 		/**
 		 * Elimina un log
 		 * @param  integer $id     
@@ -80,7 +68,10 @@
 		 * @param  integer $categoria  
 		 * @return array             
 		 */
-		public function siguienteRonda($idConcurso,$categoria){
+		public function siguienteRonda($idConcurso,$categoria,$rondaActual){
+			if(!$this->finalizarRondaCategoria($idConcurso,$rondaActual,$categoria)['estado']){
+				return ['estado'=>0, 'mensaje'=>'No se pudo finalizar la ronda actual'];
+			}
 			$concurso = new Concurso();
 			$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ?";
 			$valores = ['ID_CONCURSO'=>$idConcurso, 'ID_CATEGORIA'=>$categoria];
@@ -108,11 +99,12 @@
 			if($todasFinalizadas == 2){
 				return ['estado'=>2,'mensaje'=>'Terminaron las rondas para la categoria'];
 			}
+
 			return ['estado'=>0,'mensaje'=>'No se cambio la ronda'];
 		}
 
 		/**
-		 * Verifica si absolutamente todas las rodas(no desempate) para las categorias esten terminadas
+		 * Verifica si absolutamente todas las rodas(no desempate) para las categorias esten terminadas == acabo concurso normal
 		 * @param  integer $idConcurso 
 		 * @return boolean             
 		 */
@@ -153,7 +145,7 @@
 		}
 
 		/**
-		 * Verifica que las rondas de una categoria especifica hayan terminado
+		 * Verifica que todas las rondas de uan categoria que no son desempate esten finalzadas == acabo categoria
 		 * @param  integer $idConcurso  
 		 * @param  integer $idCategoria 
 		 * @return boolean              
@@ -189,6 +181,20 @@
 			
 			return $totales == $finalizadas;
 		}
+
+		/**
+		 * Evaluea si una ronda especifica de uan categoria ya termino
+		 * @param  integer $ronda     
+		 * @param  integer $categoria 
+		 * @param  integer $concurso  
+		 * @return boolean            
+		 */
+		public function rondaTerminada($ronda,$categoria,$concurso){
+			$where = "ID_RONDA = ? AND ID_CATEGORIA = ? AND ID_CONCURSO = ?";
+			$valores = ['ID_RONDA'=>$ronda ,'ID_CATEGORIA'=>$categoria, 'ID_CONCURSO'=>$concurso ];
+			$log = $this->get($where,$valores)[0];
+			return $log['FIN'] == 1;
+		}
 	}
 	/**
 	 * POST REQUESTS
@@ -199,7 +205,7 @@
 		$log = new RondasLog();
 		switch ($function) {
 			case 'siguienteRonda':
-				echo json_encode($log->siguienteRonda($_POST['ID_CONCURSO'],$_POST['ID_CATEGORIA'] ));
+				echo json_encode($log->siguienteRonda($_POST['ID_CONCURSO'],$_POST['ID_CATEGORIA'],$_POST['rondaActual']));
 				break;
 			default:
 				echo  json_encode(['estado'=>0,'Operacion no valida RondasLog:POST']);

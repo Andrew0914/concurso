@@ -189,3 +189,7 @@ svg#animated{
 	font-size: 14px;
 }
 
+.barra-histograma{
+	height: 15px;
+	border-radius: 8px;
+}

@@ -10,7 +10,7 @@ function accederConcurso(formulario){
 		  dataType: "json",
 		  success : function(response){
          if(response.estado == 1){
-            window.location.replace("responder");
+            accederRonda(response.concursante.ID_RONDA);
          }else{
             alert(response.mensaje);
          }

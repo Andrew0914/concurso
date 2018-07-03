@@ -27,8 +27,6 @@
 			return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
 		}
 
-		
-
 		/**
 		 * Genera el punta por la respuesta y condiciones dada
 		 * @param  integer  $concursante 
@@ -120,11 +118,18 @@
 		public function getMarcadorPregunta($concurso,$ronda,$pregunta){
 			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
 			try{
-			$sentencia = 'SELECT c.ID_CONCURSANTE,c.CONCURSANTE,if(tp.RESPUESTA_CORRECTA = 1 , "correcta","incorrecta") as RESULTADO FROM tablero_puntajes tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE WHERE tp.ID_CONCURSO = ? and tp.ID_RONDA =? AND tp.PREGUNTA = ? GROUP BY tp.ID_CONCURSANTE';
+				$concursante = new Concursante();
+				$sentencia = 'SELECT SUM(CASE WHEN t.RESPUESTA_CORRECTA = 1 then 1 else 0 end) correctas ,
+						SUM(CASE WHEN t.RESPUESTA_CORRECTA = 0 then 1 else 0 end) incorrectas
+						FROM tablero_puntajes t  WHERE t.ID_CONCURSO = ?
+						AND t.ID_RONDA = ? AND t.PREGUNTA = ?;';
+
 				$valores =['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda, 'PREGUNTA'=>$pregunta];
 				$response['marcadores']= $this->query($sentencia,$valores,true);
+				$response['cont_concursantes'] = $concursante->getCountConcursates($concurso);
 				$response['estado']= 1;
 				$response['mensaje']='Marcadores obtenidos con exito';
+
 			}catch(Exception $ex){
 				$response['mensaje']= 'Fallo al obtener marcadores:'.$ex->getMessage();
 			}
@@ -132,6 +137,12 @@
 			return $response;
 		}
 
+		/**
+		 * Genera la informacion para el tablero de resumen general
+		 * @param  integer $concurso
+		 * @param  integer $ronda   
+		 * @return array          
+		 */
 		public function getTableroDisplay($concurso, $ronda){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			try{
@@ -149,6 +160,12 @@
 			return $response;
 		}
 
+		/**
+		 * Genera la informacion para el tablero de marcadores generales
+		 * @param  integer $concurso 
+		 * @param  integer $ronda    
+		 * @return array           
+		 */
 		public function getMejoresPuntajes($concurso, $ronda){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			try{

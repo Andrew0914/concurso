@@ -1,7 +1,9 @@
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
+var finalizar = false;
 var Comet = Class.create();
   Comet.prototype = {
 	 lanzada: 0,
+	 finish: false,
 	 url: 'class/listeners/lst_pregunta_lanzada.php',
 	 noerror: true,
 	 initialize: function() { },
@@ -19,12 +21,14 @@ var Comet = Class.create();
 			 this.comet.noerror = true;
 		  },
 		  onComplete: function(transport) {
-			if (!this.comet.noerror){
-				setTimeout(function(){ comet.connect() }, 1000); 
-			}
-			else{
-				this.comet.connect();
-				this.comet.noerror = false;
+		  	if(!finalizar){
+		  		if (!this.comet.noerror){
+					setTimeout(function(){ comet.connect() }, 1000); 
+				}
+				else{
+					this.comet.connect();
+					this.comet.noerror = false;
+			  	}
 		  	}
 		  }
 		});
@@ -34,21 +38,9 @@ var Comet = Class.create();
 		return true;
 	 },
 	 handleResponse: function(response){
-	 	// termino el concurso	
-	 	if(response.terminaron_todo == 1){
-	 		alert("El concurso  ha terminado, se estan verificando los puntajes para descartar posibles empates");
-	 		this.disconnect();
-	 	}else{
-	 		//seteamos los valores actuales del concurso
-		 	var concurso = response.concurso;
-		 	document.getElementById("ID_CONCURSO").value = concurso.ID_CONCURSO;
-			document.getElementById("ID_RONDA").value = concurso.ID_RONDA;
-			document.getElementById('ID_CATEGORIA').value = concurso.ID_CATEGORIA;
-	 		if(response.termina_categoria == 1){
-	 			finalizaCategoria();
-	 		}else{
-			 	showPregunta(response);
-	 		}
+	 	showPregunta(response);
+	 	if(this.lanzada ==  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+	 		finalizaRonda(response.concurso);
 	 	}
 	}
   }
@@ -219,27 +211,19 @@ function afterSend(){
  * Metodo para finalizar la ronda reseteando y apareciendo el boton para pasar a la siguiente ronda
  * @return {[type]} [description]
  */
-function finalizaCategoria(){
-  $jq("body").removeClass('blanco');
-  $jq("body").addClass('azul');
-  $jq("#card-inicio").show(300);
-  $jq("#mensaje_concurso").html("<p>Han terminado las preguntas para esta categoria,por favor espera que el moderador avance</p>");
-  $jq("#pregunta").hide(300);
-  // seteamos los valores de lap regunta a mostrar
-  $jq("#pregunta p").text("");
-  $jq("#ID_PREGUNTA").val("");
-  $jq("#PREGUNTA_POSICION").val("");
+function finalizaCategoria(response){
+	if(response.ID_CATEGORIA !== $jq("#ID_CATEGORIA").val()){
+		//accederRonda(response.ID_RONDA);
+		console.log(response);
+		fin = true;
+	}
 }
 
-
+function finalizaRonda(response){
+	finalizar = true;
+	initListenerCambioRonda($jq("#ID_RONDA").val(), $jq("#ID_CATEGORIA").val());
+}
 
 //cachamos el evento de refresh para evita trampas
-$jq(document).ready(function() {
-	window.onbeforeunload = function(e) {
-		alert("Hola, si abandonas esta pagina perderas tu avance en el concurso");
-		return 'Hola, si abandonas esta pagina perderas tu avance en el concurso';
-	};
-	if (performance.navigation.type == 1) {
-	    window.location.replace('inicio');
-	}	
+$jq(document).ready(function() {	
 });
