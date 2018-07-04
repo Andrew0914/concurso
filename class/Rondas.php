@@ -40,6 +40,12 @@
 			$values = ['ID_ETAPA' => $etapa];
 			return $this->get($whereClause,$values)[0];
 		}
+
+		public function getRondaDesempate($etapa){
+			$where  = "ID_ETAPA=  ? AND IS_DESEMPATE = 1";
+			$valores = ['ID_ETAPA'=>$etapa];
+			return $this->get($where,$valores)[0];
+		}
 	}
 
 	/**

@@ -96,7 +96,7 @@
 		 * @param  [int] $pregunta 
 		 * @return [type]           
 		 */
-		private function existePreguntaEnConcursoRonda($concurso,$ronda,$pregunta){
+		public function existePreguntaEnConcursoRonda($concurso,$ronda,$pregunta){
 			$values = ['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda,'ID_PREGUNTA'=>$pregunta];
 			$where = ' ID_CONCURSO=? AND ID_RONDA = ? AND ID_PREGUNTA = ? ';
 			return count($this->get($where,$values));
@@ -265,6 +265,10 @@
 			$sentencia = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA= ? AND HECHA  = 0";
 			$whereValues = ['ID_CONCURSO' => $concurso , 'ID_RONDA' => $ronda, 'ID_CATEGORIA'=>$categoria];
 			return count($this->query($sentencia,$whereValues)) <= 0;
+		}
+
+		public function guardar($valores){
+			return $this->save($valores);
 		}
 
 	}
