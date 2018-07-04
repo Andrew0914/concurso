@@ -15,8 +15,6 @@ require_once 'class/util/Route.php';
     $route->add('individual1', '../individual_ronda1.php');
     $route->add('individual2', '../individual_ronda2.php');
     $route->add('individual_desempate', '../individual_desempate.php');
-    $route->add('inicio_desempate', '../inicio_desempate.php');
-    $route->add('concurso_finalizado', '../fin_concurso.php');
-    
+    $route->add('inicio_desempate', '../inicio_desempate.php');    
 	$route->submit();
 ?>

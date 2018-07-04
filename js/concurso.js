@@ -97,3 +97,21 @@ function setCategorias(etapa){
       $("#ID_CATEGORIA").html(content);
   },'json');
 }
+
+function cerrarConcurso(concurso){
+  $.ajax({
+    url: 'class/Concurso.php',
+    type: 'POST',
+    dataType: 'json',
+    data: {'ID_CONCURSO': concurso , 'functionConcurso':'cerrarConcurso'},
+    success:function(response){
+      if(response.estado == 1){
+        window.location.replace('crear');
+      }
+    },
+    error:function(error){
+      console.log(error);
+      alert("No se pudo finalizar el concurso");
+    }
+  });  
+}

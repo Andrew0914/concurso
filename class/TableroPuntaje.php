@@ -45,6 +45,7 @@
 			$regla = new Reglas();
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
+
 			if($correcta == 1){
 				$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
 			}
@@ -143,12 +144,12 @@
 		 * @param  integer $ronda   
 		 * @return array          
 		 */
-		public function getTableroDisplay($concurso, $ronda){
+		public function getResultados($concurso){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			try{
-				$query = "SELECT c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA
-					WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ?";
-				$values = [':ID_CONCURSO'=>$concurso , ':ID_RONDA'=>$ronda];
+				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA
+					WHERE t.ID_CONCURSO = ?";
+				$values = [':ID_CONCURSO'=>$concurso];
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;
 				$response['estado'] = 1;
@@ -166,14 +167,14 @@
 		 * @param  integer $ronda    
 		 * @return array           
 		 */
-		public function getMejoresPuntajes($concurso, $ronda){
+		public function getMejoresPuntajes($concurso){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			try{
-				$query = "SELECT c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos,@rownum:=@rownum+1 lugar
+				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos,@rownum:=@rownum+1 lugar
 						FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE ,(SELECT @rownum:=0) r
-						WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ? GROUP BY c.ID_CONCURSANTE 
+						WHERE t.ID_CONCURSO = ?  GROUP BY c.ID_CONCURSANTE 
 						ORDER BY totalPuntos DESC";
-				$values = [':ID_CONCURSO'=>$concurso , ':ID_RONDA'=>$ronda];
+				$values = [':ID_CONCURSO'=>$concurso];
 				$mejores = $this->query($query,$values,true);
 				$response['mejores'] = $mejores;
 				$response['estado'] = 1;
@@ -185,6 +186,13 @@
 			return $response;
 		}
 
+		/**
+		 * Obtiene la actividad sobre la pregunta si ya fue contestada o no y por cuantos
+		 * @param  integer $concurso 
+		 * @param  integer $ronda    
+		 * @param  integer $pregunta 
+		 * @return array           
+		 */
 		public function getActividadPregunta($concurso,$ronda,$pregunta){
 			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
 			try{
@@ -207,6 +215,32 @@
 			return $response;
 		}
 
+		/**
+		 * Verifica si existe un empate y en cuyo caso arroja la lista de los empatados
+		 * @param  integer $concurso 
+		 * @return array
+		 */
+		public function esEmpate($concurso){
+			$resultados = $this->getMejoresPuntajes($concurso);
+			if($resultados['estado'] == 1){
+				$tablero = $resultados['mejores'];
+				$empatados = array();
+				foreach ($tablero as  $tab) {
+					foreach ($tablero as $t) {
+						if($tab['ID_CONCURSANTE'] != $t['ID_CONCURSANTE'] AND $tab['totalPuntos'] == $t['totalPuntos']){
+							$empatados[] = $tab;
+						}
+					}
+				}
+				$empatados = array_unique($empatados, SORT_REGULAR);
+				if(count($empatados) > 0){
+					return ['estado'=>1,'mensaje'=>'Se genero empate', 'empatados'=>$empatados];
+				}
+
+				return ['estado'=>2,'mensaje'=>'No existe empate,puedes cerrar el concurso', 'empatados'=>null]; 
+			}
+			return ['estado'=>0 , 'mensaje'=> 'No se pudieron determinar los resultados para saber si existe desempate'];
+		}
 	}
 	/**
 	 * POST REQUESTS

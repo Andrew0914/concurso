@@ -194,7 +194,17 @@
 			$sesion->setOne(SessionKey::ID_CATEGORIA, $idCategoria);
 			$sesion->setOne(SessionKey::ID_RONDA, $primerRonda['ID_RONDA']);
 			return ['estado'=>1 , 'mensaje'=>'Inicio de categoria exitoso', 'ID_RONDA'=> $primerRonda['ID_RONDA']];
+		}
 
+		public function cerrarConcurso($concurso){
+			$sesion = new Sesion();
+			$valores = ['FECHA_CIERRE' => date('Y-m-d H:i:s')];
+			if($this->update($concurso,$valores)){
+				$sesion->kill();
+				return ['estado'=>1 , 'mensaje'=>'Concurso finalizado'];
+			}
+
+			return ['estado'=>0 ,'mensaje'=>'No se pudo cerrar el concurso'];
 		}
 	}
 
@@ -210,6 +220,9 @@
 				break;
 			case 'iniciarConcurso';
 				echo json_encode($concurso->iniciarConcurso($_POST['ID_CONCURSO']));
+				break;
+			case 'cerrarConcurso';
+				echo json_encode($concurso->cerrarConcurso($_POST['ID_CONCURSO']));
 				break;
 			case 'iniciarCategoriaRonda':
 				echo json_encode($concurso->iniciarCategoriaRonda($_POST['ID_CONCURSO'], $_POST['ID_CATEGORIA']));

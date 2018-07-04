@@ -9,6 +9,7 @@
 	$sesion = new Sesion();
 	$tablero = new TableroPuntaje();
 	$concurso = $concurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
+	$empate = $tablero->esEmpate($sesion->getOne(SessionKey::ID_CONCURSO));
  ?>
 <head>
 	<meta charset="utf-8">
@@ -21,10 +22,28 @@
 	<section class="centrado">
 		<br>
 		<div class="row">
-			<div class="col-md-2 offset-md-10">
+			<div class="col-md-2 offset-md-8">
 				<button class="btn btn-geo btn-block" id="btnObtenerPuntaje" onclick="location.reload();" >
 					Actualizar tablero 
 				</button>
+			</div>
+			<div class="col-md-2">
+				<?php 
+					switch ($empate['estado']) {
+						case 0:
+							echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
+							break;
+						case 1:
+							echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Ir a desempate</button>";
+							break;
+						case 2:
+							echo "<button class='btn btn-geo' onclick='cerrarConcurso(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Finalizar Concurso</button>";
+							break;
+						default:
+							echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
+							break;
+					}
+				?>
 			</div>
 		</div>
 		<h1 class="title">
@@ -90,7 +109,7 @@
 						</thead>
 						<tbody>
 							<?php 
-								$response = $tablero->getTableroDisplay($sesion->getOne(SessionKey::ID_CONCURSO),$sesion->getOne(SessionKey::ID_RONDA));
+								$response = $tablero->getResultados($sesion->getOne(SessionKey::ID_CONCURSO));
 								$tableros = $response['tablero'];
 								foreach ($tableros as $tab) {
 									echo "<tr>";
@@ -115,6 +134,57 @@
 		</div>
 		<!--/TABLERO PUNTAJE -->
 	</section>
+	<!-- MODAL FINALIZACION CONCURSO-->
+	<div class="modal" tabindex="-1" role="dialog" id="mdl-fin-concurso">
+		<div class="modal-dialog blanco modal-lg" role="document">
+			<div class="modal-content blanco">
+				<div class="modal-header">
+					<h3 class="modal-title">Fin del concurso</h3>
+				</div>
+				<div class="modal-body centrado">
+					<h4 class="monserrat-bold"><?php echo $empate['mensaje']; ?></h4>
+					<?php 
+						if($empate['estado'] == 1){
+							$empatados = $empate['empatados'];
+							echo "<table class='table table-sm table-bordered table-geo'>";
+							echo "<thead>";
+							echo "<tr> <th> # </th>";
+							echo "<th> Concursante </th>";
+							echo "<th> Puntaje </th> </tr>";
+							echo "</thead>";
+							foreach ($empatados as $e) {
+								echo "<tr>";
+								echo "<td>". $e['ID_CONCURSANTE'] . "</td>";
+								echo "<td>". $e['CONCURSANTE'] . "</td>";
+								echo "<td>". $e['totalPuntos'] . "</td>";
+								echo "</tr>";
+							}
+							echo "</table>";
+						}
+					?>
+				</div>
+				<div class="modal-footer">
+					<?php 
+						switch ($empate['estado']) {
+							case 0:
+								echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
+								break;
+							case 1:
+								echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Ir a desempate</button>";
+								break;
+							case 2:
+								echo "<button class='btn btn-geo' onclick='cerrarConcurso(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Finalizar Concurso</button>";
+								break;
+							default:
+								echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
+								break;
+						}
+					?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- MODAL FINALIZACION CONCURSO-->
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/bootstrap.js"></script>
@@ -126,5 +196,8 @@
 		}
 	</script>
 	<!-- FIN SCRIPTS  -->
+	<script type="text/javascript">
+		$("#mdl-fin-concurso").modal();
+	</script>
 </body>
 </html>
