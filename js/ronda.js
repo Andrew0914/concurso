@@ -32,8 +32,10 @@ function accederRonda(ronda){
 }
 
 /**
- * Inicializa el listener de cambio de ronda
+ * Inicializa el listener de cambio de ronda y categoria, asi como tambien notifica del termino del concurso o la generacion del empate
+ * si no hubo empate notifica que termino el concurso, caso contrario redirecciona a los empatados a la pantalla de empate
  * @param  integer rondaActual 
+ * @param integer categoriaActual
  */
 function initListenerCambioRonda(rondaActual,categoriaActual){
 	try {
@@ -50,7 +52,20 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 			if(response.estado == 1){
 				if(response.termino == 1){
 					if(response.empate == 1){
-						window.location.replace('inicio_desempate');
+						var yoConcursante = response.yo_concursante;
+						var empatados = response.info_empate.empatados;
+						var cont = 0;
+						for(var t= 0; t< empatados.length ; t++){
+							if(empatados[t].ID_CONCURSANTE) == yoConcursante){
+								window.location.replace('inicio_desempate');
+								break;
+							}else{
+								cont++;
+							}
+						}
+						if(cont == empatados.length){
+							window.location.replace('concurso_finalizado');
+						}
 					}else if(response.empate == 0){
 						window.location.replace('concurso_finalizado');
 					}

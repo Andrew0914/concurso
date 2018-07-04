@@ -3,6 +3,8 @@
 	require_once dirname(__FILE__) . '/../util/SessionKey.php';
 	require_once dirname(__FILE__) . '/../Concurso.php';
 	require_once dirname(__FILE__) . '/../RondasLog.php';
+	require_once dirname(__FILE__) . '/../TableroPuntaje.php';
+
 	$sesion = new Sesion();
 	if($sesion->getOne(SessionKey::ID_CONCURSANTE) > 0 ){
 		$rondaActual = $_GET['rondaActual'];
@@ -22,15 +24,22 @@
 		}
 		// do empate
 		$empate = 0;
+		$info_empate = null;
 		if($termino == 1){
-			$empate = 1;
+			$tablero = new TableroPuntaje();
+			$info_empate = $tablero->esEmpate($sesion->getOne(SessionKey::ID_CONCURSO));
+			if($info_empate['estado'] == 1){
+				$empate = 1;
+			}
 		}
 		$cambio = ['estado'=>1,
+					'yo_concursante' => $sesion->getOne(SessionKey::ID_CONCURSANTE),
 					'mensaje'=>'Cambio de ronda',
 					'ronda'=>$concurso['ID_RONDA'],
 					'etapa'=>$concurso['ID_ETAPA'],
 					'termino'=>$termino,
 					'empate'=>$empate,
+					'info_empate'=>$info_empate,
 					'categoria'=>$concurso['ID_CATEGORIA']];
 					
 		echo json_encode($cambio);
