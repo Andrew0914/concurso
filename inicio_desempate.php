@@ -48,7 +48,7 @@
 					}
 				?>
 				<br>
-				<button class="btn btn-geo" onclick="accederDesempate(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
+				<button class="btn btn-geo" onclick="accederDesempate(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_CONCURSANTE); ?>)">
 					Acceder
 				</button>
 			</h4>
@@ -56,6 +56,7 @@
 	</section>
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/ronda.js"></script>
 	<script type="text/javascript" src="js/concursante.js"></script>
 	<!-- FIN SCRIPTS  -->
 </body>

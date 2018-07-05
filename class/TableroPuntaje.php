@@ -135,14 +135,20 @@
 		/**
 		 * Genera la informacion para el tablero de resumen general
 		 * @param  integer $concurso
-		 * @param  integer $ronda   
 		 * @return array          
 		 */
-		public function getResultados($concurso){
+		public function getResultados($concurso,$es_empate = false){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
+			$objConcurso = new Concurso();
+			$objConcurso = $objConcurso->getConcurso($concurso);
+			$rondas = new Rondas();
 			try{
 				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN,ro.RONDA,ca.CATEGORIA FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA LEFT JOIN rondas ro ON t.ID_RONDA = ro.ID_RONDA INNER JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA WHERE t.ID_CONCURSO = ?";
 				$values = [':ID_CONCURSO'=>$concurso];
+				if($es_empate){
+					$query.= " AND t.ID_RONDA = ? ";
+					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
+				}
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;
 				$response['estado'] = 1;
@@ -160,14 +166,22 @@
 		 * @param  integer $ronda    
 		 * @return array           
 		 */
-		public function getMejoresPuntajes($concurso){
+		public function getMejoresPuntajes($concurso, $es_empate = false){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
+			$objConcurso = new Concurso();
+			$objConcurso = $objConcurso->getConcurso($concurso);
+			$rondas = new Rondas();
 			try{
 				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos,@rownum:=@rownum+1 lugar
 						FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE ,(SELECT @rownum:=0) r
-						WHERE t.ID_CONCURSO = ?  GROUP BY c.ID_CONCURSANTE 
-						ORDER BY totalPuntos DESC";
+						WHERE t.ID_CONCURSO = ? ";
 				$values = [':ID_CONCURSO'=>$concurso];
+				if($es_empate){
+					$query.= " AND t.ID_RONDA = ? ";
+					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
+				}
+				$query .= " GROUP BY c.ID_CONCURSANTE ORDER BY totalPuntos DESC ";
+				
 				$mejores = $this->query($query,$values,true);
 				$response['mejores'] = $mejores;
 				$response['estado'] = 1;
@@ -213,8 +227,8 @@
 		 * @param  integer $concurso 
 		 * @return array
 		 */
-		public function esEmpate($concurso){
-			$resultados = $this->getMejoresPuntajes($concurso);
+		public function esEmpate($concurso,$es_empate = false){
+			$resultados = $this->getMejoresPuntajes($concurso,$es_empate);
 			if($resultados['estado'] == 1){
 				$tablero = $resultados['mejores'];
 				$empatados = array();

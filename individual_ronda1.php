@@ -16,7 +16,7 @@
 	$ronda = new Rondas();
 	$ronda = $ronda->getRonda(1);
 	$cat = new Categorias();
-	$cat = $cat->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
+	$cat = $cat->getCategoria($concurso['ID_CATEGORIA']);
  ?>
 <head>
 	<meta charset="utf-8">

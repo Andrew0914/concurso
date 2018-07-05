@@ -201,6 +201,9 @@ function sendRespuesta(){
 				afterSend();
 				stopExecPerSecond= true;
 				notFinish = true;
+				if(document.getElementById('IS_DESEMPATE')== 1 && finDesempate){
+					window.location.replace('concurso_finalizado');
+				}
 			  }else{
 				console.log(data.mensaje)
 			  }
