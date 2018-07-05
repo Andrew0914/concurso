@@ -15,6 +15,8 @@
 	$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 	$ronda = new Rondas();
 	$ronda = $ronda->getRonda(1);
+	$cat = new Categorias();
+	$cat = $cat->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
  ?>
 <head>
 	<meta charset="utf-8">
@@ -37,7 +39,7 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				En cuanto todo este listo el moderador comenzara la ronda 1
+				En cuanto todo este listo el moderador comenzara la ronda 1 de <b><?php echo strtoupper($cat['CATEGORIA']); ?></b>
 				<br>
 			</h4>
 			<small>

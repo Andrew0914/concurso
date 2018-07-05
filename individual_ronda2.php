@@ -6,6 +6,7 @@
 	require_once 'class/Rondas.php';
 	require_once 'class/RondasLog.php';
 	require_once 'class/Concurso.php';
+	require_once 'class/Categorias.php';
 	$sesion = new Sesion();
 	// si el concurso no esta en la ronda 1
 	if( $sesion->getOne(SessionKey::ID_CONCURSANTE) == null || $sesion->getOne(SessionKey::ID_CONCURSANTE) == null ){
@@ -15,6 +16,8 @@
 	$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 	$ronda = new Rondas();
 	$ronda = $ronda->getRonda(2);
+	$cat = new Categorias();
+	$cat = $cat->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
  ?>
 <head>
 	<meta charset="utf-8">
@@ -37,7 +40,7 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				En cuanto todo este listo el moderador comenzara la ronda 2
+				En cuanto todo este listo el moderador comenzara la ronda 2 de <b><?php echo strtoupper($cat['CATEGORIA']); ?></b>
 				<br>
 			</h4>
 			<small>
