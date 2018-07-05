@@ -1,9 +1,30 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title></title>
-</head>
-<body>
-	<h1>Finalizo el concurso</h1>
-</body>
+    <?php
+    require_once 'class/Concurso.php';
+    ?>
+    <head>
+        <meta charset="utf-8">
+        <title>Inicio concursante</title>
+        <link rel="shortcut icon" href="image/favicon.png">
+        <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+    </head>
+    <body class="content content-xs blanco">
+        <section class="centrado">
+            <h1>
+                <img src="image/logo_geollin.png" />
+            </h1>
+            <br>
+            <h2>
+            	<b class="monserrat-bold">FELICIDADES ! </b>
+            	<br> <br>
+                Ha finalizado el concurso, el moderador indicara como quedaron los puntajes finales
+            </h2>
+        </section>
+        <!-- INICIO SCRIPTS -->
+        <script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="js/concurso.js"></script>
+        <!-- FIN SCRIPTS  -->
+    </body>
 </html>

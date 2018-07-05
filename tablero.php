@@ -101,9 +101,11 @@
 						<thead>
 							<tr>
 								<th>Concursante</th>
-								<th># Pregunta</th>
+								<th>Ronda</th>
+								<th>Categoria</th>
+								<th> # </th>
+								<th> Pregunta </th>
 								<th>Respuesta</th>
-								<th>Paso</th>
 								<th>Puntaje</th>
 							</tr>
 						</thead>
@@ -114,14 +116,16 @@
 								foreach ($tableros as $tab) {
 									echo "<tr>";
 									echo "<td>" . $tab['CONCURSANTE'] . '</td>';
+									echo "<td>" . $tab['RONDA'] . '</td>';
+									echo "<td>" . $tab['CATEGORIA'] .'</td>';
 									echo "<td>".$tab['PREGUNTA_POSICION'].'</td>';
+									echo "<td>".$tab['PREGUNTA'].'</td>';
 									echo "<td><b>".$tab['INCISO'].')&nbsp;</b>';
 									if($tab['ES_IMAGEN'] == 1){
 										echo '<img src="image/respuestas/'.$tab['RESPUESTA'].'"></td>';;
 									}else{	
 										echo $tab['RESPUESTA'].'</td>';
 									}
-									echo "<td>".$tab['PASO_PREGUNTA'].'</td>';
 									echo "<td>".$tab['PUNTAJE'].'</td>';
 									echo "</tr>";	
 								}

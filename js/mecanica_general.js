@@ -11,7 +11,8 @@ var Comet = Class.create();
 	 connect: function(){
 	 	var categoria = document.getElementById('ID_CATEGORIA').value;
 	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
-	 	if(esDesempate != undefined AND esDesempate == 1){
+	 	if(document.getElementById('IS_DESEMPATE') != undefined 
+	 		&& esDesempate == 1){
 	 		categoria = 'desempate';
 	 	}
 		this.ajax = new Ajax.Request(this.url, {
@@ -180,7 +181,7 @@ function sendRespuesta(){
 		// solo mandamso la pre respuesta (con la respuesta nula)
 		sendPreRespuestas();
 		afterSend();
-		if(document.getElementById('IS_DESEMPATE')== 1 AND finDesempate){
+		if(document.getElementById('IS_DESEMPATE')== 1 && finDesempate){
 			window.location.replace('concurso_finalizado');
 		}
 	}else{

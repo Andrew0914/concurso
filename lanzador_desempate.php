@@ -105,9 +105,9 @@
 				?> 
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
-						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
+						<a class="btn btn-geo btn-block" href="tablero_desempate" target="_self">
 							Siguiente ->
-						</button>
+						</a>
 					</div>
 				</div>
 				<?php } ?>

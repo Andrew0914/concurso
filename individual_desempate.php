@@ -11,7 +11,7 @@
 		header('Location: inicio');
 	}
 	$ronda = new Rondas();
-	$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
+	$ronda = $ronda->getRonda(3);
  ?>
 <head>
 	<meta charset="utf-8">
@@ -23,7 +23,7 @@
 <body class="content content-lg azul">
 	<section>
 		<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>" />
-		<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>" />
+		<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $ronda['ID_RONDA']; ?>" />
 		<input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="<?php echo $sesion->getOne(SessionKey::ID_CATEGORIA); ?>" />
 		<input type="hidden" id="segundos_ronda" name="segundos_ronda" value="<?php echo $ronda['SEGUNDOS_POR_PREGUNTA']; ?>" />
 		<input type="hidden" id="ID_CONCURSANTE" name="ID_CONCURSANTE" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSANTE); ?>" />

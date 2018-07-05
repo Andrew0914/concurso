@@ -226,14 +226,16 @@
 				if($genero['estado'] == 1){
 					$log = new RondasLog();
 					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>5])){
-						$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
+						if($this->update($idConcurso,['ID_CATEGORIA'=>5 , 'ID_RONDA'=> $desempate['ID_RONDA']] )){
+							$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
+						}
 					}
 				}
 				
 			} catch (Exception $e) {
 				$rs = ['estado'=>0 , 'mensaje' => $ex->getMessage()];
 			}
-			return $rs;
+			return $rs; 
 		}
 	}
 

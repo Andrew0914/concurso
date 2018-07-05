@@ -232,7 +232,7 @@
 			if(!$this->update($idGenerada , $values))
 				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
 			// la ponemos como lanzada para que sea la que aparezca al participante
-			$sentancia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? ";
+			$sentencia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? ";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda];
 			
 			if(!$es_desempate){
@@ -241,7 +241,7 @@
 			}
 			$sentencia .= ' AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ';
 
-			$result = $this->query($sentancia, $valores);
+			$result = $this->query($sentencia, $valores);
 			// si no hay lanzadas ponemos la primera en 1
 			if(count($result) <= 0){
 				$values = ['LANZADA' => 1];
@@ -266,15 +266,14 @@
 		}
 
 		public function ultimaLanzada($concurso,$ronda,$categoria,$es_desempate=false){
-			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? ";
+			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? ";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
 			if(!$es_desempate){
-				$sentencia = ' AND p.ID_CATEGORIA = ? ';
+				$sentencia .= ' AND p.ID_CATEGORIA = ? ';
 				$valores['ID_CATEGORIA'] = $categoria;
 			}
 			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
-			$result = $this->query($sentancia, $valores);
-
+			$result = $this->query($sentencia, $valores);
 			return $result;
 		}
 

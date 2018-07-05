@@ -25,7 +25,7 @@
   $response = array();
   while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
   {
-    usleep(20000); // sleep 10ms to unload the CPU
+    usleep(300000); // sleep 10ms to unload the CPU
     $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate);
     $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
     $currentLanzada = $lanzadaBD[0]['LANZADA'];

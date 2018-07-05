@@ -141,8 +141,7 @@
 		public function getResultados($concurso){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			try{
-				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA
-					WHERE t.ID_CONCURSO = ?";
+				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN,ro.RONDA,ca.CATEGORIA FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA LEFT JOIN rondas ro ON t.ID_RONDA = ro.ID_RONDA INNER JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA WHERE t.ID_CONCURSO = ?";
 				$values = [':ID_CONCURSO'=>$concurso];
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;

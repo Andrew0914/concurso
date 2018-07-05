@@ -18,5 +18,6 @@ require_once 'class/util/Route.php';
     $route->add('inicio_desempate', '../inicio_desempate.php');
     $route->add('concurso_finalizado' , '../fin_concurso.php');
     $route->add('lanzador_desempate' , '../lanzador_desempate.php');
+    $route->add('tablero_desempate' , '../tablero_desempate.php');
 	$route->submit();
 ?>
