@@ -22,9 +22,18 @@
 		 */
 		public function preRespuesta($preRespuesta){
 			unset($preRespuesta['functionTablero']);
-			if($this->save($preRespuesta))
-				return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
-			return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
+			if(!$this->existeEnTablero($preRespuesta)){
+				if($this->save($preRespuesta)){
+					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
+				}
+				return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
+			}
+			return ['estado' => 2, 'mensaje'=>'Ya existe la pre respuesta almacenada'];	
+		}
+
+		public function existeEnTablero($preRespuesta){
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA = ?";
+			return count($this->get($where, $preRespuesta)) > 0;
 		}
 
 		/**

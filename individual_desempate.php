@@ -29,6 +29,7 @@
 		<input type="hidden" id="ID_CONCURSANTE" name="ID_CONCURSANTE" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSANTE); ?>" />
 		<input type="hidden" name="IS_DESEMPATE" id="IS_DESEMPATE" value="1">
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
+		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
 		<div class="card-md centrado" id="card-inicio">
 			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
 			<h4 id="mensaje_concurso">

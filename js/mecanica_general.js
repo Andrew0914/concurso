@@ -48,11 +48,13 @@ var Comet = Class.create();
 	 	showPregunta(response);
 	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
 	 	if(esDesempate == undefined || esDesempate == 0){
-	 		if(this.lanzada ==  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+	 		if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
 	 			finalizaRonda(response.concurso);
 	 		}
 	 	}else{
-	 		finDesempate = true;
+	 		if(this.lanzada >=  document.getElementById('CANTIDAD_PREGUNTAS').value){
+	 			finDesempate = true;
+	 		}
 	 	}
 	}
   }
@@ -181,7 +183,7 @@ function sendRespuesta(){
 		// solo mandamso la pre respuesta (con la respuesta nula)
 		sendPreRespuestas();
 		afterSend();
-		if(document.getElementById('IS_DESEMPATE')== 1 && finDesempate){
+		if(finDesempate){
 			window.location.replace('concurso_finalizado');
 		}
 	}else{
@@ -201,7 +203,7 @@ function sendRespuesta(){
 				afterSend();
 				stopExecPerSecond= true;
 				notFinish = true;
-				if(document.getElementById('IS_DESEMPATE')== 1 && finDesempate){
+				if(finDesempate){
 					window.location.replace('concurso_finalizado');
 				}
 			  }else{
