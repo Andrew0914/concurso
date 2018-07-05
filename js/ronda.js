@@ -56,7 +56,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 						var empatados = response.info_empate.empatados;
 						var cont = 0;
 						for(var t= 0; t< empatados.length ; t++){
-							if(empatados[t].ID_CONCURSANTE) == yoConcursante){
+							if(empatados[t].ID_CONCURSANTE == yoConcursante){
 								window.location.replace('inicio_desempate');
 								break;
 							}else{

@@ -68,7 +68,7 @@
 						</thead>
 						<tbody>
 							<?php 
-								$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO),$sesion->getOne(SessionKey::ID_RONDA));
+								$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO));
 								$mejores = $response['mejores'];
 								foreach ($mejores as $mejor) {
 									echo "<tr>";

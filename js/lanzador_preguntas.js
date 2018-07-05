@@ -22,6 +22,9 @@ function lanzarPregunta(segundos,boton){
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
     var categoria = $("#ID_CATEGORIA").val();
+    if(categoria == null || categoria == undefined){
+        categoria = 'desempate';
+    }
 	$.ajax({
 		type : 'POST',
         url  : 'class/PreguntasGeneradas.php',

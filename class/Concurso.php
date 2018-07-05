@@ -7,6 +7,7 @@
 	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
 	require_once dirname(__FILE__) . '/Etapas.php';
 	require_once dirname(__FILE__) . '/RondasLog.php';
+	require_once dirname(__FILE__) . '/Desempate.php';
 
 	class Concurso extends BaseTable{
 
@@ -206,6 +207,34 @@
 
 			return ['estado'=>0 ,'mensaje'=>'No se pudo cerrar el concurso'];
 		}
+
+		/**
+		 * Accede al desempate de la etapa 
+		 * @param  integer $idConcurso 
+		 * @return array             
+		 */
+		public function irDesempate($idConcurso){
+			$rs = ['estado'=>0 , 'mensaje'=>'No se pudo acceder al desempate'];
+			try {
+				$concurso = $this->find($idConcurso);
+				$ronda = new Rondas();
+				$desempate = $ronda->getRondaDesempate($concurso['ID_ETAPA']);
+				$sesion = new Sesion();
+				$sesion->setOne(SessionKey::ID_RONDA , $desempate['ID_RONDA']);
+				$objDesempate = new Desempate();
+				$genero = $objDesempate->generaPreguntas($concurso['ID_ETAPA'],$concurso['ID_CONCURSO']);
+				if($genero['estado'] == 1){
+					$log = new RondasLog();
+					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>5])){
+						$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
+					}
+				}
+				
+			} catch (Exception $e) {
+				$rs = ['estado'=>0 , 'mensaje' => $ex->getMessage()];
+			}
+			return $rs;
+		}
 	}
 
 	/**
@@ -226,6 +255,9 @@
 				break;
 			case 'iniciarCategoriaRonda':
 				echo json_encode($concurso->iniciarCategoriaRonda($_POST['ID_CONCURSO'], $_POST['ID_CATEGORIA']));
+				break;
+			case 'irDesempate':
+				echo json_encode($concurso->irDesempate($_POST['ID_CONCURSO']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSO:POST']);

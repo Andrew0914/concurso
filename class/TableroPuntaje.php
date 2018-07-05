@@ -45,20 +45,14 @@
 			$regla = new Reglas();
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
-
-			if($correcta == 1){
-				$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+			$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+			if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ){
+				$v_puntaje['PUNTAJE'] *= -1;
+			}
+			if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
+				$v_puntaje['PUNTAJE'] *= -1;
 			}
 			
-			if(count($reglas) == 1){
-				if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ){
-					$v_puntaje['PUNTAJE'] *= -1;
-				}
-				if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
-					$v_puntaje['PUNTAJE'] *= -1;
-				}
-			}
-
 			return $this->update(0, $v_puntaje, $where, $whereValues);
 		}
 

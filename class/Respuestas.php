@@ -16,7 +16,7 @@
 		}
 
 		public function esCorrecta($pregunta , $respuesta){
-			if($respuesta <= 0){
+			if($respuesta <= 0 || $respuesta == '' || $respuesta == null){
 				return 0;
 			}
 			$whereClause = "ID_PREGUNTA = ? AND ID_RESPUESTA= ?";

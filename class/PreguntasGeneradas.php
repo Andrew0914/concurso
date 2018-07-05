@@ -119,6 +119,17 @@
 			return $this->query($query,$values);
 		}
 
+		public function getPreguntasDesempate($concurso,$ronda){
+			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,
+				pg.ID_GENERADA,pg.LANZADA,pg.HECHA,g.*,c.*
+				FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
+				INNER JOIN grados_dificultad g ON p.ID_GRADO = g.ID_GRADO
+				INNER JOIN categorias c ON p.ID_CATEGORIA = c.ID_CATEGORIA
+				WHERE ID_RONDA = ? AND ID_CONCURSO = ? ";
+            $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
+			return $this->query($query,$values);
+		}
+
 		/**
 		 * Elimina las preguntas generadas
 		 * @param  [int] $id     
@@ -202,7 +213,7 @@
 		 * @param  [int] $ronda      
 		 * @return [assoc array]             
 		 */
-		public function lanzarPregunta($idGenerada,$concurso,$idRonda,$idCategoria){
+		public function lanzarPregunta($idGenerada,$concurso,$idRonda,$idCategoria,$es_desempate = false){
 			//objeto del a ronda 
 			$ronda = new Rondas();
 			$ronda = $ronda->getRonda($idRonda);
@@ -221,8 +232,15 @@
 			if(!$this->update($idGenerada , $values))
 				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
 			// la ponemos como lanzada para que sea la que aparezca al participante
-			$sentancia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
-			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda , 'ID_CATEGORIA'=>$idCategoria];
+			$sentancia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? ";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda];
+			
+			if(!$es_desempate){
+				$sentencia .= ' AND p.ID_CATEGORIA= ? ';
+				$valores['ID_CATEGORIA'] = $idCategoria;
+			}
+			$sentencia .= ' AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ';
+
 			$result = $this->query($sentancia, $valores);
 			// si no hay lanzadas ponemos la primera en 1
 			if(count($result) <= 0){
@@ -231,7 +249,10 @@
 					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
 			}else{
 				// si ya se lanzaron previamente otras
-				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ?";
+				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? ";
+				if(!$es_desempate){
+					$otraSentencia .= ' AND p.ID_CATEGORIA= ? ';
+				}
 				$rs = $this->query($otraSentencia, $valores);
 				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
 				if(!$this->update($idGenerada , $values))
@@ -244,11 +265,14 @@
 				,'respuestas'=>$respuestas];
 		}
 
-		public function ultimaLanzada($concurso,$ronda,$categoria){
-			
-			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
-
-			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda, 'ID_CATEGORIA'=>$categoria];
+		public function ultimaLanzada($concurso,$ronda,$categoria,$es_desempate=false){
+			$sentancia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? ";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
+			if(!$es_desempate){
+				$sentencia = ' AND p.ID_CATEGORIA = ? ';
+				$valores['ID_CATEGORIA'] = $categoria;
+			}
+			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
 			$result = $this->query($sentancia, $valores);
 
 			return $result;
@@ -261,9 +285,13 @@
 		 * @param integer $categoria
 		 * @return boolean           
 		 */
-		public function todasHechas($concurso,$ronda,$categoria){
-			$sentencia = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA= ? AND HECHA  = 0";
-			$whereValues = ['ID_CONCURSO' => $concurso , 'ID_RONDA' => $ronda, 'ID_CATEGORIA'=>$categoria];
+		public function todasHechas($concurso,$ronda,$categoria,$desempate = false){
+			$sentencia = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ?  AND HECHA  = 0 ";
+			$whereValues = ['ID_CONCURSO' => $concurso , 'ID_RONDA' => $ronda];
+			if(!$desempate){
+				$sentencia .= " AND p.ID_CATEGORIA= ?";
+				$whereValues['ID_CATEGORIA'] = $categoria; 
+			}
 			return count($this->query($sentencia,$whereValues)) <= 0;
 		}
 
@@ -285,8 +313,12 @@
 					$_POST['ID_CATEGORIA'],$_POST['ID_ETAPA'] ));
 				break;
 			case 'lanzarPregunta':
+				$es_desempate = false;
+				if($_POST['ID_CATEGORIA'] == 'desempate'){
+					$es_desempate = true;
+				}
 				echo json_encode($genera->lanzarPregunta($_POST['ID_GENERADA'] ,$_POST['ID_CONCURSO'] 
-					, $_POST['ID_RONDA'],$_POST['ID_CATEGORIA']));
+					, $_POST['ID_RONDA'],$_POST['ID_CATEGORIA'] , $es_desempate));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida PreguntasGeneradas:POST']);

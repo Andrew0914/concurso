@@ -10,6 +10,12 @@
 		public function __construct(){
 		}
 
+		/**
+		 * Genera las preguntas para las rondas de desempate
+		 * @param  integer $etapa      
+		 * @param  integer $idConcurso 
+		 * @return array             
+		 */
 		public function generaPreguntas($etapa,$idConcurso){
 			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
 			$mensaje ="";
@@ -54,8 +60,9 @@
 
 			return $rs;
 		}
+
 	}
 
-	$desempate = new Desempate();
-	echo json_encode($desempate->generaPreguntas(1,166));
+	/*$desempate = new Desempate();
+	echo json_encode($desempate->generaPreguntas(1,166));*/
 ?>

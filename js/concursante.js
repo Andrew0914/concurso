@@ -39,3 +39,16 @@ function setConcursantes(concurso){
 		$("#CONCURSANTE").html(content);
   },'json');
 }
+
+function accederDesempate(idConcurso,concursante){
+	$.get('class/Concursante.php?ID_CONCURSO='+idConcurso
+		+"&ID_CONCURSANTE=" + concursante
+		+"&functionConcursante=accederDesempate",
+	 function(data) {
+		if(data.estado == 1){
+			accederRonda(data.ronda.ID_RONDA);
+		}else{
+			window.location.replace('concurso_finalizado');
+		}
+  	},'json');
+}

@@ -115,3 +115,23 @@ function cerrarConcurso(concurso){
     }
   });  
 }
+
+function irDesempate(concurso){
+  $.ajax({
+    url: 'class/Concurso.php',
+    type: 'POST',
+    dataType: 'json',
+    data: {'ID_CONCURSO': concurso , 'functionConcurso':'irDesempate'},
+    success:function(response){
+      if(response.estado == 1){
+        window.location.replace('lanzador_desempate');
+      }else{
+        alert(response.mensaje);
+      }
+    },
+    error:function(error){
+      console.log(error);
+      alert("No se pudo acceder al desempate");
+    }
+  }); 
+}

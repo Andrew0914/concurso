@@ -4,6 +4,8 @@
 	require_once dirname(__FILE__) . '/util/Sesion.php';
 	require_once dirname(__FILE__) . '/util/SessionKey.php';
 	require_once dirname(__FILE__) . '/Concurso.php';
+	require_once dirname(__FILE__) . '/TableroPuntaje.php';
+	require_once dirname(__FILE__) . '/Rondas.php';
 	
 	class Concursante extends BaseTable{
 
@@ -101,6 +103,26 @@
 		public function getConcursante($id){
 			return $this->find($id);
 		}
+
+		public function accederDesempate($idConcurso, $concursante){
+			$concurso = new Concurso();
+			$concurso = $concurso->getConcurso($idConcurso);
+			$ronda = new Rondas();
+			$tablero = new TableroPuntaje();
+			$info_empate = $tablero->esEmpate($idConcurso);
+			if($info_empate['estado'] == 1){
+				$empatados = $info_empate['empatados'];
+				foreach ($empatados as $e) {
+					if($e['ID_CONCURSANTE'] == $concursante){
+						return ['estado'=>1,
+								'mensaje'=>'Puedes acceder por que empataste con alguien',
+								'info_empate'=>$info_empate,
+								'ronda'=>$ronda->getRondaDesempate($concurso['ID_ETAPA'])];
+					}
+				}
+			}
+			return ['estado'=>0 , 'mensaje'=>'No has empadado con alguien, finalizo el concurso para ti'];
+		}
 	}
 
 	// POST REQUEST
@@ -124,6 +146,9 @@
 		switch ($function) {
 			case 'getConcursantes':
 				echo json_encode($concursante->getConcursantes($_GET['concurso']));
+				break;
+			case 'accederDesempate':
+				echo json_encode($concursante->accederDesempate($_GET['ID_CONCURSO'],$_GET['ID_CONCURSANTE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE:GET']);

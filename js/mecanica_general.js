@@ -1,5 +1,6 @@
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
 var finalizar = false;
+var finDesempate = false;
 var Comet = Class.create();
   Comet.prototype = {
 	 lanzada: 0,
@@ -8,12 +9,17 @@ var Comet = Class.create();
 	 noerror: true,
 	 initialize: function() { },
 	 connect: function(){
+	 	var categoria = document.getElementById('ID_CATEGORIA').value;
+	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
+	 	if(esDesempate != undefined AND esDesempate == 1){
+	 		categoria = 'desempate';
+	 	}
 		this.ajax = new Ajax.Request(this.url, {
 		  method: 'get',
 		  parameters: { 'lanzada' : this.lanzada , 
 						'ID_CONCURSO': document.getElementById("ID_CONCURSO").value,
 						'ID_RONDA': document.getElementById("ID_RONDA").value,
-						'ID_CATEGORIA':document.getElementById('ID_CATEGORIA').value},
+						'ID_CATEGORIA':categoria},
 		  onSuccess: function(transport) {
 			 var response = transport.responseText.evalJSON();
 			 this.comet.lanzada = response['lanzada'];
@@ -39,8 +45,13 @@ var Comet = Class.create();
 	 },
 	 handleResponse: function(response){
 	 	showPregunta(response);
-	 	if(this.lanzada ==  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
-	 		finalizaRonda(response.concurso);
+	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
+	 	if(esDesempate == undefined || esDesempate == 0){
+	 		if(this.lanzada ==  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+	 			finalizaRonda(response.concurso);
+	 		}
+	 	}else{
+	 		finDesempate = true;
 	 	}
 	}
   }
@@ -169,6 +180,9 @@ function sendRespuesta(){
 		// solo mandamso la pre respuesta (con la respuesta nula)
 		sendPreRespuestas();
 		afterSend();
+		if(document.getElementById('IS_DESEMPATE')== 1 AND finDesempate){
+			window.location.replace('concurso_finalizado');
+		}
 	}else{
 		// MANDAMOS LA RESPUESTA SELECCIONADA
 	  $jq.ajax({
