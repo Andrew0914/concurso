@@ -23,6 +23,7 @@
 		public function preRespuesta($preRespuesta){
 			unset($preRespuesta['functionTablero']);
 			if(!$this->existeEnTablero($preRespuesta)){
+				$preRespuesta['RESPUESTA_CORRECTA'] = 0;
 				if($this->save($preRespuesta)){
 					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
 				}

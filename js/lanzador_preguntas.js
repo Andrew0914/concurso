@@ -71,7 +71,7 @@ function todosContestaron(){
    var pregunta = $("#ID_PREGUNTA").val();
    $.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta, 
       function(data) {
-         if(data.estado == 1){
+        if(data.estado == 1){
             stopExecPerSecond= true;
             //obtenemos como les fue a los participantes
             getMarcadorPregunta();
@@ -134,7 +134,7 @@ function getMarcadorPregunta(){
                     'width': porcentajeIncorrectas,
                     'background-color': 'red'
                 });
-
+                getActividadPregunta();
             }else{
                 alert(response.mensaje);
             }
