@@ -225,8 +225,8 @@
 				$genero = $objDesempate->generaPreguntas($concurso['ID_ETAPA'],$concurso['ID_CONCURSO']);
 				if($genero['estado'] == 1){
 					$log = new RondasLog();
-					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>5])){
-						if($this->update($idConcurso,['ID_CATEGORIA'=>5 , 'ID_RONDA'=> $desempate['ID_RONDA']] )){
+					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA']])){
+						if($this->update($idConcurso,['ID_RONDA'=> $desempate['ID_RONDA']] )){
 							$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
 						}
 					}

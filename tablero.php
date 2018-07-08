@@ -24,7 +24,7 @@
 		<div class="row">
 			<div class="col-md-2 offset-md-8">
 				<button class="btn btn-geo btn-block" id="btnObtenerPuntaje" onclick="location.reload();" >
-					Actualizar tablero 
+					Actualizar tablero
 				</button>
 			</div>
 			<div class="col-md-2">
@@ -144,9 +144,12 @@
 			<div class="modal-content blanco">
 				<div class="modal-header">
 					<h3 class="modal-title">Fin del concurso</h3>
+					<button class="btn" style="font-size: 24px" onclick="$('#mdl-fin-concurso').modal('hide')">&times;</button>
 				</div>
 				<div class="modal-body centrado">
+					<hr>
 					<h4 class="monserrat-bold"><?php echo $empate['mensaje']; ?></h4>
+					<hr>
 					<?php 
 						if($empate['estado'] == 1){
 							$empatados = $empate['empatados'];
@@ -168,22 +171,6 @@
 					?>
 				</div>
 				<div class="modal-footer">
-					<?php 
-						switch ($empate['estado']) {
-							case 0:
-								echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
-								break;
-							case 1:
-								echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Ir a desempate</button>";
-								break;
-							case 2:
-								echo "<button class='btn btn-geo' onclick='cerrarConcurso(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Finalizar Concurso</button>";
-								break;
-							default:
-								echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
-								break;
-						}
-					?>
 				</div>
 			</div>
 		</div>

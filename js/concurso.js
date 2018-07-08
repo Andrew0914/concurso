@@ -124,7 +124,7 @@ function irDesempate(concurso){
     data: {'ID_CONCURSO': concurso , 'functionConcurso':'irDesempate'},
     success:function(response){
       if(response.estado == 1){
-        window.location.replace('lanzador_desempate');
+        window.location.replace('leer_preguntas');
       }else{
         alert(response.mensaje);
       }

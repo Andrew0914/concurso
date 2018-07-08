@@ -19,6 +19,8 @@
 		public function generaPreguntas($etapa,$idConcurso){
 			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
 			$mensaje ="";
+			$concurso = new Concurso();
+			$concurso = $concurso->getConcurso($idConcurso);
 			$objRonda = new Rondas();
 			$genera = new PreguntasGeneradas();
 			$objRegla = new Reglas();
@@ -27,27 +29,25 @@
 			$idRonda = $ronda['ID_RONDA'];
 			$regla = $objRegla->getReglasByRonda($idRonda)[0];
 			$categoria = new Categorias();
-			$categorias = $categoria->getCategoriasPermitidas($etapa)['categorias'];
+			$cat = $categoria->getCategoria($concurso['ID_CATEGORIA']);
 			// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
 			$grados = explode(',',$regla['GRADOS']);
 			for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
-				foreach ($categorias as $cat) {
+				$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
+				$key = array_rand($preguntas);
+				$preguntaAleatoria = $preguntas[$key];
+				while ($genera->existePreguntaEnConcursoRonda($idConcurso,$idRonda,
+					$preguntaAleatoria['ID_PREGUNTA'])) {
 					$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
-					$key = array_rand($preguntas);
-					$preguntaAleatoria = $preguntas[$key];
-					while ($genera->existePreguntaEnConcursoRonda($idConcurso,$idRonda,
-						$preguntaAleatoria['ID_PREGUNTA'])) {
-						$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
-						$preguntaAleatoria = array_rand($preguntas);
-					}
-					$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
-					, 'ID_CONCURSO' => $idConcurso 
-					, 'ID_RONDA' => $idRonda
-					, 'PREGUNTA_POSICION' => ($genera->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
-					if($genera->guardar($valoresInsert) <= 0){
-						$valida *= 0;
-					}	
+					$preguntaAleatoria = array_rand($preguntas);
 				}
+				$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
+				, 'ID_CONCURSO' => $idConcurso 
+				, 'ID_RONDA' => $idRonda
+				, 'PREGUNTA_POSICION' => ($genera->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
+				if($genera->guardar($valoresInsert) <= 0){
+					$valida *= 0;
+				}	
 			}
 			if($valida){
 				if($mensaje ==''){

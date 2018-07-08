@@ -11,8 +11,9 @@
 	$sesion = new Sesion();
 	$etapa = new Etapas();
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
-	$categoria = new Categorias();
-	$categoria = $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
+	$objCategoria = new Categorias();
+	$categoria = $objCategoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
+
  ?>
 <head>
 	<meta charset="utf-8">
@@ -45,7 +46,7 @@
 		<!-- PUNTAJES SI ES EL CASO-->
 		<?php 
 			$log = new RondasLog();
-			if($log->rondasTerminadas($sesion->getOne(SessionKey::ID_CONCURSO))){
+			if($log->rondasTerminadasCategoria($sesion->getOne(SessionKey::ID_CONCURSO) , $categoria['ID_CATEGORIA']) ){
 		?>
 		<br>
 		<div class="row">
@@ -58,40 +59,37 @@
 		<br>
 		<?php } ?>
 		<!-- PUNTAJES SI ES EL CASO-->
-		<!--  GENERACION DE PREGUNTAS -->
+		<!--  GENERACION DE PREGUNTAS 
 		<div class="row">
 			<div class="col-md-8">
 				<b class="monserrat-bold">Generar Preguntas</b>
 				<select class="select-geo" style="margin: 0;width: 100%" id="ID_CATEGORIA">
 					<option value="">Selecciona categoria</option>
 					<?php 
-						$categoria = new Categorias();
+						/*$categoria = new Categorias();
 						$categorias = $categoria->getCategoriasPermitidas($sesion->getOne(SessionKey::ID_ETAPA))['categorias'];
 						foreach ($categorias as $cat) {
 							echo "<option value='".$cat['ID_CATEGORIA']."'>" .$cat['CATEGORIA']. "</option>";
-						}
+						}*/
 					 ?>
 				</select>
 			</div>
 			<div class="col-md-4">
 				<br>
-				<button class="btn-geo" onclick="generaPreguntas(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_ETAPA); ?>)">
+				<button class="btn-geo" onclick="generaPreguntas(<?php //echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_ETAPA); ?>)">
 					Generar
 				</button>
 			</div>
 		</div>
 		<br>
-		<!--  GENERACION DE PREGUNTAS -->
+		 -->
 		<div class="row">
 			<div class="col-md-12">
 				<table  class="table table-sm table-bordered table-striped" id="tbl-generadas">
 					<thead>
 						<tr>
 							<th>Rondas</th>
-							<th>Geofísica</th>
-							<th>Geolofía</th>
-							<th>Petroleros</th>
-							<th>Generales</th>
+							<th> <?php echo $categoria['CATEGORIA']; ?> </th>
 						</tr>
 					</thead>
 						<tbody>
@@ -103,15 +101,33 @@
 								for ($i=0; $i < count($contadores) ; $i++) { 
 									echo "<tr>";
 									echo "<td>". $contadores[$i]['ronda'] . "</td>";
-									echo "<td>". $contadores[$i]['geofisica'] . "</td>";
-									echo "<td>". $contadores[$i]['geologia'] . "</td>";
-									echo "<td>". $contadores[$i]['petroleros'] . "</td>";
-									echo "<td>". $contadores[$i]['generales'] . "</td>";
+									switch ($categoria['ID_CATEGORIA']) {
+										case 1:
+											echo "<td>". $contadores[$i]['geofisica'] . "</td>";
+										break;
+										case 2:
+											echo "<td>". $contadores[$i]['geologia'] . "</td>";
+										break;
+										case 3:
+											echo "<td>". $contadores[$i]['petroleros'] . "</td>";
+										break;
+										case 4:
+											echo "<td>". $contadores[$i]['generales'] . "</td>";
+										break;
+									}
 									echo "</tr>";
 								}
 							 ?>
 						</tbody>
 				</table>
+				<div class="row">
+					<div class="col-md-4 offset-md-8">
+						<button class="btn btn-block btn-geo" onclick="iniciarCategoria(<?php echo $categoria['ID_CATEGORIA'].','.$sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
+					 			Iniciar
+					 	</button>
+					</div>
+				</div>
+				<!-- bonotes iniciar
 				<table  class="table table-sm table-bordered">
 					<tr>
 					 	<td>
@@ -140,6 +156,7 @@
 					 	</td>
 					</tr>
 				</table>
+				-->
 			</div>
 		</div>
 		<!--  GENERACION DE PREGUNTAS -->

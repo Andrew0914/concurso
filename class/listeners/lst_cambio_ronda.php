@@ -17,7 +17,7 @@
 		while($concurso['ID_RONDA'] == $rondaActual AND $concurso['ID_CATEGORIA'] == $categoriaActual) {
 			usleep(350000);
 			$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
-			if($log->rondasTerminadas($concurso['ID_CONCURSO'])){
+			if($log->rondasTerminadasCategoria($concurso['ID_CONCURSO'],$concurso['ID_CATEGORIA'])){
 				$termino = 1;
 				break;
 			}

@@ -96,7 +96,7 @@
 				}
 			}
 
-			if($todasFinalizadas == 2){
+			if($todasFinalizadas >= 2){
 				return ['estado'=>2,'mensaje'=>'Terminaron las rondas para la categoria'];
 			}
 
