@@ -11,7 +11,7 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 	try {
 		$ = $jq;
 	} catch(e) {
-		console.log(e);
+		//console.log(e);
 	}
 	$("#cronometro-content").css("display","flex");
 	$("#animated text").text(segundos);
