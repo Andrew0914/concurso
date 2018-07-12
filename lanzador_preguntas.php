@@ -9,6 +9,7 @@
 		require_once 'class/Etapas.php';
 		require_once 'class/RondasLog.php';
 		require_once 'class/Categorias.php';
+		require_once 'class/TableroPuntaje.php';
 		$sesion = new Sesion();
 		$generadas = new PreguntasGeneradas();
 		$etapa = new Etapas();
@@ -20,6 +21,7 @@
 		$idRonda = $sesion->getOne(SessionKey::ID_RONDA);
 		$categoria = new Categorias();
 		$categoria= $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
+		$tablero = new TableroPuntaje();
 	 ?>
 	<head>
 		<meta charset="utf-8">
@@ -107,6 +109,7 @@
 					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
 					if($todasHechas){
 				?> 
+				<!-- CAMBIO DE RONDA -->
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
 						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
@@ -114,6 +117,60 @@
 						</button>
 					</div>
 				</div>
+				<!-- FIN CAMBIO DE RONDA -->
+				<!-- TABLERO PRELIMINAR  POR RONDA-->
+				<div class="modal" id="mdl-preliminar">
+					<div class="modal-dialog modal-lg">
+					    <div class="modal-content">
+					    	<!-- Modal Header -->
+					    	<div class="modal-header">
+					        	<h4 class="modal-title">Puntajes preliminares</h4>
+					       		<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      	</div>
+						    <!-- Modal body -->
+						    <div class="modal-body">
+						    	<div id="divmejores">
+									<table class="table table-bordered table-geo" id="tbl-mejores" style="width: 100%;">
+										<thead>
+											<tr>
+												<th></th>
+												<th>Concursante</th>
+												<th>Puntaje Total</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php 
+												$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO));
+												$mejores = $response['mejores'];
+												foreach ($mejores as $mejor) {
+													echo "<tr>";
+													if($mejor['lugar'] == 1){
+														echo "<td><img src='image/gold_medal.png'></td>";
+													}else if($mejor['lugar']==2){
+														echo "<td><img src='image/silver_medal.png'></td>";
+													}
+													else if($mejor['lugar']==3){
+														echo "<td><img src='image/bonze_medal.png'></td>";
+													}else{
+														echo "<td>".$mejor['lugar']."<small> lugar</small></td>";
+													}
+													echo "<td>".$mejor['CONCURSANTE'] . '</td>';
+													echo "<td>".$mejor['totalPuntos'].'</td>';
+													echo "</tr>";	
+												}
+											 ?>
+										</tbody>
+									</table>
+								</div>
+						    </div>
+					      	<!-- Modal footer -->
+					    	<div class="modal-footer">
+					        	<button type="button" class="btn btn-geo" data-dismiss="modal">Cerrar</button>
+					      	</div>
+					    </div>
+				  	</div>
+				</div>
+				<!-- FIN TABLERO PRELIMINAR POR RONDA-->
 				<?php } ?>
 			</div>
 			<!-- PREGUNTAS GENERADAS-->
@@ -234,6 +291,7 @@
 		 ?>
 		<script type="text/javascript">
 			window.scrollTo(0,document.body.scrollHeight);
+			$("#mdl-preliminar").modal();
 		</script>
 		<?php } ?>
 	</body>
