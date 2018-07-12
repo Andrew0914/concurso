@@ -59,30 +59,6 @@
 		<br>
 		<?php } ?>
 		<!-- PUNTAJES SI ES EL CASO-->
-		<!--  GENERACION DE PREGUNTAS 
-		<div class="row">
-			<div class="col-md-8">
-				<b class="monserrat-bold">Generar Preguntas</b>
-				<select class="select-geo" style="margin: 0;width: 100%" id="ID_CATEGORIA">
-					<option value="">Selecciona categoria</option>
-					<?php 
-						/*$categoria = new Categorias();
-						$categorias = $categoria->getCategoriasPermitidas($sesion->getOne(SessionKey::ID_ETAPA))['categorias'];
-						foreach ($categorias as $cat) {
-							echo "<option value='".$cat['ID_CATEGORIA']."'>" .$cat['CATEGORIA']. "</option>";
-						}*/
-					 ?>
-				</select>
-			</div>
-			<div class="col-md-4">
-				<br>
-				<button class="btn-geo" onclick="generaPreguntas(<?php //echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_ETAPA); ?>)">
-					Generar
-				</button>
-			</div>
-		</div>
-		<br>
-		 -->
 		<div class="row">
 			<div class="col-md-12">
 				<table  class="table table-sm table-bordered table-striped" id="tbl-generadas">

@@ -258,6 +258,23 @@
 			}
 			return ['estado'=>0 , 'mensaje'=> 'No se pudieron determinar los resultados para saber si existe desempate'];
 		}
+
+		public function miPuntajePregunta($concurso,$ronda,$concursante,$pregunta){
+			$respone = ['estado'=>0 , 'mensaje'=>'No se pudo obtener el puntaje de tu pregunta'];
+			$where = "ID_CONCURSO = ?  AND ID_RONDA= ? AND ID_CONCURSANTE = ?";
+			$valores = ['ID_CONCURSO' => $concurso  , 
+						'ID_RONDA' => $ronda, 'ID_CONCURSANTE' => $concursante];
+			try{
+				$response['puntaje'] = $this->get($where , $valores)[0];
+				$response['mensaje']= 'Puntaje obtenido de tu pregunta';
+				$response['estado'] = 1;
+			}catch(Exception $ex){
+				$response['estado'] = 0;
+				$response['mensaje'] = 'No se obtuvo tu puntaje :'. $ex->getMessage();
+			}
+
+			return $response;
+		}
 	}
 	/**
 	 * POST REQUESTS
@@ -304,6 +321,9 @@
 				break;
 			case 'getMejoresPuntajes':
 				echo json_encode($tablero->getMejoresPuntajes($_GET['ID_CONCURSO'] , $_GET['ID_RONDA']));
+				break;
+			case 'miPuntajePregunta': 
+				echo json_encode($tablero->miPuntajePregunta($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],$_GET['ID_CONCURSANTE'],$_GET['PREGUNTA']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:GET']);

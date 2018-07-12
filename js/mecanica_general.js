@@ -218,13 +218,50 @@ function sendRespuesta(){
 	}
 
 /**
- * Prepara la pantalla para el envio de respuesta y lo posterior a ello
+ * Resetea la pantalla para esperar y muestra el resutlado de la ultima pregunta
  */
 function afterSend(){
-	$jq("#cronometro-content").css("display","none");
-	$jq("#animated text").text(0);
-	$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
-	$jq("#content-respuestas").html("");
+	console.log('after send');
+	var concurso = $jq("#ID_CONCURSO").val();
+	var ronda = $jq("#ID_RONDA").val();
+	var concursante = $jq("#ID_CONCURSANTE").val();
+	var pregunta = $jq("#ID_PREGUNTA").val();
+	var categoria = $jq("#ID_CATEGORIA").val();
+	$jq.ajax({
+		url: 'class/TableroPuntaje.php',
+		type: 'GET',
+		dataType: 'json',
+		data: {'ID_CONCURSO':concurso,
+				'ID_CATEGORIA':categoria,
+				'ID_RONDA':ronda,
+				'ID_CONCURSANTE':concursante,
+				'PREGUNTA':pregunta,
+				'functionTablero':'miPuntajePregunta'},
+		success:function(response){
+			console.log(response);
+			if(response.estado == 1){
+				var mensaje  = "<h4>Tu respuesta fue:";
+				if(response.puntaje.RESPUESTA_CORRECTA == 1){
+					mensaje += " CORRECTA </h4>";
+					mensaje += "<img src='image/correcta.png'/>"
+				}else{
+					mensaje += " INCORRECTA </h4>";
+					mensaje += "<img src='image/incorrecta.png'/>"
+				}
+				$jq("#resultado-mi-pregunta").html(mensaje);
+				$jq("#cronometro-content").css("display","none");
+				$jq("#animated text").text(0);
+				$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
+				$jq("#content-respuestas").html("");
+			}else{
+				alert(response.mensaje);
+			}
+		},
+		error: function(error){
+			alert("No pudimos mostrate el resultado de tu pregunta");
+			console.log(error);
+		}
+	});
 }
 
 /**
@@ -239,6 +276,11 @@ function finalizaCategoria(response){
 	}
 }
 
+/**
+ * Finaliza la ronda inicializando el listener de cambio de ronda
+ * @param  {[type]} response [description]
+ * @return {[type]}          [description]
+ */
 function finalizaRonda(response){
 	finalizar = true;
 	initListenerCambioRonda($jq("#ID_RONDA").val(), $jq("#ID_CATEGORIA").val());
