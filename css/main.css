@@ -190,6 +190,9 @@ svg#animated{
 }
 
 .barra-histograma{
-	height: 15px;
+	height: 20px;
+	color: white;
+	font-weight: bold;
 	border-radius: 8px;
+	text-align: center;
 }

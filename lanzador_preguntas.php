@@ -135,34 +135,34 @@
 			        	<!-- CRONOMETRO -->
 						<div class="row" id="cronometro-content" style="display: none">
 							<!-- HISTOGRAMA -->
-							<div class="col-md-4" id="histograma">
+							<div class="col-md-5" id="histograma">
 								<div class="row">
 									<div class="col-md-1" id="num_correctas"></div>
 									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-correctas"></div>
+										<div class="barra-histograma" id="histo-correctas">correctas</div>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-md-1" id="num_incorrectas"></div>
 									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-incorrectas"></div>
+										<div class="barra-histograma" id="histo-incorrectas">incorrectas</div>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-md-1" id="num_contestadas"></div>
 									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-contestadas"></div>
+										<div class="barra-histograma" id="histo-contestadas">contestaron</div>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-md-1" id="num_nocontestadas"></div>
 									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-nocontestadas"></div>
+										<div class="barra-histograma" id="histo-nocontestadas">no contestaron</div>
 									</div>
 								</div>
 							</div>
 							<!-- HISTOGRAMA -->
-							<div class="col-md-4 centrado">
+							<div class="col-md-7">
 								<svg id="animated" viewbox="0 0 100 100">
 								  <circle cx="50" cy="50" r="45" fill="#FFF"/>
 								  <path id="progress" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
@@ -180,13 +180,13 @@
 						<!-- PREGUNTA-->
 			         	<div class="row">
 				          	<div class="col-md-12">
-				          		<br><br>
+				          		<br>
 				          		<h2 id="p-pregunta" class="monserrat-bold centrado"></h2>
 				          	</div>
 			          	</div>
 			          	<!-- PREGUNTA-->
 			          	<!-- RESPUESTAS -->
-			          	<br><br>
+			          	<br>
 			          	<div class="row">
 			          		<div class="col-md-12">
 			          			<table class="table table-bordered table-geo" id="content-respuestas">
