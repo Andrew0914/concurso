@@ -21,6 +21,14 @@
             	<br> <br>
                 Ha finalizado el concurso, el moderador indicara como quedaron los puntajes finales
             </h2>
+            <br>
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <a class="btn btn-block btn-geo" href="inicio">
+                        Volver al inicio
+                    </a>      
+                </div>
+            </div>
         </section>
         <!-- INICIO SCRIPTS -->
         <script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
