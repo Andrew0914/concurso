@@ -108,14 +108,19 @@
 		 * @param  [int] $ronda    
 		 * @return [assoc array]           
 		 */
-		public function getPreguntasByConcursoRonda($concurso,$ronda,$categoria){
+		public function getPreguntasByConcursoRonda($concurso,$ronda,$categoria,$es_empate = false,$nivel_desempate =0){
 			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,
 				pg.ID_GENERADA,pg.LANZADA,pg.HECHA,g.*,c.*
 				FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
 				INNER JOIN grados_dificultad g ON p.ID_GRADO = g.ID_GRADO
 				INNER JOIN categorias c ON p.ID_CATEGORIA = c.ID_CATEGORIA
 				WHERE ID_RONDA = ? AND ID_CONCURSO = ? AND p.ID_CATEGORIA = ?";
-            $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso,'ID_CATEGORIA'=>$categoria);
+				$values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso,'ID_CATEGORIA'=>$categoria);
+				if($es_empate){
+					$query .= " AND NIVEL_EMPATE = ?";
+					$values['NIVEL_EMPATE'] = $nivel_desempate;
+				}
+            
 			return $this->query($query,$values);
 		}
 

@@ -16,7 +16,7 @@
 		 * @param  integer $idConcurso 
 		 * @return array             
 		 */
-		public function generaPreguntas($etapa,$idConcurso){
+		public function generaPreguntas($etapa,$idConcurso,$nivel_empate = 0){
 			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
 			$mensaje ="";
 			$concurso = new Concurso();
@@ -44,6 +44,7 @@
 				$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
 				, 'ID_CONCURSO' => $idConcurso 
 				, 'ID_RONDA' => $idRonda
+				, 'NIVEL_EMPATE'=>$nivel_empate
 				, 'PREGUNTA_POSICION' => ($genera->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
 				if($genera->guardar($valoresInsert) <= 0){
 					$valida *= 0;

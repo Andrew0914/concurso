@@ -217,16 +217,17 @@
 			$rs = ['estado'=>0 , 'mensaje'=>'No se pudo acceder al desempate'];
 			try {
 				$concurso = $this->find($idConcurso);
+				$nivel_empate = $concurso['NIVEL_EMPATE'] + 1;
 				$ronda = new Rondas();
 				$desempate = $ronda->getRondaDesempate($concurso['ID_ETAPA']);
 				$sesion = new Sesion();
 				$sesion->setOne(SessionKey::ID_RONDA , $desempate['ID_RONDA']);
 				$objDesempate = new Desempate();
-				$genero = $objDesempate->generaPreguntas($concurso['ID_ETAPA'],$concurso['ID_CONCURSO']);
+				$genero = $objDesempate->generaPreguntas($concurso['ID_ETAPA'],$concurso['ID_CONCURSO'] , $nivel_empate);
 				if($genero['estado'] == 1){
 					$log = new RondasLog();
-					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA']])){
-						if($this->update($idConcurso,['ID_RONDA'=> $desempate['ID_RONDA']] )){
+					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA'],'NIVEL_EMPATE'=>$nivel_empate])){
+						if($this->update($idConcurso,['ID_RONDA'=> $desempate['ID_RONDA'],'NIVEL_EMPATE'=>$nivel_empate] )){
 							$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
 						}
 					}

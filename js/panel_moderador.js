@@ -104,12 +104,14 @@ function iniciarCategoria(categoria,concurso){
 }
 
 function generaTableros(concurso){
+	var isDesempate = document.getElementById("IS_DESEMPATE").value;
 	$.ajax({
 		url: 'class/TableroPosiciones.php',
 		type: 'POST',
 		dataType: 'json',
 		data: {'functionTabPosiciones': 'generaPosiciones',
-				'ID_CONCURSO' : concurso},
+				'ID_CONCURSO' : concurso,
+				'IS_DESEMPATE' : isDesempate},
 		success:function(response){
 			alert(response.mensaje);
 			if(response.estado == 1){

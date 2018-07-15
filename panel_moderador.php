@@ -6,13 +6,19 @@
 	require_once 'class/Concursante.php';
 	require_once 'class/PreguntasGeneradas.php';
 	require_once 'class/RondasLog.php';
+	require_once 'class/Rondas.php';
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
+	require_once 'class/Concurso.php';
 	$sesion = new Sesion();
 	$etapa = new Etapas();
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
 	$objCategoria = new Categorias();
 	$categoria = $objCategoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
+	$concurso = new Concurso();
+	$concurso = $concurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
+	$ronda = new Rondas();
+	$ronda = $ronda->getRonda($concurso['ID_RONDA']);
 
  ?>
 <head>
@@ -33,6 +39,7 @@
 		<!-- INFORMACION GENERAL-->
 		<div class="row" >
 			<div class="col-md-6 sm-text">
+				<input type="hidden" name="IS_DESEMPATE" id="IS_DESEMPATE" value="<?php echo $ronda['IS_DESEMPATE'] ?>">
 				<b class="monserrat-bold">Concurso:</b> <?php echo $sesion->getOne(SessionKey::CONCURSO); ?>
 				<br>
 				<b class="monserrat-bold">Etapa:</b> <?php echo $etapa['ETAPA']; ?>

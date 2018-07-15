@@ -3,6 +3,7 @@
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/TableroMaster.php';
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
+	require_once dirname(__FILE__). '/Concursante.php';
 	
 	class TableroPosiciones extends BaseTable{
 
@@ -38,10 +39,10 @@
 		 * @param  integer $concurso 
 		 * @return boolean           
 		 */
-		public function generaPosiciones($concurso){
+		public function generaPosiciones($concurso,$es_empate = false){
 			$valida = 1;
 			$puntaje = new TableroPuntaje();
-			$mejores = $puntaje->getMejoresPuntajes($concurso)['mejores'];
+			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			$master = new TableroMaster();
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
 			if($id_master <= 0){
@@ -101,22 +102,46 @@
 		 * @param  integer $master_creado 
 		 * @return array                
 		 */
-		public function getTableros($concurso,$master_creado){
+		public function getTableros($concurso,$master_creado,$es_empate){
 			$response = ['estado'=> 0 , 'mensaje' => 'No se pudieron obtener los tableros']; 
 			$puntajes = new TableroPuntaje();
 			$master = new TableroMaster();
-			$mejores = $puntajes->getMejoresPuntajes($concurso)['mejores'];
+			$mejores = $puntajes->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			if($master_creado > 0){
 				$response['master']= $master->getMaster($master_creado);
 				$sentencia = "SELECT tp.*,c.CONCURSANTE FROM tablero_posiciones tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE  WHERE tp.ID_TABLERO_MASTER = ? GROUP BY c.ID_CONCURSANTE ORDER BY tp.POSICION";
 				$response['posiciones'] = $this->query($sentencia,['ID_TABLERO_MASTER'=>$master_creado]);
-				$response['puntajes'] = $puntajes->getResultados($concurso);
+				$response['puntajes'] = $puntajes->getResultados($concurso,$es_empate);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Se obtuvieron los tableros exitosamente';
 			}
 
 			return $response;
 		}
+
+		public function esEmpate($master){
+			$where = "ID_TABLERO_MASTER = ?";
+			$valores = ['ID_TABLERO_MASTER' => $master];
+			$response = ['estado'=>0, 'mensaje'=> 'No se determino el empate correctamente'];
+			$rs = $this->get($where,$valores);
+			$emptatados = 0;
+			$concursante = new Concursante();
+			for($i = 0; $i < count($rs) ; $i++) {
+				if($rs[$i]['EMPATADO'] == 1){
+					$emptatados++;
+				}
+				$rs[$i]['CONCURSANTE'] = $concursante->getConcursante($rs[$i]['ID_CONCURSANTE'])['CONCURSANTE'];
+			}
+
+			if($emptatados > 0){
+				$response['estado'] = 1;
+			}else{
+				$response['estado'] = 2;
+			}
+			$response['empatados'] = $rs;
+			return $response;
+		}
+
 	}	
 
 	/**
@@ -128,7 +153,8 @@
 		switch ($function) {
 			case 'generaPosiciones':
 				$concurso = $_POST['ID_CONCURSO'];
-				echo json_encode($pos->generaPosiciones($concurso));
+				$es_desempate = $_POST['IS_DESEMPATE'];
+				echo json_encode($pos->generaPosiciones($concurso,$es_desempate));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TableroPosiciones:POST']);

@@ -156,8 +156,9 @@
 				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN,ro.RONDA,ca.CATEGORIA FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA LEFT JOIN rondas ro ON t.ID_RONDA = ro.ID_RONDA INNER JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA WHERE t.ID_CONCURSO = ?";
 				$values = [':ID_CONCURSO'=>$concurso];
 				if($es_empate){
-					$query.= " AND t.ID_RONDA = ? ";
+					$query.= " AND t.ID_RONDA = ? AND NIVEL_EMPATE = ?";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
+					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
 				}
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;
@@ -200,8 +201,9 @@
 						WHERE t.ID_CONCURSO = ? ";
 				$values = [':ID_CONCURSO'=>$concurso];
 				if($es_empate){
-					$query.= " AND t.ID_RONDA = ? ";
+					$query.= " AND t.ID_RONDA = ? AND NIVEL_EMPATE = ? ";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
+					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
 				}
 				$query .= " GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC ";
 				$mejores = $this->query($query,$values,true);

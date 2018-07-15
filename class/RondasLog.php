@@ -36,15 +36,21 @@
 
 		/**
 		 * Finaliza la ronda para la categoria establecida
-		 * @param  integer $concurso  
-		 * @param  integer $ronda     
-		 * @param  integer $categoria 
-		 * @return array 
+		 * @param  integer  $concurso     
+		 * @param  integer  $ronda        
+		 * @param  integer  $categoria    
+		 * @param  boolean $es_empate    
+		 * @param  integer $nivel_empate 
+		 * @return array
 		 */
-		public function finalizarRondaCategoria($concurso,$ronda,$categoria){
+		public function finalizarRondaCategoria($concurso,$ronda,$categoria,$es_empate = false , $nivel_empate = 0){
 			$values = ['FIN'=>1];
 			$where = "ID_CONCURSO = ? AND ID_RONDA= ? AND ID_CATEGORIA = ?";
 			$whereValues = ['ID_CONCURSO'=> $concurso , 'ID_RONDA'=> $ronda , 'ID_CATEGORIA'=>$categoria];
+			if($es_empate){
+				$where .= ' AND NIVEL_EMPATE = ?';
+				$whereValues['NIVEL_EMPATE'] =  $nivel_empate;
+			}
 			if($this->update(0, $values, $where, $whereValues))
 				return ['estado'=> 1 , 'mensaje'=> 'Ronda finalizada con exito'];
 			return ['estado'=> 0 , 'mensaje'=> 'No se pudo finalizar la ronda'];
@@ -68,8 +74,8 @@
 		 * @param  integer $categoria  
 		 * @return array             
 		 */
-		public function siguienteRonda($idConcurso,$categoria,$rondaActual){
-			if(!$this->finalizarRondaCategoria($idConcurso,$rondaActual,$categoria)['estado']){
+		public function siguienteRonda($idConcurso,$categoria,$rondaActual,$es_empate = false , $nivel_empate = 0){
+			if(!$this->finalizarRondaCategoria($idConcurso,$rondaActual,$categoria,$es_empate,$nivel_empate)['estado']){
 				return ['estado'=>0, 'mensaje'=>'No se pudo finalizar la ronda actual'];
 			}
 			$concurso = new Concurso();
@@ -77,7 +83,9 @@
 			$valores = ['ID_CONCURSO'=>$idConcurso, 'ID_CATEGORIA'=>$categoria];
 			$logs = $this->get($where,$valores);
 			$todasFinalizadas = 0;
+			$todas = 0;
 			foreach ($logs as $log) {
+				$todas++;
 				if($log['FIN'] == 0){
 					//actualizamos el cambio de ronda
 					if(!$concurso->actualiza($idConcurso,
@@ -96,7 +104,7 @@
 				}
 			}
 
-			if($todasFinalizadas >= 2){
+			if($todasFinalizadas == $todas){
 				return ['estado'=>2,'mensaje'=>'Terminaron las rondas para la categoria'];
 			}
 
@@ -156,6 +164,7 @@
 			$concurso = $concurso->getConcurso($idConcurso);
 			$ronda = new Rondas();
 			$rondas = $ronda->getRondas($concurso['ID_ETAPA'])['rondas'];
+			$rondaEmpate = $ronda->getRondaDesempate($concurso['ID_ETAPA']);
 			$totales = 0;
 			$finalizadas = 0;
 			foreach ($rondas as $ronda) {
@@ -179,7 +188,20 @@
 				}
 			}
 			
-			return $totales == $finalizadas;
+			if($totales == $finalizadas AND $concurso['ID_RONDA'] != $rondaEmpate['ID_RONDA']){
+				return true;
+			}else{
+				// empae finalizado
+				$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ? AND ID_RONDA = ? AND NIVEL_EMPATE = ?";
+				$valores = ['ID_CONCURSO'=>$concurso['ID_CONCURSO'] 
+							,'ID_CATEGORIA' => $concurso['ID_CATEGORIA']
+							,'ID_RONDA' => $rondaEmpate['ID_RONDA']
+							,'NIVEL_EMPATE' => $concurso['NIVEL_EMPATE']];
+				$rs = $this->get($where , $valores)[0];
+				return $rs['FIN'];
+			}
+
+			return false;
 		}
 
 		/**
@@ -205,7 +227,7 @@
 		$log = new RondasLog();
 		switch ($function) {
 			case 'siguienteRonda':
-				echo json_encode($log->siguienteRonda($_POST['ID_CONCURSO'],$_POST['ID_CATEGORIA'],$_POST['rondaActual']));
+				echo json_encode($log->siguienteRonda($_POST['ID_CONCURSO'],$_POST['ID_CATEGORIA'],$_POST['rondaActual'],$_POST['IS_DESEMPATE'],$_POST['NIVEL_EMPATE']));
 				break;
 			default:
 				echo  json_encode(['estado'=>0,'Operacion no valida RondasLog:POST']);

@@ -18,6 +18,8 @@
 		$ronda = $ronda->getRonda($sesion->getOne(SessionKey::ID_RONDA));
 		$segundosPorPregunta = $ronda['SEGUNDOS_POR_PREGUNTA'];
 		$idConcurso = $sesion->getOne(SessionKey::ID_CONCURSO);
+		$concurso = new Concurso();
+		$concurso = $concurso->getConcurso($idConcurso);
 		$idRonda = $sesion->getOne(SessionKey::ID_RONDA);
 		$categoria = new Categorias();
 		$categoria= $categoria->getCategoria($sesion->getOne(SessionKey::ID_CATEGORIA));
@@ -36,6 +38,8 @@
 			<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>">
 			<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>">
 			<input type="hidden" id="ID_CATEGORIA" name="ID_CATEGORIA" value="<?php echo $sesion->getOne(SessionKey::ID_CATEGORIA); ?>">
+			<input type="hidden" name="IS_DESEMPATE" id="IS_DESEMPATE" value="<?php echo $ronda['IS_DESEMPATE'] ?>">
+			<input type="hidden" name="NIVEL_EMPATE" id="NIVEL_EMPATE" value="<?php echo $concurso['NIVEL_EMPATE'] ?>">
 			<!-- INFORMACION GENERAL-->
 			<div class="row">
 				<div class="col-md-4">
@@ -72,7 +76,7 @@
 						</thead>
 						<tbody>
 							<?php 
-								$preguntas = $generadas->getPreguntasByConcursoRonda($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
+								$preguntas = $generadas->getPreguntasByConcursoRonda($idConcurso,$idRonda,$categoria['ID_CATEGORIA'],$ronda['IS_DESEMPATE'],$concurso['NIVEL_EMPATE']);
 								$onclick = "";
 								foreach ($preguntas as $pregunta) {
 									echo "<tr class='monserrat-bold'>";
@@ -130,7 +134,7 @@
 										</thead>
 										<tbody>
 											<?php 
-												$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO));
+												$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO),$ronda['IS_DESEMPATE'] );
 												$mejores = $response['mejores'];
 												foreach ($mejores as $mejor) {
 													echo "<tr>";

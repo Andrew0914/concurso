@@ -6,15 +6,19 @@
 	require_once 'class/Concurso.php';
 	require_once 'class/TableroPuntaje.php';
 	require_once 'class/TableroPosiciones.php';
+	require_once 'class/Rondas.php';
 	$concurso = new Concurso();
 	$sesion = new Sesion();
 	$tablero = new TableroPuntaje();
+	$tabPosicion = new TableroPosiciones();
 	$concurso = $concurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
-	$empate = $tablero->esEmpate($sesion->getOne(SessionKey::ID_CONCURSO));
+	$ronda = new Rondas();
+	$ronda = $ronda->getRonda($concurso['ID_RONDA']);
 	if(!isset($_GET['id_master'])){
 		header('Location: inicio');
 	}
 	$tablero_master_id = $_GET['id_master'];
+	$empate = $tabPosicion->esEmpate($tablero_master_id);
  ?>
 <head>
 	<meta charset="utf-8">
@@ -75,7 +79,7 @@
 						<tbody>
 							<?php 
 								$posiciones = new TableroPosiciones();
-								$tableros = $posiciones->getTableros($sesion->getOne(SessionKey::ID_CONCURSO),$tablero_master_id);
+								$tableros = $posiciones->getTableros($sesion->getOne(SessionKey::ID_CONCURSO),$tablero_master_id,$ronda['IS_DESEMPATE']);
 								$lugares = $tableros['posiciones'];
 								foreach ($lugares as $l) {
 									echo "<tr>";
@@ -170,11 +174,14 @@
 							echo "<th> Puntaje </th> </tr>";
 							echo "</thead>";
 							foreach ($empatados as $e) {
-								echo "<tr>";
-								echo "<td>". $e['ID_CONCURSANTE'] . "</td>";
-								echo "<td>". $e['CONCURSANTE'] . "</td>";
-								echo "<td>". $e['totalPuntos'] . "</td>";
-								echo "</tr>";
+								if($e['EMPATADO']){
+									echo "<tr>";
+									echo "<td>". $e['ID_CONCURSANTE'] . "</td>";
+									echo "<td>". $e['CONCURSANTE'] . "</td>";
+									echo "<td>". $e['PUNTAJE_TOTAL'] . "</td>";
+									echo "</tr>";
+								}
+								
 							}
 							echo "</table>";
 						}

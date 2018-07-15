@@ -201,7 +201,9 @@ function siguienteRonda(){
         data: {'ID_CONCURSO': concurso , 
                 'ID_CATEGORIA': categoria ,
                 'functionRondasLog':'siguienteRonda',
-                'rondaActual':rondaActual},
+                'rondaActual':rondaActual,
+                'IS_DESEMPATE':document.getElementById('IS_DESEMPATE').value,
+                'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value},
         success:function(response){
             if(response.estado == 1 ){
                 location.reload();
