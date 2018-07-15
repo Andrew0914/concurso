@@ -123,7 +123,7 @@
 							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
 							SessionKey::ETAPA => $etapa['ETAPA'],
 							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'],
-							SessionKey::ID_CATEGORIA => $concurso['ID_RONDA']];
+							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
 				$sesion->setMany($sessionValues);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Acceso al concurso exitoso';

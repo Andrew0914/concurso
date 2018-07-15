@@ -51,9 +51,9 @@
 		<br>
 		<div class="row">
 			<div class="col-md-12 centrado">
-				<a href="tablero" class="btn btn-block btn-geo" target="_self">
+				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
 					<h5 class="monserrat-bold">Ver Puntajes</h5>
-				</a>
+				</button>
 			</div>
 		</div>
 		<br>
@@ -103,36 +103,6 @@
 					 	</button>
 					</div>
 				</div>
-				<!-- bonotes iniciar
-				<table  class="table table-sm table-bordered">
-					<tr>
-					 	<td>
-					 		Elige una categoria a iniciar:&nbsp;&nbsp;&nbsp;&nbsp;
-
-					 	</td>
-					 	<td>
-					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(1,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					 			Iniciar
-					 		</button>
-					 	</td>
-					 	<td>
-					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(2,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					 			Iniciar
-					 		</button>
-					 	</td>
-					 	<td>
-					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(3,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					 			Iniciar
-					 		</button>
-					 	</td>
-					 	<td>
-					 		<button class="btn btn-sm btn-geo" onclick="iniciarCategoria(4,<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					 			Iniciar
-					 		</button>
-					 	</td>
-					</tr>
-				</table>
-				-->
 			</div>
 		</div>
 		<!--  GENERACION DE PREGUNTAS -->

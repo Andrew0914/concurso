@@ -5,11 +5,16 @@
 	require_once 'class/util/SessionKey.php';
 	require_once 'class/Concurso.php';
 	require_once 'class/TableroPuntaje.php';
+	require_once 'class/TableroPosiciones.php';
 	$concurso = new Concurso();
 	$sesion = new Sesion();
 	$tablero = new TableroPuntaje();
 	$concurso = $concurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 	$empate = $tablero->esEmpate($sesion->getOne(SessionKey::ID_CONCURSO));
+	if(!isset($_GET['id_master'])){
+		header('Location: inicio');
+	}
+	$tablero_master_id = $_GET['id_master'];
  ?>
 <head>
 	<meta charset="utf-8">
@@ -64,28 +69,34 @@
 								<th></th>
 								<th>Concursante</th>
 								<th>Puntaje Total</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php 
-								$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO));
-								$mejores = $response['mejores'];
-								foreach ($mejores as $mejor) {
+								$posiciones = new TableroPosiciones();
+								$tableros = $posiciones->getTableros($sesion->getOne(SessionKey::ID_CONCURSO),$tablero_master_id);
+								$lugares = $tableros['posiciones'];
+								foreach ($lugares as $l) {
 									echo "<tr>";
-									if($mejor['lugar'] == 1){
+									if($l['POSICION'] == 1){
 										echo "<td><img src='image/gold_medal.png'></td>";
-									}else if($mejor['lugar']==2){
+									}else if($l['POSICION']==2){
 										echo "<td><img src='image/silver_medal.png'></td>";
-									}
-									else if($mejor['lugar']==3){
-										echo "<td><img src='image/bonze_medal.png'></td>";
+									}else if($l['POSICION'] == 3){
+										echo "<td><img src='image/bronze_medal.png'></td>";
 									}else{
-										echo "<td>".$mejor['lugar']."<small> lugar</small></td>";
+										echo "<td>".$l['POSICION'] . "</td>";
 									}
-									echo "<td>".$mejor['CONCURSANTE'] . '</td>';
-									echo "<td>".$mejor['totalPuntos'].'</td>';
-									echo "</tr>";	
-								}
+									echo "<td>" . $l['CONCURSANTE'] .'</td>';
+									echo "<td>" . $l['PUNTAJE_TOTAL'] .'</td>';
+									if($l['EMPATADO'] == 1){
+										echo "<td>EMPATADO</td>";
+									}else{
+										echo "<td></td>";
+									}
+									echo "</tr>"; 	
+								} 
 							 ?>
 						</tbody>
 					</table>
@@ -111,22 +122,21 @@
 						</thead>
 						<tbody>
 							<?php 
-								$response = $tablero->getResultados($sesion->getOne(SessionKey::ID_CONCURSO));
-								$tableros = $response['tablero'];
-								foreach ($tableros as $tab) {
+								$puntajes = $tableros['puntajes']['tablero'];
+								foreach ($puntajes as $puntaje) {
 									echo "<tr>";
-									echo "<td>" . $tab['CONCURSANTE'] . '</td>';
-									echo "<td>" . $tab['RONDA'] . '</td>';
-									echo "<td>" . $tab['CATEGORIA'] .'</td>';
-									echo "<td>".$tab['PREGUNTA_POSICION'].'</td>';
-									echo "<td>".$tab['PREGUNTA'].'</td>';
-									echo "<td><b>".$tab['INCISO'].')&nbsp;</b>';
-									if($tab['ES_IMAGEN'] == 1){
-										echo '<img src="image/respuestas/'.$tab['RESPUESTA'].'"></td>';;
+									echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
+									echo "<td>" . $puntaje['RONDA'] . '</td>';
+									echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
+									echo "<td>".$puntaje['PREGUNTA_POSICION'].'</td>';
+									echo "<td>".$puntaje['PREGUNTA'].'</td>';
+									echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
+									if($puntaje['ES_IMAGEN'] == 1){
+										echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
 									}else{	
-										echo $tab['RESPUESTA'].'</td>';
+										echo $puntaje['RESPUESTA'].'</td>';
 									}
-									echo "<td>".$tab['PUNTAJE'].'</td>';
+									echo "<td>".$puntaje['PUNTAJE'].'</td>';
 									echo "</tr>";	
 								}
 							 ?>

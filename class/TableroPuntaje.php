@@ -171,6 +171,19 @@
 		}
 
 		/**
+		 * Ordena los lugares por total de puntajes
+		 * @param  object $a 
+		 * @param  object $b 
+		 * @return boolean    
+		 */
+		public function cmp($a , $b){	
+		    if ($a['totalPuntos'] == $b['totalPuntos']) {
+		        return 0;
+		    }
+		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
+		}
+
+		/**
 		 * Genera la informacion para el tablero de marcadores generales
 		 * @param  integer $concurso 
 		 * @param  integer $ronda    
@@ -182,17 +195,20 @@
 			$objConcurso = $objConcurso->getConcurso($concurso);
 			$rondas = new Rondas();
 			try{
-				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos,@rownum:=@rownum+1 lugar
-						FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE ,(SELECT @rownum:=0) r
+				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos 
+						FROM tablero_puntajes as t INNER JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
 						WHERE t.ID_CONCURSO = ? ";
 				$values = [':ID_CONCURSO'=>$concurso];
 				if($es_empate){
 					$query.= " AND t.ID_RONDA = ? ";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
 				}
-				$query .= " GROUP BY c.ID_CONCURSANTE ORDER BY totalPuntos DESC ";
-				
+				$query .= " GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC ";
 				$mejores = $this->query($query,$values,true);
+				usort($mejores,array($this,"cmp"));
+				for($i =0 ; $i < count($mejores) ; $i++) {
+					$mejores[$i]['lugar'] = $i+1;
+				}
 				$response['mejores'] = $mejores;
 				$response['estado'] = 1;
 				$response['mensaje'] = "Se obtuvo el puntaje total";
@@ -203,6 +219,7 @@
 			return $response;
 		}
 
+		
 		/**
 		 * Obtiene la actividad sobre la pregunta si ya fue contestada o no y por cuantos
 		 * @param  integer $concurso 

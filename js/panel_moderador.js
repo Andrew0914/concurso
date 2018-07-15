@@ -102,3 +102,23 @@ function iniciarCategoria(categoria,concurso){
 		}
 	});
 }
+
+function generaTableros(concurso){
+	$.ajax({
+		url: 'class/TableroPosiciones.php',
+		type: 'POST',
+		dataType: 'json',
+		data: {'functionTabPosiciones': 'generaPosiciones',
+				'ID_CONCURSO' : concurso},
+		success:function(response){
+			alert(response.mensaje);
+			if(response.estado == 1){
+				window.location.replace("tablero?id_master="+response.tablero_master);
+			}
+		},
+		error:function(error){
+			alert("No se pudieron generar los tableros de puntajes, porfavor intentalo de nuevo");
+			console.log(error);
+		}
+	});	
+}

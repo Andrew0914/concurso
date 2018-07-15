@@ -140,7 +140,7 @@
 														echo "<td><img src='image/silver_medal.png'></td>";
 													}
 													else if($mejor['lugar']==3){
-														echo "<td><img src='image/bonze_medal.png'></td>";
+														echo "<td><img src='image/bronze_medal.png'></td>";
 													}else{
 														echo "<td>".$mejor['lugar']."<small> lugar</small></td>";
 													}
