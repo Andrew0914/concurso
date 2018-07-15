@@ -38,8 +38,10 @@
 		 * @param  integer $concurso 
 		 * @return boolean           
 		 */
-		public function generaPosiciones($mejores,$concurso){
+		public function generaPosiciones($concurso){
 			$valida = 1;
+			$puntaje = new TableroPuntaje();
+			$mejores = $puntaje->getMejoresPuntajes($concurso)['mejores'];
 			$master = new TableroMaster();
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
 			if($id_master <= 0){
@@ -125,10 +127,8 @@
 		$pos = new TableroPosiciones();
 		switch ($function) {
 			case 'generaPosiciones':
-				$puntaje = new TableroPuntaje();
 				$concurso = $_POST['ID_CONCURSO'];
-				$mejores = $puntaje->getMejoresPuntajes($concurso)['mejores'];
-				echo json_encode($pos->generaPosiciones($mejores,$concurso));
+				echo json_encode($pos->generaPosiciones($concurso));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TableroPosiciones:POST']);

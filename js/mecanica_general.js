@@ -74,6 +74,7 @@ function showPregunta(response){
 	$jq("body").addClass('blanco');
 	$jq("#card-inicio").hide(300);
 	$jq("#pregunta").show(300);
+	$jq("#resultado-mi-pregunta").html("");
 	// seteamos los valores de lap regunta a mostrar
 	$jq("#pregunta p").text(response.pregunta[0].PREGUNTA);
 	$jq("#ID_PREGUNTA").val(response.pregunta[0].ID_PREGUNTA);

@@ -69,6 +69,10 @@
 			<input type="hidden" id="PREGUNTA_POSICION" name="PREGUNTA_POSICION" />
 			<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA" />
 			<p class="text-pregunta"></p>
+			<div class="row">
+				<div class="col-md-12 centrado" id="resultado-mi-pregunta">
+				</div>
+			</div>
 			<p id="content-respuestas"></p>
 		</article>
 	</section>
