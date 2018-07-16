@@ -111,7 +111,7 @@ function getMarcadorPregunta(){
             if(response.estado == 1){
                 notFinish = true;
                 stopExecPerSecond= true;
-                //$("#cronometro-content").css("display","none");
+                $("#reloj-cronometro").css("display","none");
                 $("#animated text").text(0);
                 var marcadores = response.marcadores;
                 var correctas = 0;

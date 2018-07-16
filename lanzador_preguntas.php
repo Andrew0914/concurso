@@ -213,7 +213,7 @@
 								</div>
 							</div>
 							<!-- HISTOGRAMA -->
-							<div class="col-md-7">
+							<div class="col-md-7" id="reloj-cronometro">
 								<svg id="animated" viewbox="0 0 100 100">
 								  <circle cx="50" cy="50" r="45" fill="#FFF"/>
 								  <path id="progress" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
