@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `concursos` (
 -- Volcando datos para la tabla geollin_concurso_db.concursos: ~1 rows (aproximadamente)
 /*!40000 ALTER TABLE `concursos` DISABLE KEYS */;
 INSERT INTO `concursos` (`ID_CONCURSO`, `CONCURSO`, `ID_ETAPA`, `FECHA_INICIO`, `FECHA_CIERRE`, `ID_RONDA`, `ID_CATEGORIA`, `NIVEL_EMPATE`) VALUES
-	(41, 'Prueba Puntaje', 1, '2018-07-14 21:35:09', NULL, 2, 1, 0);
+	(41, 'Prueba Puntaje', 1, '2018-07-14 21:35:09', NULL, 3, 1, 3);
 /*!40000 ALTER TABLE `concursos` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.etapas_tipo_concurso
@@ -418,6 +418,7 @@ CREATE TABLE IF NOT EXISTS `preguntas_generadas` (
   `ID_RONDA` int(11) DEFAULT '0',
   `LANZADA` tinyint(1) DEFAULT '0',
   `HECHA` tinyint(1) unsigned DEFAULT '0',
+  `NIVEL_EMPATE` int(11) DEFAULT '0',
   PRIMARY KEY (`ID_GENERADA`),
   KEY `FK_preguntaGenerada` (`ID_PREGUNTA`),
   KEY `FK_concursoGenerada` (`ID_CONCURSO`),
@@ -425,19 +426,31 @@ CREATE TABLE IF NOT EXISTS `preguntas_generadas` (
   CONSTRAINT `FK_concursoGenerada` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`),
   CONSTRAINT `FK_preguntaGenerada` FOREIGN KEY (`ID_PREGUNTA`) REFERENCES `preguntas` (`ID_PREGUNTA`),
   CONSTRAINT `FK_rondaGenerada` FOREIGN KEY (`ID_RONDA`) REFERENCES `rondas` (`ID_RONDA`)
-) ENGINE=InnoDB AUTO_INCREMENT=337 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=362 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.preguntas_generadas: ~8 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.preguntas_generadas: ~20 rows (aproximadamente)
 /*!40000 ALTER TABLE `preguntas_generadas` DISABLE KEYS */;
-INSERT INTO `preguntas_generadas` (`ID_GENERADA`, `ID_PREGUNTA`, `ID_CONCURSO`, `PREGUNTA_POSICION`, `ID_RONDA`, `LANZADA`, `HECHA`) VALUES
-	(329, 47, 41, 1, 1, 1, 1),
-	(330, 23, 41, 2, 1, 2, 1),
-	(331, 35, 41, 3, 1, 3, 1),
-	(332, 31, 41, 4, 1, 4, 1),
-	(333, 55, 41, 1, 2, 1, 1),
-	(334, 60, 41, 2, 2, 2, 1),
-	(335, 1, 41, 3, 2, 3, 1),
-	(336, 30, 41, 4, 2, 4, 1);
+INSERT INTO `preguntas_generadas` (`ID_GENERADA`, `ID_PREGUNTA`, `ID_CONCURSO`, `PREGUNTA_POSICION`, `ID_RONDA`, `LANZADA`, `HECHA`, `NIVEL_EMPATE`) VALUES
+	(329, 47, 41, 1, 1, 1, 1, 0),
+	(330, 23, 41, 2, 1, 2, 1, 0),
+	(331, 35, 41, 3, 1, 3, 1, 0),
+	(332, 31, 41, 4, 1, 4, 1, 0),
+	(333, 55, 41, 1, 2, 1, 1, 0),
+	(334, 60, 41, 2, 2, 2, 1, 0),
+	(335, 1, 41, 3, 2, 3, 1, 0),
+	(336, 30, 41, 4, 2, 4, 1, 0),
+	(349, 41, 41, 1, 3, 1, 1, 1),
+	(350, 24, 41, 2, 3, 2, 1, 1),
+	(351, 3, 41, 3, 3, 3, 1, 1),
+	(352, 31, 41, 4, 3, 4, 1, 1),
+	(353, 42, 41, 5, 3, 5, 1, 2),
+	(354, 9, 41, 6, 3, 6, 1, 2),
+	(355, 12, 41, 7, 3, 7, 1, 2),
+	(356, 18, 41, 8, 3, 8, 1, 2),
+	(358, 11, 41, 10, 3, 0, 0, 3),
+	(359, 29, 41, 11, 3, 0, 0, 3),
+	(360, 22, 41, 12, 3, 0, 0, 3),
+	(361, 38, 41, 13, 3, 0, 0, 3);
 /*!40000 ALTER TABLE `preguntas_generadas` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.reglas
@@ -1446,6 +1459,7 @@ CREATE TABLE IF NOT EXISTS `rondas_log` (
   `ID_CONCURSO` int(11) DEFAULT NULL,
   `INICIO` smallint(1) DEFAULT '0',
   `FIN` smallint(1) DEFAULT '0',
+  `NIVEL_EMPATE` int(11) DEFAULT '0',
   PRIMARY KEY (`ID_LOG`),
   KEY `FK_logRonda` (`ID_RONDA`),
   KEY `FK_logConcurso` (`ID_CONCURSO`),
@@ -1453,13 +1467,16 @@ CREATE TABLE IF NOT EXISTS `rondas_log` (
   CONSTRAINT `FK_logConcurso` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`),
   CONSTRAINT `FK_logRonda` FOREIGN KEY (`ID_RONDA`) REFERENCES `rondas` (`ID_RONDA`),
   CONSTRAINT `fklogCategoria` FOREIGN KEY (`ID_CATEGORIA`) REFERENCES `categorias` (`ID_CATEGORIA`)
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.rondas_log: ~2 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.rondas_log: ~5 rows (aproximadamente)
 /*!40000 ALTER TABLE `rondas_log` DISABLE KEYS */;
-INSERT INTO `rondas_log` (`ID_LOG`, `ID_RONDA`, `ID_CATEGORIA`, `ID_CONCURSO`, `INICIO`, `FIN`) VALUES
-	(82, 1, 1, 41, 1, 1),
-	(83, 2, 1, 41, 1, 1);
+INSERT INTO `rondas_log` (`ID_LOG`, `ID_RONDA`, `ID_CATEGORIA`, `ID_CONCURSO`, `INICIO`, `FIN`, `NIVEL_EMPATE`) VALUES
+	(82, 1, 1, 41, 1, 1, 0),
+	(83, 2, 1, 41, 1, 1, 0),
+	(87, 3, 1, 41, 1, 1, 1),
+	(88, 3, 1, 41, 1, 1, 2),
+	(89, 3, 1, 41, 1, 0, 3);
 /*!40000 ALTER TABLE `rondas_log` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.tablero_master
@@ -1468,15 +1485,18 @@ CREATE TABLE IF NOT EXISTS `tablero_master` (
   `ID_TABLERO_MASTER` int(11) NOT NULL AUTO_INCREMENT,
   `ID_CONCURSO` int(11) DEFAULT NULL,
   `CREADO_EN` datetime DEFAULT CURRENT_TIMESTAMP,
+  `CERRADO` smallint(6) DEFAULT '0',
   PRIMARY KEY (`ID_TABLERO_MASTER`),
   KEY `fkTpConcurso` (`ID_CONCURSO`),
   CONSTRAINT `fkTpConcurso` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.tablero_master: ~1 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.tablero_master: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `tablero_master` DISABLE KEYS */;
-INSERT INTO `tablero_master` (`ID_TABLERO_MASTER`, `ID_CONCURSO`, `CREADO_EN`) VALUES
-	(47, 41, '2018-07-14 21:30:25');
+INSERT INTO `tablero_master` (`ID_TABLERO_MASTER`, `ID_CONCURSO`, `CREADO_EN`, `CERRADO`) VALUES
+	(52, 41, '2018-07-15 13:54:57', 0),
+	(53, 41, '2018-07-15 14:23:21', 0),
+	(54, 41, '2018-07-15 14:39:35', 0);
 /*!40000 ALTER TABLE `tablero_master` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.tablero_posiciones
@@ -1494,17 +1514,29 @@ CREATE TABLE IF NOT EXISTS `tablero_posiciones` (
   KEY `fkTpTableroMaster` (`ID_TABLERO_MASTER`),
   CONSTRAINT `fkTpConcursante` FOREIGN KEY (`ID_CONCURSANTE`) REFERENCES `concursantes` (`ID_CONCURSANTE`),
   CONSTRAINT `fkTpTableroMaster` FOREIGN KEY (`ID_TABLERO_MASTER`) REFERENCES `tablero_master` (`ID_TABLERO_MASTER`)
-) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.tablero_posiciones: ~6 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.tablero_posiciones: ~18 rows (aproximadamente)
 /*!40000 ALTER TABLE `tablero_posiciones` DISABLE KEYS */;
 INSERT INTO `tablero_posiciones` (`ID_TABLERO_POSICION`, `ID_TABLERO_MASTER`, `ID_CONCURSANTE`, `POSICION`, `PUNTAJE_TOTAL`, `EMPATADO`, `POSICION_CAMBIO`) VALUES
-	(127, 47, 59, 1, 10, 0, 0),
-	(128, 47, 57, 2, 8, 1, 1),
-	(129, 47, 60, 2, 8, 1, 1),
-	(130, 47, 56, 4, 4, 0, 0),
-	(131, 47, 58, 5, 4, 0, 0),
-	(132, 47, 61, 6, 4, 0, 0);
+	(157, 52, 57, 1, 8, 1, 1),
+	(158, 52, 60, 1, 8, 1, 1),
+	(159, 52, 56, 3, 4, 1, 1),
+	(160, 52, 58, 3, 4, 1, 1),
+	(161, 52, 59, 3, 4, 1, 1),
+	(162, 52, 61, 3, 4, 1, 1),
+	(163, 53, 58, 1, 7, 1, 1),
+	(164, 53, 60, 1, 7, 1, 1),
+	(165, 53, 61, 1, 7, 1, 1),
+	(166, 53, 56, 1, 7, 1, 1),
+	(167, 53, 57, 1, 7, 1, 1),
+	(168, 53, 59, 6, 4, 0, 0),
+	(169, 54, 56, 1, 8, 0, 0),
+	(170, 54, 61, 2, 7, 1, 1),
+	(171, 54, 57, 2, 7, 1, 1),
+	(172, 54, 58, 4, 6, 0, 0),
+	(173, 54, 60, 5, 6, 0, 0),
+	(174, 54, 59, 6, 4, 0, 0);
 /*!40000 ALTER TABLE `tablero_posiciones` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.tablero_puntajes
@@ -1532,9 +1564,9 @@ CREATE TABLE IF NOT EXISTS `tablero_puntajes` (
   CONSTRAINT `FK_respuestaTablero` FOREIGN KEY (`RESPUESTA`) REFERENCES `respuestas` (`ID_RESPUESTA`),
   CONSTRAINT `FK_rondaTablero` FOREIGN KEY (`ID_RONDA`) REFERENCES `rondas` (`ID_RONDA`),
   CONSTRAINT `tablero_puntajes_ibfk_1` FOREIGN KEY (`ID_CONCURSANTE`) REFERENCES `concursantes` (`ID_CONCURSANTE`)
-) ENGINE=InnoDB AUTO_INCREMENT=326 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=373 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.tablero_puntajes: ~48 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.tablero_puntajes: ~95 rows (aproximadamente)
 /*!40000 ALTER TABLE `tablero_puntajes` DISABLE KEYS */;
 INSERT INTO `tablero_puntajes` (`ID_TABLERO_PUNTAJE`, `ID_CONCURSO`, `ID_RONDA`, `ID_CONCURSANTE`, `PREGUNTA_POSICION`, `PREGUNTA`, `RESPUESTA`, `RESPUESTA_CORRECTA`, `PASO_PREGUNTA`, `PUNTAJE`, `NIVEL_EMPATE`) VALUES
 	(278, 41, 1, 58, 1, 47, 213, 0, 0, 1, 0),
@@ -1584,7 +1616,54 @@ INSERT INTO `tablero_puntajes` (`ID_TABLERO_PUNTAJE`, `ID_CONCURSO`, `ID_RONDA`,
 	(322, 41, 2, 61, 3, 1, 41, 0, 0, -2, 0),
 	(323, 41, 2, 60, 4, 30, 149, 1, 0, 3, 0),
 	(324, 41, 2, 61, 4, 30, 148, 0, 0, -3, 0),
-	(325, 41, 2, 59, 4, 30, 147, 1, 0, 3, 0);
+	(325, 41, 2, 59, 4, 30, 147, 0, 0, -3, 0),
+	(326, 41, 1, 59, 4, 31, 150, 0, 0, 3, 0),
+	(327, 41, 3, 61, 1, 41, 213, 0, 0, 1, 1),
+	(328, 41, 3, 59, 1, 41, 211, 1, 0, 1, 1),
+	(329, 41, 3, 60, 1, 41, 210, 0, 0, 1, 1),
+	(330, 41, 3, 60, 2, 24, 121, 0, 0, 1, 1),
+	(331, 41, 3, 59, 2, 24, 120, 1, 0, 1, 1),
+	(332, 41, 3, 61, 2, 24, 120, 1, 0, 1, 1),
+	(333, 41, 3, 59, 3, 3, 167, 0, 0, 2, 1),
+	(334, 41, 3, 60, 3, 3, 168, 1, 0, 2, 1),
+	(335, 41, 3, 60, 4, 31, 152, 1, 0, 3, 1),
+	(336, 41, 3, 61, 4, 31, 150, 0, 0, 3, 1),
+	(337, 41, 3, 61, 3, 3, 169, 0, 0, 2, 1),
+	(338, 41, 3, 58, 1, 41, 213, 0, 0, 1, 1),
+	(339, 41, 3, 57, 4, 31, 152, 1, 0, 3, 1),
+	(340, 41, 3, 57, 3, 3, 168, 1, 0, 2, 1),
+	(341, 41, 3, 56, 3, 3, 167, 0, 0, 2, 1),
+	(342, 41, 3, 58, 3, 3, 169, 0, 0, 2, 1),
+	(343, 41, 3, 58, 2, 24, 120, 1, 0, 1, 1),
+	(344, 41, 3, 56, 2, 24, 120, 1, 0, 1, 1),
+	(345, 41, 3, 57, 2, 24, 121, 0, 0, 1, 1),
+	(346, 41, 3, 57, 1, 41, 210, 0, 0, 1, 1),
+	(347, 41, 3, 56, 1, 41, 211, 1, 0, 1, 1),
+	(348, 41, 3, 58, 4, 31, 150, 0, 0, 3, 1),
+	(349, 41, 3, 56, 4, 31, 150, 0, 0, 3, 1),
+	(350, 41, 3, 58, 3, 42, 169, 0, 0, 1, 2),
+	(351, 41, 3, 56, 3, 42, 167, 0, 0, 2, 2),
+	(352, 41, 3, 57, 3, 42, 168, 1, 0, 2, 2),
+	(353, 41, 3, 57, 4, 9, 152, 1, 0, 3, 2),
+	(354, 41, 3, 58, 2, 18, 120, 1, 0, 1, 2),
+	(355, 41, 3, 56, 2, 18, 120, 1, 0, 2, 2),
+	(356, 41, 3, 57, 2, 18, 121, 0, 0, 1, 2),
+	(357, 41, 3, 57, 1, 12, 210, 0, 0, 1, 2),
+	(358, 41, 3, 56, 1, 12, 211, 1, 0, 1, 2),
+	(359, 41, 3, 58, 4, 9, 150, 0, 0, 3, 2),
+	(360, 41, 3, 58, 1, 12, 213, 0, 0, 1, 2),
+	(361, 41, 3, 61, 3, 42, 169, 0, 0, 2, 2),
+	(362, 41, 3, 61, 1, 12, 213, 0, 0, 1, 2),
+	(363, 41, 3, 59, 1, 12, 211, 1, 0, 1, 2),
+	(364, 41, 3, 60, 1, 12, 210, 0, 0, 1, 2),
+	(365, 41, 3, 60, 2, 18, 121, 0, 0, 1, 2),
+	(366, 41, 3, 59, 2, 18, 120, 1, 0, 1, 2),
+	(367, 41, 3, 61, 2, 18, 120, 1, 0, 1, 2),
+	(368, 41, 3, 59, 3, 42, 167, 0, 0, 2, 2),
+	(369, 41, 3, 60, 3, 42, 168, 1, 0, 2, 2),
+	(370, 41, 3, 60, 4, 9, 152, 1, 0, 2, 2),
+	(371, 41, 3, 61, 4, 9, 150, 0, 0, 3, 2),
+	(372, 41, 3, 56, 4, 9, 150, 0, 0, 3, 2);
 /*!40000 ALTER TABLE `tablero_puntajes` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.turnos
