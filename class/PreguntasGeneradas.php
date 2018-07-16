@@ -270,12 +270,15 @@
 				,'respuestas'=>$respuestas];
 		}
 
-		public function ultimaLanzada($concurso,$ronda,$categoria,$es_desempate=false){
+		public function ultimaLanzada($concurso,$ronda,$categoria,$es_desempate=false,$nivel_desempate = 0){
 			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? ";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
 			if(!$es_desempate){
 				$sentencia .= ' AND p.ID_CATEGORIA = ? ';
 				$valores['ID_CATEGORIA'] = $categoria;
+			}else{
+				$sentencia .= " AND pg.NIVEL_EMPATE = ? ";
+				$valores['NIVEL_EMPATE'] = $nivel_desempate;
 			}
 			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
 			$result = $this->query($sentencia, $valores);

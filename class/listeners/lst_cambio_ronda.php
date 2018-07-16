@@ -4,6 +4,8 @@
 	require_once dirname(__FILE__) . '/../Concurso.php';
 	require_once dirname(__FILE__) . '/../RondasLog.php';
 	require_once dirname(__FILE__) . '/../TableroPuntaje.php';
+	require_once dirname(__FILE__) . '/../TableroMaster.php';
+	require_once dirname(__FILE__) . '/../TableroPosiciones.php';
 
 	$sesion = new Sesion();
 	if($sesion->getOne(SessionKey::ID_CONCURSANTE) > 0 ){
@@ -22,16 +24,36 @@
 				break;
 			}
 		}
-		// do empate
+		// Obtenemos la informacion de los tableros
+		$tablero_master = new TableroMaster();
+		$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+		$ultimoYaTienePosiciones = false;
+		$tabPosiciones = new TableroPosiciones();
+		$posiciones = null;
+		// esperamso hasta que generen->cierren el tablero->calculen las posiciones
+		while (count($mMasters) == 0 || $mMasters[count($mMasters) - 1]['CERRADO'] == 0 || $ultimoYaTienePosiciones) {
+			$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
+			if(count($posiciones) > 0){
+				$ultimoYaTienePosiciones = true;
+			}
+			$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+		}
+		// determinamos el empate
 		$empate = 0;
 		$info_empate = null;
 		if($termino == 1){
-			$tablero = new TableroPuntaje();
-			$info_empate = $tablero->esEmpate($sesion->getOne(SessionKey::ID_CONCURSO));
+			$info_empate = $tabPosiciones->esEmpate($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
 			if($info_empate['estado'] == 1){
-				$empate = 1;
+				$empate = $info_empate['estado'];
+				// solo habilitamos los emptates para los primeros 3 lugares si es el caso
+				for($x = 0 ; $x < count($info_empate['empatados']) ; $x++ ){
+					if($info_empate['empatados'][$x]['POSICION'] > 3){
+						unset($info_empate['empatados'][$x]);
+					}
+				}
 			}
 		}
+
 		$cambio = ['estado'=>1,
 					'yo_concursante' => $sesion->getOne(SessionKey::ID_CONCURSANTE),
 					'mensaje'=>'Cambio de ronda',

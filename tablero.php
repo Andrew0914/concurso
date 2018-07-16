@@ -43,7 +43,7 @@
 							echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
 							break;
 						case 1:
-							echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Ir a desempate</button>";
+							echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).",".$tablero_master_id. ")'>Ir a desempate</button>";
 							break;
 						case 2:
 							echo "<button class='btn btn-geo' onclick='cerrarConcurso(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Finalizar Concurso</button>";
@@ -70,7 +70,7 @@
 					<table class="table table-bordered table-geo" id="tbl-mejores" style="width: 100%;">
 						<thead>
 							<tr>
-								<th></th>
+								<th>Posicion</th>
 								<th>Concursante</th>
 								<th>Puntaje Total</th>
 								<th></th>

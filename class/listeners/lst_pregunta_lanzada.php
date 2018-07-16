@@ -10,6 +10,7 @@
   $objRespuesta = new Respuestas();
   $idConcurso = $_GET['ID_CONCURSO'];
   $idRonda = $_GET['ID_RONDA'];
+  $nivel_empate = $_GET['NIVEL_EMPATE'];
   $idCategoria = $_GET['ID_CATEGORIA'];
   $es_desempate = false;
   if($idCategoria == 'desempate'){

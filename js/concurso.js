@@ -116,12 +116,14 @@ function cerrarConcurso(concurso){
   });  
 }
 
-function irDesempate(concurso){
+function irDesempate(concurso,tableroMaster){
   $.ajax({
     url: 'class/Concurso.php',
     type: 'POST',
     dataType: 'json',
-    data: {'ID_CONCURSO': concurso , 'functionConcurso':'irDesempate'},
+    data: {'ID_CONCURSO': concurso 
+          , 'functionConcurso':'irDesempate'
+          , 'ID_TABLERO_MASTER' : tableroMaster},
     success:function(response){
       if(response.estado == 1){
         window.location.replace('leer_preguntas');

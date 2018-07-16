@@ -20,7 +20,9 @@ var Comet = Class.create();
 		  parameters: { 'lanzada' : this.lanzada , 
 						'ID_CONCURSO': document.getElementById("ID_CONCURSO").value,
 						'ID_RONDA': document.getElementById("ID_RONDA").value,
-						'ID_CATEGORIA':categoria},
+						'ID_CATEGORIA': categoria,
+						'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value,
+						'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value},
 		  onSuccess: function(transport) {
 			 var response = transport.responseText.evalJSON();
 			 this.comet.lanzada = response['lanzada'];

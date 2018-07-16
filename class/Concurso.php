@@ -8,6 +8,7 @@
 	require_once dirname(__FILE__) . '/Etapas.php';
 	require_once dirname(__FILE__) . '/RondasLog.php';
 	require_once dirname(__FILE__) . '/Desempate.php';
+	require_once dirname(__FILE__) . '/TableroMaster.php';
 
 	class Concurso extends BaseTable{
 
@@ -201,8 +202,11 @@
 			$sesion = new Sesion();
 			$valores = ['FECHA_CIERRE' => date('Y-m-d H:i:s')];
 			if($this->update($concurso,$valores)){
-				$sesion->kill();
-				return ['estado'=>1 , 'mensaje'=>'Concurso finalizado'];
+				$tabMaster = new TableroMaster();
+				if($tabMaster->cerrarTablerosConcurso($concurso)){
+					$sesion->kill();
+					return ['estado'=>1 , 'mensaje'=>'Concurso finalizado'];
+				}
 			}
 
 			return ['estado'=>0 ,'mensaje'=>'No se pudo cerrar el concurso'];
@@ -213,7 +217,7 @@
 		 * @param  integer $idConcurso 
 		 * @return array             
 		 */
-		public function irDesempate($idConcurso){
+		public function irDesempate($idConcurso,$idTableroMaster){
 			$rs = ['estado'=>0 , 'mensaje'=>'No se pudo acceder al desempate'];
 			try {
 				$concurso = $this->find($idConcurso);
@@ -226,9 +230,15 @@
 				$genero = $objDesempate->generaPreguntas($concurso['ID_ETAPA'],$concurso['ID_CONCURSO'] , $nivel_empate);
 				if($genero['estado'] == 1){
 					$log = new RondasLog();
+					//guardamos la ronda en el log
 					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA'],'NIVEL_EMPATE'=>$nivel_empate])){
+						//actualizamos el concurso a la ronda
 						if($this->update($idConcurso,['ID_RONDA'=> $desempate['ID_RONDA'],'NIVEL_EMPATE'=>$nivel_empate] )){
-							$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
+							$master = new TableroMaster();
+							//cerramos el tablero master actual
+							if($master->cerrarTablero($idTableroMaster)){
+								$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
+							}
 						}
 					}
 				}
@@ -260,7 +270,7 @@
 				echo json_encode($concurso->iniciarCategoriaRonda($_POST['ID_CONCURSO'], $_POST['ID_CATEGORIA']));
 				break;
 			case 'irDesempate':
-				echo json_encode($concurso->irDesempate($_POST['ID_CONCURSO']));
+				echo json_encode($concurso->irDesempate($_POST['ID_CONCURSO'],$_POST['ID_TABLERO_MASTER']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSO:POST']);
