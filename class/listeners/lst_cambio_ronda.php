@@ -24,31 +24,38 @@
 				break;
 			}
 		}
-		// Obtenemos la informacion de los tableros
-		$tablero_master = new TableroMaster();
-		$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
-		$ultimoYaTienePosiciones = false;
-		$tabPosiciones = new TableroPosiciones();
-		$posiciones = null;
-		// esperamso hasta que generen->cierren el tablero->calculen las posiciones
-		while (count($mMasters) == 0 || $mMasters[count($mMasters) - 1]['CERRADO'] == 0 || $ultimoYaTienePosiciones) {
-			$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
-			if(count($posiciones) > 0){
-				$ultimoYaTienePosiciones = true;
-			}
-			$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
-		}
 		// determinamos el empate
 		$empate = 0;
 		$info_empate = null;
+		// solo si ya terminaron las rondas normales
 		if($termino == 1){
-			$info_empate = $tabPosiciones->esEmpate($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
-			if($info_empate['estado'] == 1){
+			// Obtenemos la informacion de los tableros
+			$tablero_master = new TableroMaster();
+			$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+			$ultimoYaTienePosiciones = false;
+			$ultimoNoCerrado = false;
+			$tabPosiciones = new TableroPosiciones();
+			$posiciones = null;
+			// esperamso hasta que generen->cierren el tablero->calculen las posiciones
+			while (count($mMasters) == 0 || $ultimoNoCerrado|| $ultimoYaTienePosiciones) {
+				if(count($mMasters) > 0){
+					$ultimoNoCerrado = $mMasters[count($mMasters) - 1]['CERRADO'] == 0;
+					$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
+				}
+				if(count($posiciones) > 0){
+					$ultimoYaTienePosiciones = true;
+				}
+				$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+			}
+			if(count($mMasters) > 0){
+				$info_empate = $tabPosiciones->esEmpate($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
 				$empate = $info_empate['estado'];
-				// solo habilitamos los emptates para los primeros 3 lugares si es el caso
-				for($x = 0 ; $x < count($info_empate['empatados']) ; $x++ ){
-					if($info_empate['empatados'][$x]['POSICION'] > 3){
-						unset($info_empate['empatados'][$x]);
+				if($info_empate['estado'] == 1){
+					// solo habilitamos los emptates para los primeros 3 lugares si es el caso
+					for($x = 0 ; $x < count($info_empate['empatados']) ; $x++ ){
+						if($info_empate['empatados'][$x]['POSICION'] > 3){
+							unset($info_empate['empatados'][$x]);
+						}
 					}
 				}
 			}

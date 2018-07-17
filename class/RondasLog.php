@@ -174,8 +174,6 @@
 								, 'ID_CATEGORIA' => $idCategoria
 								, 'ID_RONDA' => $ronda['ID_RONDA']];
 					$rs = $this->get($where , $valores);
-					// si no arroja resultado para CONCURSO & CATEGORIA & RONDA
-					// quiere decir que ni siquiera ha sido lanzada entonces no an terminado las rondas
 					if(count($rs) <= 0){
 						return false;
 					}
@@ -189,16 +187,17 @@
 			}
 			
 			if($totales == $finalizadas AND $concurso['ID_RONDA'] != $rondaEmpate['ID_RONDA']){
-				return true;
-			}else{
 				// empae finalizado
 				$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ? AND ID_RONDA = ? AND NIVEL_EMPATE = ?";
 				$valores = ['ID_CONCURSO'=>$concurso['ID_CONCURSO'] 
 							,'ID_CATEGORIA' => $concurso['ID_CATEGORIA']
 							,'ID_RONDA' => $rondaEmpate['ID_RONDA']
 							,'NIVEL_EMPATE' => $concurso['NIVEL_EMPATE']];
-				$rs = $this->get($where , $valores)[0];
-				return $rs['FIN'];
+				$rs = $this->get($where , $valores);
+				if(count($rs)> 0){
+					return $rs[0]['FIN'];
+				}
+				return true;
 			}
 
 			return false;
@@ -234,4 +233,7 @@
 			break;
 		}
 	}
+
+	/*$obj = new RondasLog();
+	echo json_decode($obj->rondasTerminadasCategoria(43,1));*/
 ?>

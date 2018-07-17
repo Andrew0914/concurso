@@ -135,8 +135,10 @@
 
 			if($emptatados > 0){
 				$response['estado'] = 1;
+				$response['mensaje'] ="Se genero empate";
 			}else{
 				$response['estado'] = 2;
+				$response['mensaje'] = 'No se genero ningun empate';
 			}
 			$response['empatados'] = $rs;
 			return $response;
