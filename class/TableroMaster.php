@@ -18,7 +18,7 @@
 			return $this->find($id);
 		}
 
-		public function actualiza($id,$valores,$where,$valoresWhere){
+		public function actualiza($id,$valores,$where = null,$valoresWhere = null){
 			return $this->update($id, $valores, $where, $valoresWhere);
 		}
 		
@@ -27,7 +27,7 @@
 		}
 
 		public function getTablerosMasters($concurso){
-			return $this->get("ID_CONCURSO = ?" ,['ID_CONCURSO'=>$concurso] , true );
+			return $this->get("ID_CONCURSO = ? ORDER BY ID_TABLERO_MASTER ASC" ,['ID_CONCURSO'=>$concurso] , true );
 		}
 
 		public function cerrarTablerosConcurso($concurso){

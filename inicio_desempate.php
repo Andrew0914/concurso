@@ -24,7 +24,7 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				Has empatado con otro concursante, espera a que el moderador indique que pueden acceder a la ronda de desempate.
+				Han empatado algunos concursantes, espera a que el moderador indique que pueden acceder a la ronda de desempate.
 				<br> <br>
 				<?php 
 					$tablero = new TableroPuntaje();
@@ -49,7 +49,7 @@
 				?>
 				<br>
 				<button class="btn btn-geo" onclick="accederDesempate(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_CONCURSANTE); ?>)">
-					Acceder
+					Continuar
 				</button>
 			</h4>
 		</div>

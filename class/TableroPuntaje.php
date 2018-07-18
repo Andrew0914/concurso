@@ -22,6 +22,14 @@
 		 */
 		public function preRespuesta($preRespuesta){
 			unset($preRespuesta['functionTablero']);
+
+			$preRespuesta = ['ID_CONCURSO'=>$preRespuesta['ID_CONCURSO'],
+							'ID_RONDA'=>$preRespuesta['ID_RONDA'],
+							'ID_CONCURSANTE'=>$preRespuesta['ID_CONCURSANTE'],
+							'PREGUNTA_POSICION'=>$preRespuesta['PREGUNTA_POSICION'],
+							'PREGUNTA'=>$preRespuesta['PREGUNTA'],
+							'NIVEL_EMPATE'=>$preRespuesta['NIVEL_EMPATE']];
+							
 			if(!$this->existeEnTablero($preRespuesta)){
 				$preRespuesta['RESPUESTA_CORRECTA'] = 0;
 				if($this->save($preRespuesta)){
@@ -33,7 +41,7 @@
 		}
 
 		public function existeEnTablero($preRespuesta){
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA = ?";
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA = ? AND NIVEL_EMPATE = ?";
 			return count($this->get($where, $preRespuesta)) > 0;
 		}
 
@@ -94,7 +102,7 @@
 		 * @param  integer $paso        
 		 * @return array               
 		 */
-		public function saveRespuesta($concursante,$concurso,$ronda,$pregunta,$respuesta,$paso = 0){
+		public function saveRespuesta($concursante,$concurso,$ronda,$pregunta,$respuesta,$nivel_empate,$paso = 0){
 			$objRespuesta = new Respuestas();
 			$valores = ['RESPUESTA' => $respuesta];
 			if($objRespuesta->esCorrecta($pregunta, $respuesta)){
@@ -102,8 +110,10 @@
 			}else{
 				$valores['RESPUESTA_CORRECTA'] = 0;
 			}
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
-			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante];
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? AND NIVEL_EMPATE = ? ";
+			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda 
+							, 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante
+							,'NIVEL_EMPATE'=>$nivel_empate];
 			if($this->update(0,$valores,$where,$whereValues)){
 				if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$valores['RESPUESTA_CORRECTA'],$paso)){
 					return ['estado'=>1, 'mensaje'=>'Respuesta almacenada con exito'];
@@ -278,11 +288,14 @@
 			return ['estado'=>0 , 'mensaje'=> 'No se pudieron determinar los resultados para saber si existe desempate'];
 		}
 
-		public function miPuntajePregunta($concurso,$ronda,$concursante,$pregunta){
+		public function miPuntajePregunta($concurso,$ronda,$concursante,$pregunta,$nivel_empate){
 			$respone = ['estado'=>0 , 'mensaje'=>'No se pudo obtener el puntaje de tu pregunta'];
-			$where = "ID_CONCURSO = ?  AND ID_RONDA= ? AND ID_CONCURSANTE = ?";
+			$where = "ID_CONCURSO = ?  AND ID_RONDA= ? AND ID_CONCURSANTE = ? AND PREGUNTA = ? AND NIVEL_EMPATE = ? ";
 			$valores = ['ID_CONCURSO' => $concurso  , 
-						'ID_RONDA' => $ronda, 'ID_CONCURSANTE' => $concursante];
+						'ID_RONDA' => $ronda, 
+						'ID_CONCURSANTE' => $concursante,
+						'PREGUNTA' => $pregunta,
+						'NIVEL_EMPATE' => $nivel_empate];
 			try{
 				$response['puntaje'] = $this->get($where , $valores)[0];
 				$response['mensaje']= 'Puntaje obtenido de tu pregunta';
@@ -307,7 +320,7 @@
 				echo json_encode($tablero->preRespuesta($_POST));
 				break;
 			case 'saveRespuesta':
-				echo json_encode($tablero->saveRespuesta($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA']));
+				echo json_encode($tablero->saveRespuesta($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['NIVEL_EMPATE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);
@@ -323,7 +336,7 @@
 		$tablero = new TableroPuntaje();
 		switch ($function) {
 			case 'todosContestaron':
-				if($tablero->todosContestaron($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],$_GET['ID_PREGUNTA'])){
+				if($tablero->todosContestaron($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],$_GET['ID_PREGUNTA'],$_GET['NIVEL_EMPATE'])){
 					echo json_encode(['estado'=>1, 'mensaje'=>'Todos contestaron']);
 				}else{
 					echo json_encode(['estado'=>0, 'mensaje'=>'Aun falta por contestar']);
@@ -342,7 +355,8 @@
 				echo json_encode($tablero->getMejoresPuntajes($_GET['ID_CONCURSO'] , $_GET['ID_RONDA']));
 				break;
 			case 'miPuntajePregunta': 
-				echo json_encode($tablero->miPuntajePregunta($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],$_GET['ID_CONCURSANTE'],$_GET['PREGUNTA']));
+				echo json_encode($tablero->miPuntajePregunta($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],
+					$_GET['ID_CONCURSANTE'],$_GET['PREGUNTA'],$_GET['NIVEL_EMPATE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:GET']);

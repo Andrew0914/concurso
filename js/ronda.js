@@ -84,6 +84,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		},
 		error:function(error){
 			alert("Ocurrio un error inesperado");
+			console.log(error);
 		}
 	})
 }

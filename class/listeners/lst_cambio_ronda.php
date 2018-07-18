@@ -38,12 +38,16 @@
 			$posiciones = null;
 			// esperamso hasta que generen->cierren el tablero->calculen las posiciones
 			while (count($mMasters) == 0 || $ultimoNoCerrado|| $ultimoYaTienePosiciones) {
+				sleep(1);
 				if(count($mMasters) > 0){
 					$ultimoNoCerrado = $mMasters[count($mMasters) - 1]['CERRADO'] == 0;
 					$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
 				}
+				// nos aseguramos que ya hayan sido generadas todas las posiciones por cuestion de timing
 				if(count($posiciones) > 0){
-					$ultimoYaTienePosiciones = true;
+					if($mMasters[count($mMasters) - 1]['POSICIONES_GENERADAS'] == 1){
+						$ultimoYaTienePosiciones = true;
+					}
 				}
 				$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
 			}
@@ -60,7 +64,7 @@
 				}
 			}
 		}
-
+		
 		$cambio = ['estado'=>1,
 					'yo_concursante' => $sesion->getOne(SessionKey::ID_CONCURSANTE),
 					'mensaje'=>'Cambio de ronda',

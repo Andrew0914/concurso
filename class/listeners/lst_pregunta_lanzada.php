@@ -12,14 +12,11 @@
   $idRonda = $_GET['ID_RONDA'];
   $nivel_empate = $_GET['NIVEL_EMPATE'];
   $idCategoria = $_GET['ID_CATEGORIA'];
-  $es_desempate = false;
-  if($idCategoria == 'desempate'){
-    $es_desempate = true;
-  }
+  $es_desempate = $_GET['IS_DESEMPATE'];
   // infinite loop until the data file is not modified
   $lastLanzada    = isset($_GET['lanzada']) ? $_GET['lanzada'] : 0;
   $generada = new PreguntasGeneradas();
-  $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate); 
+  $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate,$nivel_empate); 
   $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
   $currentLanzada = $lanzadaBD[0]['LANZADA'];
   $log = new RondasLog();
@@ -27,7 +24,7 @@
   while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
   {
     sleep(1); // sleep 10ms to unload the CPU
-    $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate);
+    $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate,$nivel_empate);
     $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
     $currentLanzada = $lanzadaBD[0]['LANZADA'];
   }

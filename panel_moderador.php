@@ -52,8 +52,11 @@
 		<!-- TERMINA INFORMACION GENERAL -->
 		<!-- PUNTAJES SI ES EL CASO-->
 		<?php 
+			$concurso1 = new Concurso();
 			$log = new RondasLog();
-			if($log->rondasTerminadasCategoria($sesion->getOne(SessionKey::ID_CONCURSO) , $categoria['ID_CATEGORIA']) ){
+			$rondasTerminadas = $log->rondasTerminadasCategoria($sesion->getOne(SessionKey::ID_CONCURSO) , $categoria['ID_CATEGORIA']);
+			$concursoCerrado = $concurso1->concursoCerrado($sesion->getOne(SessionKey::ID_CONCURSO));
+			if($rondasTerminadas AND !$concursoCerrado){
 		?>
 		<br>
 		<div class="row">
@@ -105,9 +108,17 @@
 				</table>
 				<div class="row">
 					<div class="col-md-4 offset-md-8">
+						<?php if(!$rondasTerminadas){ ?>
 						<button class="btn btn-block btn-geo" onclick="iniciarCategoria(<?php echo $categoria['ID_CATEGORIA'].','.$sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
 					 			Iniciar
 					 	</button>
+					 	<?php } 
+					 		if($concurso1->concursoCerrado($sesion->getOne(SessionKey::ID_CONCURSO))){
+					 	?>
+					 	<button class="btn btn-block btn-geo">
+					 		Revisar puntuaciones
+					 	</button>
+					 	<?php } ?>
 					</div>
 				</div>
 			</div>

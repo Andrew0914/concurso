@@ -32,7 +32,9 @@ function lanzarPregunta(segundos,boton){
     			'ID_GENERADA':generada,
     			'ID_CONCURSO':concurso,
     			'ID_RONDA':ronda,
-                'ID_CATEGORIA':categoria},
+                'ID_CATEGORIA':categoria,
+                'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value,
+                'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value},
         dataType: "json",
         success : function(response){
         	if(response.estado == 1){
@@ -69,7 +71,8 @@ function todosContestaron(){
    var concurso = $("#ID_CONCURSO").val();
    var ronda = $("#ID_RONDA").val();
    var pregunta = $("#ID_PREGUNTA").val();
-   $.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta, 
+   $.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda
+    +'&ID_PREGUNTA='+pregunta+'&NIVEL_EMPATE=' + document.getElementById('NIVEL_EMPATE').value, 
       function(data) {
         if(data.estado == 1){
             stopExecPerSecond= true;

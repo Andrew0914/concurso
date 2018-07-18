@@ -26,11 +26,9 @@
                     <option value="">Elige el concurso</option>
                     <?php
                         $concurso = new Concurso();
-                        $concursosDisponibles = $concurso->getConcursosDisponible();
+                        $concursosDisponibles = $concurso->getConcursos();
                         foreach ($concursosDisponibles as $value) {
-                            if($value['FECHA_CIERRE'] == ''){
-                                echo '<option value="' . $value['ID_CONCURSO'] . '">' . $value['CONCURSO'] . '</option>';
-                            }
+                            echo '<option value="' . $value['ID_CONCURSO'] . '">' . $value['CONCURSO'] . '</option>';
                         }
                     ?>
                 </select>

@@ -248,6 +248,11 @@
 			}
 			return $rs; 
 		}
+
+		public function concursoCerrado($concurso){
+			$cierre = $this->find($concurso)['FECHA_CIERRE'];
+			return $cierre != null AND $cierre != '';
+		}
 	}
 
 	/**

@@ -41,10 +41,10 @@
 		 */
 		public function generaPosiciones($concurso,$es_empate = false){
 			$valida = 1;
-			$puntaje = new TableroPuntaje();
-			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			$master = new TableroMaster();
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
+			$puntaje = new TableroPuntaje();
+			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			if($id_master <= 0){
 				return ['estado'=>0 , 'mensaje' => 'No se pudo generar el tablero maestro'];
 			}
@@ -86,6 +86,13 @@
 
 			if(!$valida){
 				return ['estado'=>0 , 'mensaje'=> 'No se calcularon los empates'];
+			}
+
+			// por utlimo indicamos que ya las posiciones fueron genradas por temas del timer
+			$master = new TableroMaster();
+			
+			if( !$master->actualiza($id_master ,['POSICIONES_GENERADAS' => 1]) ){
+				return ['estado'=>'No se pudo establecer la bandera de posiciones generadas'];
 			}
 
 			return ['estado'=>1 , 'mensaje' => 'Tableros generados' , 'tablero_master'=>$id_master ];
@@ -143,7 +150,6 @@
 			$response['empatados'] = $rs;
 			return $response;
 		}
-
 	}	
 
 	/**

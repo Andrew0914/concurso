@@ -185,8 +185,7 @@
 					$totales++;
 				}
 			}
-			
-			if($totales == $finalizadas AND $concurso['ID_RONDA'] != $rondaEmpate['ID_RONDA']){
+			if($totales == $finalizadas){
 				// empae finalizado
 				$where = "ID_CONCURSO = ? AND ID_CATEGORIA = ? AND ID_RONDA = ? AND NIVEL_EMPATE = ?";
 				$valores = ['ID_CONCURSO'=>$concurso['ID_CONCURSO'] 
@@ -235,5 +234,5 @@
 	}
 
 	/*$obj = new RondasLog();
-	echo json_decode($obj->rondasTerminadasCategoria(43,1));*/
+	echo "Rondas: ". json_decode($obj->rondasTerminadasCategoria(62,1));*/
 ?>

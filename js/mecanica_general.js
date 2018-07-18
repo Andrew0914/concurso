@@ -1,6 +1,5 @@
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
 var finalizar = false;
-var finDesempate = false;
 var Comet = Class.create();
   Comet.prototype = {
 	 lanzada: 0,
@@ -11,10 +10,6 @@ var Comet = Class.create();
 	 connect: function(){
 	 	var categoria = document.getElementById('ID_CATEGORIA').value;
 	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
-	 	if(document.getElementById('IS_DESEMPATE') != undefined 
-	 		&& esDesempate == 1){
-	 		categoria = 'desempate';
-	 	}
 		this.ajax = new Ajax.Request(this.url, {
 		  method: 'get',
 		  parameters: { 'lanzada' : this.lanzada , 
@@ -55,7 +50,7 @@ var Comet = Class.create();
 	 		}
 	 	}else{
 	 		if(this.lanzada >=  document.getElementById('CANTIDAD_PREGUNTAS').value){
-	 			finDesempate = true;
+	 			finalizaRonda(response.concurso);
 	 		}
 	 	}
 	}
@@ -136,7 +131,8 @@ function sendPreRespuestas(){
 			'ID_RONDA':ronda,
 			'ID_CONCURSANTE':concursante,
 			'PREGUNTA_POSICION':posicion,
-			'PREGUNTA': pregunta
+			'PREGUNTA': pregunta,
+			'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
 		},
 		function(data, textStatus, xhr) {
 			if(data.estado == 0){
@@ -154,7 +150,8 @@ function todosContestaron(){
 	var concurso = $jq("#ID_CONCURSO").val();
 	var ronda = $jq("#ID_RONDA").val();
 	var pregunta = $jq("#ID_PREGUNTA").val();
-	$jq.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta, 
+	$jq.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='
+			+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta+'&NIVEL_EMPATE=' + document.getElementById('NIVEL_EMPATE').value, 
 		function(data) {
 			if(data.estado == 1){
 				stopExecPerSecond= true;
@@ -186,9 +183,6 @@ function sendRespuesta(){
 		// solo mandamso la pre respuesta (con la respuesta nula)
 		sendPreRespuestas();
 		afterSend();
-		if(finDesempate){
-			window.location.replace('concurso_finalizado');
-		}
 	}else{
 		// MANDAMOS LA RESPUESTA SELECCIONADA
 	  $jq.ajax({
@@ -200,15 +194,13 @@ function sendRespuesta(){
 			  'ID_RONDA':ronda,
 			  'ID_CONCURSANTE':concursante,
 			  'ID_PREGUNTA': pregunta,
-			  'ID_RESPUESTA':respuesta
+			  'ID_RESPUESTA':respuesta,
+			  'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
 		  },success:function(data){
 			 if(data.estado == 1){
 				afterSend();
 				stopExecPerSecond= true;
 				notFinish = true;
-				if(finDesempate){
-					window.location.replace('concurso_finalizado');
-				}
 			  }else{
 				console.log(data.mensaje)
 			  }
@@ -239,6 +231,7 @@ function afterSend(){
 				'ID_RONDA':ronda,
 				'ID_CONCURSANTE':concursante,
 				'PREGUNTA':pregunta,
+				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value,
 				'functionTablero':'miPuntajePregunta'},
 		success:function(response){
 			console.log(response);
