@@ -49,7 +49,7 @@
 						$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
 						$key = array_rand($preguntas);
 						$preguntaAleatoria = $preguntas[$key];
-						while ($this->existePreguntaEnConcursoRonda($idConcurso,$idRonda,
+						while ($this->existePreguntaEnConcursoRonda($idConcurso,
 							$preguntaAleatoria['ID_PREGUNTA'])) {
 							$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
 							$preguntaAleatoria = array_rand($preguntas);
@@ -96,9 +96,9 @@
 		 * @param  [int] $pregunta 
 		 * @return [type]           
 		 */
-		public function existePreguntaEnConcursoRonda($concurso,$ronda,$pregunta){
-			$values = ['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda,'ID_PREGUNTA'=>$pregunta];
-			$where = ' ID_CONCURSO=? AND ID_RONDA = ? AND ID_PREGUNTA = ? ';
+		public function existePreguntaEnConcursoRonda($concurso,$pregunta){
+			$values = ['ID_CONCURSO'=>$concurso,'ID_PREGUNTA'=>$pregunta];
+			$where = ' ID_CONCURSO=? AND ID_PREGUNTA = ? ';
 			return count($this->get($where,$values));
 		}
 
