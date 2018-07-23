@@ -72,6 +72,10 @@
 				$rs = ['estado'=> 1,
 					'mensaje'=>$mensaje,
 					'counts'=> $this->getCantidadGeneradas($etapa,$idConcurso)];
+			}else{
+				// elimino todas si no se generaron correctamente para volver a intentar
+				$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ?" 
+					, ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria]);
 			}
 
 			return $rs;
