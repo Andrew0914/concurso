@@ -33,18 +33,24 @@
 			foreach ($rondas as $ronda) {
 				if($ronda['IS_DESEMPATE'] == 0){
 					$idRonda = $ronda['ID_RONDA'];
+					if($idRonda == 5){
+						continue;
+					}
 					$regla = $objRegla->getReglasByRonda($idRonda)[0];
 					// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
 					$grados = explode(',',$regla['GRADOS']);
+
 					if($this->cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria) 
 						>= $ronda['PREGUNTAS_POR_CATEGORIA']){
 						$mensaje .= 'Se han generado todas las preguntas para la categoria de la ronda '.$idRonda .' ; ';
 						continue;
 					}
+
 					if($this->cantidadPreguntasTotal($idConcurso,$idRonda) >= $ronda['CANTIDAD_PREGUNTAS']){
 						$mensaje .= 'Se han generado todas las preguntas para  la ronda '.$idRonda .' ; ';
 						continue;
 					}
+
 					for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
 						$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
 						$key = array_rand($preguntas);
@@ -53,6 +59,10 @@
 							$preguntaAleatoria['ID_PREGUNTA'])) {
 							$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
 							$preguntaAleatoria = array_rand($preguntas);
+						}
+						if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
+							$cont -=1;
+							continue;
 						}
 						$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
 							, 'ID_CONCURSO' => $idConcurso 
@@ -64,7 +74,12 @@
 					}
 				}
 			}
-			if($valida){
+			$valida2 = 1;
+			if($etapa == 2){
+				$valida2 = $this->generaPreguntasGRP($idConcurso,$idCategoria)['estado'];
+			}
+
+			if($valida && $valida2){
 				if($mensaje ==''){
 					$mensaje = "GENERACION DE PREGUNTAS EXITOSA !";
 				}
@@ -76,6 +91,59 @@
 				// elimino todas si no se generaron correctamente para volver a intentar
 				$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ?" 
 					, ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria]);
+			}
+
+			return $rs;
+		}
+
+		/**
+		 * Genera las preguntas para la segunda ronda grupal
+		 * @param  integer $idConcurso 
+		 * @param  integer $idCategoria
+		 * @return array            
+		 */
+		public function generaPreguntasGRP($idConcurso , $idCategoria){
+			$concurso = new Concurso();
+			$concurso = $concurso->getConcurso($idConcurso);
+			$objConcursante = new Concursante();
+			$concursantes = $objConcursante->getConcursantes($idConcurso)['concursantes'];
+			$objRegla = new Reglas();
+			$regla = $objRegla->getReglasByRonda(5)[0];
+			$grados = explode(',',$regla['GRADOS']);
+			$ronda = new Rondas();
+			$ronda = $ronda->getRonda(5);
+			$valida= 1;
+			foreach ($concursantes as $cnc) {
+				for($cont = 1 ; $cont <= $ronda['TURNOS_PREGUNTA_CONCURSANTE']; $cont++){
+						$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+						$key = array_rand($preguntas);
+						$preguntaAleatoria = $preguntas[$key];
+						while ($this->existePreguntaEnConcursoRonda($idConcurso,
+							$preguntaAleatoria['ID_PREGUNTA'])) {
+							$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+							$preguntaAleatoria = array_rand($preguntas);
+						}
+						if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
+							$cont -=1;
+							continue;
+						}
+						$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
+							, 'ID_CONCURSO' => $idConcurso 
+							, 'ID_RONDA' => 5
+							, 'ID_CONCURSANTE'=>$cnc['ID_CONCURSANTE']
+							, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,5) + 1) ];
+							if($this->save($valoresInsert) <= 0){
+								$valida *= 0;
+							}
+					}
+			}
+			if($valida){
+				$rs = ['estado'=> 1,
+					'mensaje'=>"GENERACION DE PREGUNTAS EXITOSA !"];
+			}else{
+				// elimino todas si no se generaron correctamente para volver a intentar
+				$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ? AND ID_RONDA = ?" 
+					, ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria , 'ID_RONDA'=>5]);
 			}
 
 			return $rs;

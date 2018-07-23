@@ -36,7 +36,7 @@
 				$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
 				$key = array_rand($preguntas);
 				$preguntaAleatoria = $preguntas[$key];
-				while ($genera->existePreguntaEnConcursoRonda($idConcurso,$idRonda,
+				while ($genera->existePreguntaEnConcursoRonda($idConcurso,
 					$preguntaAleatoria['ID_PREGUNTA'])) {
 					$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
 					$preguntaAleatoria = array_rand($preguntas);
