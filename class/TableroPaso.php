@@ -11,7 +11,7 @@
 			parent::__construct();
 		}
 
-		public function contestoPaso($concurso,$ronda,$pregunta,$concursante){
+		public function pasoContestado($concurso,$ronda,$pregunta,$concursante){
 			$objConcursante = new Concursante();	
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
@@ -74,21 +74,110 @@
 			}
 			return $response;
 		}
+
+		public function existeEnTablero($valores){
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ?  AND PREGUNTA = ? AND NIVEL_EMPATE = 0";
+			return count($this->get($where, $preRespuesta)) > 0;
+		}
+
+		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$paso){
+			//validamos si no respondio
+			if($respuesta=''){
+				$respuesta = null;
+			}
+			$values = ['ID_CONCURSO'=>$concurso,'ID_CONCURSANTE'=>$concursante
+						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta];
+			try{
+				// generamos el valor para el campo de respuesta_correcta
+				$objRespuesta = new Respuestas();
+				$values = ['RESPUESTA' => $respuesta];
+				if($objRespuesta->esCorrecta($pregunta, $respuesta)){
+					$values['RESPUESTA_CORRECTA'] = 1;
+				}else{
+					$values['RESPUESTA_CORRECTA'] = 0;
+				}
+				if($this->save($values)){
+					if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$values['RESPUESTA_CORRECTA'],$paso)){
+						return ['estado'=>1, 'mensaje'=>'Respuesta almacenada con exito'];
+					}
+				}
+			}catch(Exception $ex){
+				return ['estado'=>0 , 'mensaje'=>'No se almaceno tu respuesta:'.$ex->getMessage()];
+			}
+		}
+
+		public function generaPuntaje($concursante,$concurso,$ronda,$pregunta,$respuesta,$correcta,$paso = 0){
+			$v_puntaje = ['PUNTAJE'=>0];
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
+			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante];
+			$regla = new Reglas();
+			$reglas = $regla->getReglasByRonda($ronda);
+			$objPregunta = new Preguntas();
+			$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+			if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ){
+				$v_puntaje['PUNTAJE'] *= -1;
+			}
+			if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
+				$v_puntaje['PUNTAJE'] *= -1;
+			}
+			
+			return $this->update(0, $v_puntaje, $where, $whereValues);
+		}
+
+		public function miPuntajePregunta($concurso,$ronda,$concursante,$pregunta,$nivel_empate){
+			$respone = ['estado'=>0 , 'mensaje'=>'No se pudo obtener el puntaje de tu pregunta'];
+			$where = "ID_CONCURSO = ?  AND ID_RONDA= ? AND ID_CONCURSANTE = ? AND PREGUNTA = ? AND NIVEL_EMPATE = ? ";
+			$valores = ['ID_CONCURSO' => $concurso  , 
+						'ID_RONDA' => $ronda, 
+						'ID_CONCURSANTE' => $concursante,
+						'PREGUNTA' => $pregunta,
+						'NIVEL_EMPATE' => $nivel_empate];
+			try{
+				$response['puntaje'] = $this->get($where , $valores)[0];
+				$response['mensaje']= 'Puntaje obtenido de tu pregunta';
+				$response['estado'] = 1;
+			}catch(Exception $ex){
+				$response['estado'] = 0;
+				$response['mensaje'] = 'No se obtuvo tu puntaje :'. $ex->getMessage();
+			}
+
+			return $response;
+		}
+
 	}
 
 	/**
 	 * GET REQUESTS
 	 */
-	if(isset($_GET['functionTablero'])){
-		$function = $_GET['functionTablero'];
+	if(isset($_GET['functionTableroPaso'])){
+		$function = $_GET['functionTableroPaso'];
 		$tablero = new TableroPaso();
 		switch ($function) {
-			case 'contestoPaso':
-				echo json_encode($tablero->contestoPaso($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],
+			case 'pasoContestado':
+				echo json_encode($tablero->pasoContestado($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],
 						$_GET['PREGUNTA'],$_GET['ID_CONCURSANTE']));
 			break;
+			case 'miPuntajePregunta': 
+				echo json_encode($tablero->miPuntajePregunta($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],
+					$_GET['ID_CONCURSANTE'],$_GET['PREGUNTA'],$_GET['NIVEL_EMPATE']));
+				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO_PASO:GET']);
+		}
+	}
+
+	/**
+	 * POST REQUEST
+	 */
+	if(isset($POST['functionTableroPaso'])){
+		$function = $POST['functionTableroPaso'];
+		$tablero = new TableroPaso();
+		switch ($function) {
+			case 'saveDirect':
+				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PASO']));
+				break;
+			default:
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO_PASO:POST']);
 		}
 	}
  ?>

@@ -337,6 +337,15 @@
 				,'respuestas'=>$respuestas];
 		}
 
+		/**
+		 * Obtiene la ultima pregunta lanzada en la ronda
+		 * @param  integer  $concurso        
+		 * @param  integer  $ronda           
+		 * @param  integer  $categoria       
+		 * @param  boolean $es_desempate    
+		 * @param  integer $nivel_desempate 
+		 * @return array                   
+		 */
 		public function ultimaLanzada($concurso,$ronda,$categoria,$es_desempate=false,$nivel_desempate = 0){
 			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? ";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda];
@@ -350,6 +359,32 @@
 			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
 			$result = $this->query($sentencia, $valores);
 			return $result;
+		}
+
+		/**
+		 * Obtiene la ultima pregunta lanzada para el concursante
+		 * @param  integer $concurso    
+		 * @param  integer $ronda       
+		 * @param  integer $categoria   
+		 * @param  integer $concursante 
+		 * @return array              
+		 */
+		public function miUltimaLanzada($concurso,$ronda,$categoria,$concursante){
+			$response = ['estado'=>0,'mensaje'=>'Sin aaccion'];
+			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND ID_CONCURSANTE = ?";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda , 'ID_CATEGORIA'=>$categoria, 'ID_CONCURSANTE'=>$concursante];
+			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
+			try{
+				$result = $this->query($sentencia, $valores);
+				$response['estado'] = 1;
+				$response['pregunta'] = $result;
+				$response['mensaje'] = 'Pregunta obtenida exitosamente';
+			}catch(Exception $ex){
+				$response['estado'] = 0;
+				$response['mensaje'] = 'Fallo al obtener mi ultima pregunta:' . $ex->getMessage();
+			}
+			
+			return $response;
 		}
 
 		/**
@@ -406,6 +441,7 @@
 				,'respuestas'=>$respuestas];
 		}
 
+
 	}
 
 	/**
@@ -432,4 +468,21 @@
 				break;
 		}
 	}
+
+	/**
+	 * GET REQUESTS
+	 */
+	
+	if(isset($_POST['functionGeneradas'])){
+		$function = $_POST['functionGeneradas'];
+		$genera = new PreguntasGeneradas();
+		switch ($function) {
+			case 'miUltimaLanzada':
+				echo json_encode($genera->miUltimaLanzada($_GET['ID_CONCURSO'], $_GET['ID_RONDA'], $_GET['ID_CATEGORIA'] , $_['ID_CONCURSANTE']));
+				break;
+			default:
+				echo json_encode(['estado'=>0, 'mensaje'=>'Funcion no valida para PreguntasGeneradas:GET']);
+		}
+	}
+	
  ?>

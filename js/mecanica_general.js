@@ -210,13 +210,12 @@ function sendRespuesta(){
 	  });
 
 	}
-	}
+}
 
 /**
  * Resetea la pantalla para esperar y muestra el resutlado de la ultima pregunta
  */
 function afterSend(){
-	console.log('after send');
 	var concurso = $jq("#ID_CONCURSO").val();
 	var ronda = $jq("#ID_RONDA").val();
 	var concursante = $jq("#ID_CONCURSANTE").val();

@@ -133,7 +133,7 @@ function contestoPaso(concursante){
                 'ID_RONDA':$("#ID_RONDA").val(),
                 'PREGUNTA':$("#PREGUNTA").val(),
                 'ID_CONCURSANTE':concursante
-                'functionTablero':'contestoPaso'},
+                'functionTableroPaso':'pasoContestado'},
         success:function(response){
             if(response.estado == 1){
                 clearInterval(timerPaso);
