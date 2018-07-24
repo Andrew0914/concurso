@@ -114,7 +114,7 @@
 				if($rs[0]['PASO_PREGUNTA'] == 1){
 					return ['estado'=>2 
 					, 'mensaje'=>'El concursante actual paso la pregunta'
-					, 'concursante'=> $objConcursante->siguiente($concursante) ];
+					, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
 				}
 			}
 
