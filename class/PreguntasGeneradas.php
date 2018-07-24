@@ -203,7 +203,7 @@
 				INNER JOIN grados_dificultad g ON p.ID_GRADO = g.ID_GRADO
 				INNER JOIN categorias c ON p.ID_CATEGORIA = c.ID_CATEGORIA
 				INNER JOIN concursantes cr ON pg.ID_CONCURSANTE = cr.ID_CONCURSANTE
-				WHERE pg.ID_RONDA = ? AND pg.ID_CONCURSO = ? ORDER BY p.ID_GRADO";
+				WHERE pg.ID_RONDA = ? AND pg.ID_CONCURSO = ? ORDER BY p.ID_GRADO ASC";
             $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
 			return $this->query($query,$values);
 		}

@@ -65,10 +65,10 @@
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
 			$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+
 			if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ){
 				$v_puntaje['PUNTAJE'] *= -1;
-			}
-			if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
+			}else if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
 				$v_puntaje['PUNTAJE'] *= -1;
 			}
 			
@@ -380,7 +380,7 @@
 		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso){
 			//validamos si no respondio
 			if($respuesta==''){
-				$respuesta = "null";
+				$respuesta = null;
 			}
 			$values = ['ID_CONCURSO'=>$concurso,'ID_CONCURSANTE'=>$concursante
 						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta , 'PREGUNTA_POSICION'=>$posicion];
@@ -411,7 +411,7 @@
 		 * @param   $paso 
 		 * @return  array 
 		 */
-		public function paso($concursante,$concurso,$ronda,$pregunta,$posicion,$paso){
+		public function paso($concursante,$concurso,$ronda,$pregunta,$posicion,$paso =1){
 			$objConcursante = new Concursante();
 			try{
 				if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso)['estado'] == 1){
@@ -419,7 +419,7 @@
 									, 'ID_RONDA'=>$ronda , 'PREGUNTA'=>$pregunta];
 					$where = "ID_CONCURSO = ? AND ID_CONCURSANTE = ? AND ID_RONDA = ? AND PREGUNTA = ?";
 					$valoresPaso = ['PASO_PREGUNTA'=>$paso 
-					, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante)['ID_CONCURSANTE']];
+					, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante,$concurso)['ID_CONCURSANTE']];
 					if($this->update(0,$valoresPaso ,$where , $whereValues)){
 						return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
 					} 

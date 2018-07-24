@@ -83,7 +83,7 @@
 		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$paso){
 			//validamos si no respondio
 			if($respuesta=''){
-				$respuesta = null;
+				$respuesta = "null";
 			}
 			$values = ['ID_CONCURSO'=>$concurso,'ID_CONCURSANTE'=>$concursante
 						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta];

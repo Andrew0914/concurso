@@ -35,6 +35,7 @@ function showPregunta(response){
 	$("#card-inicio").hide(300);
 	$("#btn-obtener-pr").hide(300);
 	$("#btn-obtener-pr-paso").hide(300);
+	$("#btn-paso").show(300);
 	$("#pregunta").show(300);
 	$("#resultado-mi-pregunta").html("");
 	// seteamos los valores de lap regunta a mostrar
@@ -232,6 +233,7 @@ function afterSend(){
 				$("#content-respuestas").html("");
 				$("#btn-obtener-pr").show(300);
 				$("#btn-obtener-pr-paso").show(300);
+				$("#btn-paso").hide(300);
 			}else{
 				alert(response.mensaje);
 			}
