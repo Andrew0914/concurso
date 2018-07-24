@@ -92,6 +92,39 @@
 			return  $total_concursantes == $contestaron;
 		}
 
+		public function contestoOpaso($concurso,$ronda,$pregunta,$concursante){
+			$objConcursante = new Concursante();	
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
+							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
+			$rs = $this->get($where,$whereValues);
+			if(count($rs) > 0){
+				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO'] != 1){
+					return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
+				}
+				if($rs[0]['PASO'] == 1){
+					return ['estado'=>2 
+					, 'mensaje'=>'El concursante actual paso la pregunta'
+					, 'concursante'=> $objConcursante->siguiente($concursante) ];
+				}
+			}
+
+			return ['estado'=> 0 , 'mensaje'=>'Aun no realiza accion el concursante'];
+		}
+
+		public function tomoPaso($concurso,$ronda,$pregunta,$concursante){
+			$response = ['estado'=>0 , 'mensaje'=>'No se pudo dar por tomada la pregunta'];
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
+							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
+			if($this->update(0,['CONCURSANTE_TOMO'=>1] , $where , $whereValues)){
+				$respone['estado'] = 1;
+				$respone['mensaje'] = 'Pregunta tomada para el siguiente concursante';
+			}
+
+			return $respone;
+		}
+
 		/**
 		 * Guarda la respuesta una vez que se genero la pre respuestas
 		 * @param  integer  $concursante 
@@ -322,6 +355,10 @@
 			case 'saveRespuesta':
 				echo json_encode($tablero->saveRespuesta($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['NIVEL_EMPATE']));
 				break;
+			case 'tomoPaso':
+					echo json_encode($tablero->tomoPaso($_POST['ID_CONCURSO'],$_POST['ID_RONDA'],
+						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE']));
+				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);
 				break;
@@ -357,6 +394,10 @@
 			case 'miPuntajePregunta': 
 				echo json_encode($tablero->miPuntajePregunta($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],
 					$_GET['ID_CONCURSANTE'],$_GET['PREGUNTA'],$_GET['NIVEL_EMPATE']));
+				break;
+			case 'contestoOpaso':
+					echo json_encode($tablero->contestoOpaso($_GET['ID_CONCURSO'],$_GET['ID_RONDA'],
+						$_GET['PREGUNTA'],$_GET['ID_CONCURSANTE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:GET']);

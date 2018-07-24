@@ -104,6 +104,22 @@
 			return $this->find($id);
 		}
 
+		public function siguiente($concursanteActual,$concurso){
+			$concursantes = $this->getConcursantes($concurso)['concursantes'];
+			$actual = $this->find($concursanteActual);
+
+			foreach ($concursantes as $c) {
+				if($actual['CONCURSANTE_POSICION'] >= count($concursantes)){
+					if($c['CONCURSANTE_POSICION'] == 1){
+						return $c;
+					}
+				}
+				if($c['CONCURSANTE_POSICION'] == ($actual['CONCURSANTE_POSICION'] + 1)){
+					return $c; 
+				}
+			}
+		}
+
 		public function accederDesempate($idConcurso, $concursante){
 			$concurso = new Concurso();
 			$concurso = $concurso->getConcurso($idConcurso);

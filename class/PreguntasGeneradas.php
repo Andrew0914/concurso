@@ -196,13 +196,14 @@
 			return $this->query($query,$values);
 		}
 
-		public function getPreguntasDesempate($concurso,$ronda){
+		public function getPreguntas2nda($concurso,$ronda){
 			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,
-				pg.ID_GENERADA,pg.LANZADA,pg.HECHA,g.*,c.*
+				pg.ID_GENERADA,pg.LANZADA,pg.HECHA,g.*,c.*,cr.ID_CONCURSANTE,cr.CONCURSANTE
 				FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
 				INNER JOIN grados_dificultad g ON p.ID_GRADO = g.ID_GRADO
 				INNER JOIN categorias c ON p.ID_CATEGORIA = c.ID_CATEGORIA
-				WHERE ID_RONDA = ? AND ID_CONCURSO = ? ";
+				INNER JOIN concursantes cr ON pg.ID_CONCURSANTE = cr.ID_CONCURSANTE
+				WHERE pg.ID_RONDA = ? AND pg.ID_CONCURSO = ? ORDER BY p.ID_GRADO";
             $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
 			return $this->query($query,$values);
 		}
@@ -297,14 +298,6 @@
 			$ronda = $ronda->getRonda($idRonda);
 			$regla = new Reglas();
 			$regla = $regla->getReglasByRonda($idRonda)[0];
-			// validamos la ronda si es que se establece turnos
-			$rsTurno = null;
-			if($regla['TIENE_TURNOS']){
-				$turnos = new Turnos();
-				$rsTurno = $turnos->pasarTurno($idRonda, $concurso);
-				if($rsTurno['estado'] == 0)
-					return $rsTurno;
-			}
 			// la marcamos como hecha
 			$values = ['HECHA' => 1];
 			if(!$this->update($idGenerada , $values))
@@ -380,6 +373,39 @@
 			return $this->save($valores);
 		}
 
+		public function lanzarPregunta2nda($idGenerada,$concurso,$idRonda,$idCategoria,$idConcursante){
+			//objeto del a ronda 
+			$ronda = new Rondas();
+			$ronda = $ronda->getRonda($idRonda);
+			// la marcamos como hecha
+			$values = ['HECHA' => 1];
+			if(!$this->update($idGenerada , $values))
+				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+			// la ponemos como lanzada para que sea la que aparezca al participante
+			$sentencia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND ID_CONCURSANTE = ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda, 'ID_CATEGORIA'=>$idCategoria,'ID_CONCURSANTE'=>$idConcursante];
+			$result = $this->query($sentencia, $valores);
+			// si no hay lanzadas ponemos la primera en 1
+			if(count($result) <= 0){
+				$values = ['LANZADA' => 1];
+				if(!$this->update($idGenerada , $values))
+					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+			}else{
+				// si ya se lanzaron previamente otras
+				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND ID_CONCURSANTE = ? ";
+
+				$rs = $this->query($otraSentencia, $valores);
+				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
+				if(!$this->update($idGenerada , $values))
+					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
+			}
+			$objRespuesta = new Respuestas();
+			$respuestas = $objRespuesta->getRespuestasByPregunta($this->find($idGenerada)['ID_PREGUNTA']);
+			return ['estado'=> 1 , 
+				'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'
+				,'respuestas'=>$respuestas];
+		}
+
 	}
 
 	/**
@@ -396,6 +422,10 @@
 			case 'lanzarPregunta':
 				echo json_encode($genera->lanzarPregunta($_POST['ID_GENERADA'] ,$_POST['ID_CONCURSO'] 
 					, $_POST['ID_RONDA'],$_POST['ID_CATEGORIA'] , $_POST['IS_DESEMPATE'] , $_POST['NIVEL_EMPATE']));
+				break;
+			case 'lanzarPregunta2nda':
+				echo json_encode($genera->lanzarPregunta2nda($_POST['ID_GENERADA'] ,$_POST['ID_CONCURSO'] 
+					, $_POST['ID_RONDA'],$_POST['ID_CATEGORIA'] , $_POST['ID_CONCURSANTE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida PreguntasGeneradas:POST']);

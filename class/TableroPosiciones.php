@@ -3,6 +3,8 @@
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/TableroMaster.php';
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
+	require_once dirname(__FILE__) . '/TableroPaso.php';
+	require_once dirname(__FILE__) . '/Concurso.php';
 	require_once dirname(__FILE__). '/Concursante.php';
 	
 	class TableroPosiciones extends BaseTable{
@@ -45,6 +47,20 @@
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
 			$puntaje = new TableroPuntaje();
 			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
+			$objConcurso = new Concurso();
+			$objConcurso = $objConcurso->getConcurso($concurso);
+			// si es grupal contamos las puntuacioens del paso para medir las posiciones
+			if($objConcurso['ID_ETAPA'] == 2){
+				$pasos = new TableroPaso();
+				$mejoresPaso = $pasos->getMejores($concurso)['mejores'];
+				for($x = 0 ; $x<count($mejores) ; $x++) {
+					foreach ($mejoresPaso as $mp) {
+						if($mejores[$x]['ID_CONCURSANTE'] == $mp['ID_CONCURSANTE']){
+							$mejores[$x]['totalPuntos'] = $mejores[$x]['totalPuntos']  + $mp['totalPuntos'];
+						}
+					}
+				}
+			}
 			if($id_master <= 0){
 				return ['estado'=>0 , 'mensaje' => 'No se pudo generar el tablero maestro'];
 			}
@@ -113,12 +129,14 @@
 			$response = ['estado'=> 0 , 'mensaje' => 'No se pudieron obtener los tableros']; 
 			$puntajes = new TableroPuntaje();
 			$master = new TableroMaster();
+			$pasos = new TableroPaso();
 			$mejores = $puntajes->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			if($master_creado > 0){
 				$response['master']= $master->getMaster($master_creado);
 				$sentencia = "SELECT tp.*,c.CONCURSANTE FROM tablero_posiciones tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE  WHERE tp.ID_TABLERO_MASTER = ? GROUP BY c.ID_CONCURSANTE ORDER BY tp.POSICION";
 				$response['posiciones'] = $this->query($sentencia,['ID_TABLERO_MASTER'=>$master_creado]);
 				$response['puntajes'] = $puntajes->getResultados($concurso,$es_empate);
+				$response['pasos'] = $pasos->getResultados($concurso);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Se obtuvieron los tableros exitosamente';
 			}

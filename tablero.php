@@ -146,6 +146,41 @@
 							 ?>
 						</tbody>
 					</table>
+					<h4>Tablero de puntuaciones de paso de pregunta</h4>
+					<table class="table table-bordered table-geo" id="tbl-pasos" style="width: 100%;">
+						<thead>
+							<tr>
+								<th>Concursante</th>
+								<th>Ronda</th>
+								<th>Categoria</th>
+								<th> # </th>
+								<th> Pregunta </th>
+								<th>Respuesta</th>
+								<th>Puntaje</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+								$puntajes = $tableros['pasos']['tablero'];
+								foreach ($puntajes as $puntaje) {
+									echo "<tr>";
+									echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
+									echo "<td>" . $puntaje['RONDA'] . '</td>';
+									echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
+									echo "<td>".$puntaje['PREGUNTA_POSICION'].'</td>';
+									echo "<td>".$puntaje['PREGUNTA'].'</td>';
+									echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
+									if($puntaje['ES_IMAGEN'] == 1){
+										echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
+									}else{	
+										echo $puntaje['RESPUESTA'].'</td>';
+									}
+									echo "<td>".$puntaje['PUNTAJE'].'</td>';
+									echo "</tr>";	
+								}
+							 ?>
+						</tbody>
+					</table>
 				</div>
 				<!-- TABLERO DE RESUMEN DETALLADO-->
 			</div>

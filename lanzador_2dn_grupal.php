@@ -30,7 +30,6 @@
 		<section class="card-lg">
 			<input type="hidden" id="ID_CONCURSO" name="ID_CONCURSO" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>">
 			<input type="hidden" id="ID_RONDA" name="ID_RONDA" value="<?php echo $sesion->getOne(SessionKey::ID_RONDA); ?>">
-			?>">
 			<!-- INFORMACION GENERAL-->
 			<div class="row">
 				<div class="col-md-4">
@@ -64,10 +63,11 @@
 			<!-- PREGUNTAS GENERADAS-->
 			<div class="row">
 				<div class="col-md-12">
-					<table class="table table-sm table-bordered table-striped table-geo">
+					<table class='table table-sm table-bordered table-striped table-geo'>
 						<thead>
 							<tr>
 								<th>#Pregunta</th>
+								<th>Concursante</th>
 								<th>Pregunta</th>
 								<th>Dificultad</th>
 								<th>Puntaje</th>
@@ -76,17 +76,29 @@
 						</thead>
 						<tbody>
 							<?php 
-								$preguntas = $generadas->getPreguntasDesempate($idConcurso,$idRonda);
+								$preguntas = $generadas->getPreguntas2nda($idConcurso,$idRonda);
 								$onclick = "";
+								$alterna = '';
+								$filas =2;
 								foreach ($preguntas as $pregunta) {
-									echo "<tr class='monserrat-bold'>";
+									if($filas > $ronda['TURNOS_PREGUNTA_CONCURSANTE']){
+										$alterna = " style='border-bottom:50px solid rgba(158,219,180,0.75)' ";
+										$filas = 1;
+									}else{
+										$alterna = "";
+									}
+								
+									echo "<tr class='monserrat-bold'" . $alterna . ">";
 									echo "<td>" . $pregunta['PREGUNTA_POSICION']. "</td>";
+									echo "<td>" . $pregunta['CONCURSANTE']. "</td>";
 									echo "<td>" . $pregunta['CATEGORIA']. "</td>";
 									echo  "<td>".$pregunta['DIFICULTAD'] ."</td>";
 									echo "<td>". $pregunta['PUNTAJE']."</td>";
 									$onclick = " onclick='leer(\"".addslashes ($pregunta['PREGUNTA'])."\",";
 									$onclick .= $pregunta['ID_PREGUNTA']. ",";
 									$onclick .= $pregunta['PUNTAJE']. ",";
+									$onclick .= "\"".$pregunta['CONCURSANTE']. "\",";
+									$onclick .= $pregunta['ID_CONCURSANTE']. ",";
 									$onclick .= $pregunta['ID_GENERADA'].")'"; 
 									$button = "<td class='centrado'><button class='btn-geo'".$onclick.">Leer</button></td>";
 									if($pregunta['HECHA'] == 1){
@@ -94,9 +106,10 @@
 									}
 									echo $button;
 									echo  "</tr>";
+									$filas++;
 								}
 							 ?>
-						</tbody>
+						 </tbody>
 					</table>
 				</div>
 				<?php 
@@ -120,7 +133,12 @@
 		    	<div class="modal-content blanco">
 		    		<div class="modal-header">
 		    			<div class="row" style="width:100%">
-		    				<div class="col-md-4 offset-md-8">
+		    				<div class="col-md-6">
+		    					<h3 id="concursante" class="modal-title monserrat-bold" style="float: left;background: white">
+						          	Equipo
+						        </h3>
+		    				</div>
+		    				<div class="col-md-6">
 		    					<h3 id="titulo_modal" class="modal-title monserrat-bold" style="float: right;">
 						          	Leer pregunta
 						        </h3>
@@ -129,47 +147,9 @@
 				    </div>
 			        <div class="modal-body">
 			        	<!-- CRONOMETRO -->
-						<div class="row" id="cronometro-content" style="display: none">
-							<!-- HISTOGRAMA -->
-							<div class="col-md-4" id="histograma">
-								<div class="row">
-									<div class="col-md-1" id="num_correctas"></div>
-									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-correctas"></div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-1" id="num_incorrectas"></div>
-									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-incorrectas"></div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-1" id="num_contestadas"></div>
-									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-contestadas"></div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-1" id="num_nocontestadas"></div>
-									<div class="col-md-10">
-										<div class="barra-histograma" id="histo-nocontestadas"></div>
-									</div>
-								</div>
-							</div>
-							<!-- HISTOGRAMA -->
-							<div class="col-md-4 centrado">
-								<svg id="animated" viewbox="0 0 100 100">
-								  <circle cx="50" cy="50" r="45" fill="#FFF"/>
-								  <path id="progress" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
-								        d="M50 10
-								           a 40 40 0 0 1 0 80
-								           a 40 40 0 0 1 0 -80">
-								  </path>
-								  <text id="cronometro" x="50" y="50" text-anchor="middle" dy="7" font-size="11">
-								  	00:00
-								  </text>
-								</svg>	
+						<div class="row" id="cronometro-content">
+							<div class="col-md-12 centrado">
+								<img src="image/loading.gif" id="loading" style="width:8%;display: none;" />	
 							</div>
 						</div>
 						<!-- CRONOMETRO -->
@@ -196,6 +176,7 @@
 			        	<form id="form-lanzar">
 			        		<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA">
 			        		<input type="hidden" id="ID_GENERADA" name="ID_GENERADA">
+			        		<input type="hidden" id="ID_CONCURSANTE" name="ID_CONCURSANTE">
 			        		<button type="button" class="btn btn-lg btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>,this)" id='btn-lanzar'>
 			        			Lanzar pregunta
 		        			</button>
@@ -224,7 +205,7 @@
 		<script type="text/javascript" src="js/snap.svg-min.js"></script>
 		<script type="text/javascript" src="js/cronometro.js"></script>
 		<script type="text/javascript" src="js/ronda.js"></script>
-		<script type="text/javascript" src="js/lanzador_preguntas.js"></script>
+		<script type="text/javascript" src="js/lanzador_2nda.js"></script>
 		<?php 
 			if ($todasHechas) {
 		 ?>

@@ -153,14 +153,24 @@
 			$rondas = $objRonda->getRondas($concurso['ID_ETAPA'])['rondas'];
 			$generadas = new PreguntasGeneradas();
 			$validPreguntasCompletas = 1;
+			$valida2 = 1;
 			foreach ($rondas as $ronda) {
+				if($ronda['ID_RONDA'] == 5){
+					$objConcursantes = new Concursante();
+					$concursantes = $objConcursantes->getConcursantes($idConcurso)['concursantes'];
+					$totales = count($concursantes) * $ronda['TURNOS_PREGUNTA_CONCURSANTE'];
+					if($generadas->cantidadPreguntasCategoria($idConcurso, $ronda['ID_RONDA'], $idCategoria) != $totales){
+						$valida2 *= 0;
+					}
+					continue;
+				}
 				if($ronda['IS_DESEMPATE']==0 AND $ronda['PREGUNTAS_POR_CATEGORIA'] 
 					!= $generadas->cantidadPreguntasCategoria($idConcurso, $ronda['ID_RONDA'], $idCategoria)){
 					$validPreguntasCompletas *= 0;
 				}
 			}
 
-			if(!$validPreguntasCompletas){
+			if(!$validPreguntasCompletas and !$valida2){
 				return ['estado'=>0,'mensaje'=>'No se puede iniciar con las rondas de esta categoria ya que aun no tiene preguntas'];
 			}
 

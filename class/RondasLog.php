@@ -97,6 +97,9 @@
 					$sesion = new Sesion();
 					$sesion->setMany([SessionKey::ID_RONDA=>$log['ID_RONDA'],
 									SessionKey::ID_CATEGORIA=>$log['ID_CATEGORIA']]);
+					if($log['ID_RONDA'] == 5){
+						return ['estado'=>3 , 'mensaje'=>'Cambio a 2da ronda grupal'];
+					}
 					return ['estado'=>1,'mensaje'=>'Cambio de ronda exitoso'];
 					break;
 				}else{
