@@ -14,9 +14,11 @@ function obtenerPregunta(){
 				if(response.pregunta[0].LANZADA > lanzada){
 					showPregunta(response);
 					lanzada = response.pregunta[0].LANZADA;
+				}else{
+					alert("Espera a que te lancen una pregunta");
 				}
 			}else {
-				alert(response.mensaje + " VUELVE A INTENTAR");
+				alert(response.mensaje);
 			}
 		},error:function(error){
 			console.log(error);
@@ -31,10 +33,12 @@ function showPregunta(response){
 	$("body").removeClass('azul');
 	$("body").addClass('blanco');
 	$("#card-inicio").hide(300);
+	$("#btn-obtener-pr").hide(300);
+	$("#btn-obtener-pr-paso").hide(300);
 	$("#pregunta").show(300);
 	$("#resultado-mi-pregunta").html("");
 	// seteamos los valores de lap regunta a mostrar
-	$("#pregunta #text-pregunta").text(response.pregunta[0].PREGUNTA);
+	$("#pregunta p").text(response.pregunta[0].PREGUNTA);
 	$("#ID_PREGUNTA").val(response.pregunta[0].ID_PREGUNTA);
 	$("#PREGUNTA_POSICION").val(response.pregunta[0].PREGUNTA_POSICION);
 	// mostramos las respuestas posibles para la pregunta
@@ -54,7 +58,7 @@ function showPregunta(response){
 	  }
 	contenido += "</div>";
 	$("#content-respuestas").html(contenido);
-	cronometro(segundos,null,function(){paso();});
+	cronometro(segundos,function(){},function(){paso();});
 }
 
 function eligeInciso(boton){
@@ -66,12 +70,13 @@ function eligeInciso(boton){
 }
 
 function saveRespuesta(paso){
+	var posicion = $("#PREGUNTA_POSICION").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
 	var pregunta = $("#ID_PREGUNTA").val();
 	var concursante = $("#ID_CONCURSANTE").val();
 	var respuestas = document.getElementsByName("mRespuesta-" + pregunta );
-	var respuesta = '';
+	var respuesta = 'null';
 	for (var i = 0, length = respuestas.length; i < length; i++){
 		if (respuestas[i].checked){
 		  respuesta = respuestas[i].value;
@@ -89,9 +94,11 @@ function saveRespuesta(paso){
 			  'ID_CONCURSANTE':concursante,
 			  'ID_PREGUNTA': pregunta,
 			  'ID_RESPUESTA':respuesta,
+			  'PREGUNTA_POSICION': posicion,
 			  'PASO':paso
 		  },success:function(data){
 			 if(data.estado == 1){
+			 	notFinish = true;
 				afterSend();
 			  }else{
 				console.log(data.mensaje)
@@ -103,6 +110,7 @@ function saveRespuesta(paso){
 }
 
 function paso(){
+	var posicion = $("#PREGUNTA_POSICION").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
 	var pregunta = $("#ID_PREGUNTA").val();
@@ -117,6 +125,7 @@ function paso(){
 			  'ID_RONDA':ronda,
 			  'ID_CONCURSANTE':concursante,
 			  'ID_PREGUNTA': pregunta,
+			  'PREGUNTA_POSICION': posicion,
 			  'PASO':1
 		  },success:function(data){
 			 if(data.estado == 1){
@@ -152,6 +161,7 @@ function obtenerPreguntaPaso(){
 }
 
 function saveRespuestaPaso(){
+	var posicion = $jq("#PREGUNTA_POSICION-paso").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
 	var pregunta = $("#ID_PREGUNTA-paso").val();
@@ -173,7 +183,8 @@ function saveRespuestaPaso(){
 			  'ID_RONDA':ronda,
 			  'ID_CONCURSANTE':concursante,
 			  'ID_PREGUNTA': pregunta,
-			  'ID_RESPUESTA':respuesta
+			  'ID_RESPUESTA':respuesta,
+			  'PREGUNTA_POSICION':posicion
 		  },success:function(data){
 			 if(data.estado == 1){
 				afterSendPaso();
@@ -219,6 +230,8 @@ function afterSend(){
 				$("#animated text").text(0);
 				$("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
 				$("#content-respuestas").html("");
+				$("#btn-obtener-pr").show(300);
+				$("#btn-obtener-pr-paso").show(300);
 			}else{
 				alert(response.mensaje);
 			}
@@ -240,7 +253,7 @@ function showPreguntaPaso(){
 	$("#pregunta-paso").show(300);
 	$("#resultado-mi-pregunta-paso").html("");
 	// seteamos los valores de lap regunta a mostrar
-	$("#pregunta-paso #text-pregunta-paso").text(response.pregunta[0].PREGUNTA);
+	$("#pregunta-paso p").text(response.pregunta[0].PREGUNTA);
 	$("#ID_PREGUNTA-paso").val(response.pregunta[0].ID_PREGUNTA);
 	$("#PREGUNTA_POSICION-paso").val(response.pregunta[0].PREGUNTA_POSICION);
 	// mostramos las respuestas posibles para la pregunta

@@ -376,12 +376,21 @@
 			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
 			try{
 				$result = $this->query($sentencia, $valores);
-				$response['estado'] = 1;
-				$response['pregunta'] = $result;
-				$response['mensaje'] = 'Pregunta obtenida exitosamente';
+				if(count($result) > 0){
+					$objRespuesta = new Respuestas();
+					$respuestas = $objRespuesta->getRespuestasByPregunta($result[0]['ID_PREGUNTA']);
+					$response['estado'] = 1;
+					$response['pregunta'] = $result;
+					$response['pregunta']['respuestas'] = $respuestas;
+					$response['mensaje'] = 'Pregunta obtenida exitosamente';
+				}else{
+					$response['estado'] = 0;
+					$response['mensaje'] = "AUN NO LANZAN TU PREGUNTA";
+				}
+				
 			}catch(Exception $ex){
 				$response['estado'] = 0;
-				$response['mensaje'] = 'Fallo al obtener mi ultima pregunta:' . $ex->getMessage();
+				$response['mensaje'] = 'Fallo al obtener mi ultima pregunta:' . $ex->getMessage() . " Vuelve a intentar";
 			}
 			
 			return $response;
@@ -473,12 +482,12 @@
 	 * GET REQUESTS
 	 */
 	
-	if(isset($_POST['functionGeneradas'])){
-		$function = $_POST['functionGeneradas'];
+	if(isset($_GET['functionGeneradas'])){
+		$function = $_GET['functionGeneradas'];
 		$genera = new PreguntasGeneradas();
 		switch ($function) {
 			case 'miUltimaLanzada':
-				echo json_encode($genera->miUltimaLanzada($_GET['ID_CONCURSO'], $_GET['ID_RONDA'], $_GET['ID_CATEGORIA'] , $_['ID_CONCURSANTE']));
+				echo json_encode($genera->miUltimaLanzada($_GET['ID_CONCURSO'], $_GET['ID_RONDA'], $_GET['ID_CATEGORIA'] , $_GET['ID_CONCURSANTE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0, 'mensaje'=>'Funcion no valida para PreguntasGeneradas:GET']);

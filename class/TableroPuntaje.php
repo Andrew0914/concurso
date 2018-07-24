@@ -108,10 +108,10 @@
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
 			$rs = $this->get($where,$whereValues);
 			if(count($rs) > 0){
-				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO'] != 1){
+				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO_PREGUNTA'] != 1){
 					return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
 				}
-				if($rs[0]['PASO'] == 1){
+				if($rs[0]['PASO_PREGUNTA'] == 1){
 					return ['estado'=>2 
 					, 'mensaje'=>'El concursante actual paso la pregunta'
 					, 'concursante'=> $objConcursante->siguiente($concursante) ];
@@ -377,17 +377,16 @@
 		 * @param  integer $paso        
 		 * @return array              
 		 */
-		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$paso){
+		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso){
 			//validamos si no respondio
-			if($respuesta=''){
-				$respuesta = null;
+			if($respuesta==''){
+				$respuesta = "null";
 			}
 			$values = ['ID_CONCURSO'=>$concurso,'ID_CONCURSANTE'=>$concursante
-						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta];
+						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta , 'PREGUNTA_POSICION'=>$posicion];
 			try{
 				// generamos el valor para el campo de respuesta_correcta
 				$objRespuesta = new Respuestas();
-				$values = ['RESPUESTA' => $respuesta];
 				if($objRespuesta->esCorrecta($pregunta, $respuesta)){
 					$values['RESPUESTA_CORRECTA'] = 1;
 				}else{
@@ -412,14 +411,14 @@
 		 * @param   $paso 
 		 * @return  array 
 		 */
-		public function paso($concursante,$concurso,$ronda,$pregunta,$paso){
+		public function paso($concursante,$concurso,$ronda,$pregunta,$posicion,$paso){
 			$objConcursante = new Concursante();
 			try{
-				if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $paso)['estado'] == 1){
+				if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso)['estado'] == 1){
 					$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_CONCURSANTE'=>$concursante 
 									, 'ID_RONDA'=>$ronda , 'PREGUNTA'=>$pregunta];
 					$where = "ID_CONCURSO = ? AND ID_CONCURSANTE = ? AND ID_RONDA = ? AND PREGUNTA = ?";
-					$valoresPaso = ['PAOS'=>$paso 
+					$valoresPaso = ['PASO_PREGUNTA'=>$paso 
 					, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante)['ID_CONCURSANTE']];
 					if($this->update(0,$valoresPaso ,$where , $whereValues)){
 						return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
@@ -475,10 +474,10 @@
 						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE']));
 				break;
 			case 'saveDirect':
-				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PASO']));
+				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO']));
 				break;
 			case 'paso':
-				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['PASO']));
+				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);

@@ -81,10 +81,10 @@
 		<br>
 		<div class="row">
 			<div class="col-md-6 centrado">
-				<button class="btn btn-geo" onclick="obtenerPregunta()">OBTENER PREGUNTA</button>
+				<button class="btn btn-geo" onclick="obtenerPregunta()" id="btn-obtener-pr">OBTENER PREGUNTA</button>
 			</div>
 			<div class="col-md-6 centrado">
-				<button class="btn btn-geo" onclick="obtenerPreguntaPaso()">OBTENER PREGUNTA DE PASO</button>
+				<button class="btn btn-geo" onclick="obtenerPreguntaPaso()" id="btn-obtener-pr-paso">OBTENER PREGUNTA DE PASO</button>
 			</div>
 		</div>
 	</section>
@@ -119,7 +119,7 @@
 					<article id="pregunta-paso" class="card-lg" style="display: none;">
 						<input type="hidden" id="PREGUNTA_POSICION-paso" name="PREGUNTA_POSICION-paso" />
 						<input type="hidden" id="ID_PREGUNTA-paso" name="ID_PREGUNTA-paso" />
-						<p class="text-pregunta-paso"></p>
+						<p class="text-pregunta"></p>
 						<div class="row">
 							<div class="col-md-12 centrado" id="resultado-mi-pregunta-paso">
 							</div>

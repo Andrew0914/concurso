@@ -41,7 +41,7 @@ function lanzarPregunta(segundos,boton){
                 'ID_CONCURSANTE': idConcursante},
         dataType: "json",
         success : function(response){
-            alert("El concursante " + $("#concursante").text() + " puede obtener su pregunta" );
+            alert("El " + $("#concursante").text() + " puede obtener su pregunta" );
         	if(response.estado == 1){
                 $(boton).hide(300);
                 $("#loading").show(300)
@@ -52,6 +52,7 @@ function lanzarPregunta(segundos,boton){
                 }
                 contenido += "</tr>";
                 $("#content-respuestas tbody").html(contenido);
+                contestoOpaso();
         	}else{
         		alert(response.mensaje);
         	}
@@ -73,7 +74,7 @@ function contestoOpaso(){
         dataType: 'json',
         data: {'ID_CONCURSO':$("#ID_CONCURSO").val(),
                 'ID_RONDA':$("#ID_RONDA").val(),
-                'PREGUNTA':$("#PREGUNTA").val(),
+                'PREGUNTA':$("#ID_PREGUNTA").val(),
                 'ID_CONCURSANTE':$("#ID_CONCURSANTE").val(),
                 'functionTablero':'contestoOpaso'},
         success:function(response){
@@ -81,15 +82,18 @@ function contestoOpaso(){
                 clearInterval(timerContesto);
                 alert("El concursante ha contestado la pregunta");
                 $("#btn-siguiente").show(300);
+                $("#loading").hide(300);
             }else if(response.estado == 2){
                 clearInterval(timerContesto);
-                if(confirm("El concursante paso la pregunta, ¿Quiere tomarla el EQUIPO :"+response.concursante['CONCURSANTE']"?")){
+                if(confirm("El concursante paso la pregunta, ¿Quiere tomarla el EQUIPO :" + response.concursante['CONCURSANTE'] + "?")){
+                    $("#loading").hide(300);
                     tomoPaso(response.concursante['ID_CONCURSANTE']);
                 }else{
+                    $("#loading").hide(300);
                     $("#btn-siguiente").show(300);
                 }
             }
-        }error:function(error){
+        },error:function(error){
             console.log(error);
         }
     }); 
@@ -132,7 +136,7 @@ function contestoPaso(concursante){
         data: {'ID_CONCURSO':$("#ID_CONCURSO").val(),
                 'ID_RONDA':$("#ID_RONDA").val(),
                 'PREGUNTA':$("#PREGUNTA").val(),
-                'ID_CONCURSANTE':concursante
+                'ID_CONCURSANTE':concursante,
                 'functionTableroPaso':'pasoContestado'},
         success:function(response){
             if(response.estado == 1){
@@ -142,7 +146,7 @@ function contestoPaso(concursante){
             }else{
                 console.log('Aun no contesta');
             }
-        }error:function(error){
+        },error:function(error){
             console.log(error);
         }
     }); 
