@@ -169,6 +169,12 @@
 			return $response;
 		}
 
+		public function esEmpateByConcurso($idConcurso){
+			$master = new TableroMaster();
+			$last = $master->getLast($idConcurso);
+			return $this->esEmpate($last['ID_TABLERO_MASTER']);
+		}
+
 		public function getByMasters($masters){
 			$tableros = [];
 			foreach ($master as $m) {

@@ -147,6 +147,7 @@
 		 */
 		public function terminarParticipacionGrupal($idConcurso){
 			$rondaLog = new RondasLog();
+			$sesion = new Sesion();
 			$logs = $rondaLog->getLogs($idConcurso);
 			$terminoRonda = 0;
 			foreach ($logs as $log) {
@@ -162,26 +163,28 @@
 			if($terminoRonda == 1){
 				// Obtenemos la informacion de los tableros
 				$tablero_master = new TableroMaster();
-				$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+				$mMasters = $tablero_master->getTablerosMasters($idConcurso);
 				$ultimoYaTienePosiciones = false;
 				$ultimoNoCerrado = false;
 				$tabPosiciones = new TableroPosiciones();
 				$posiciones = null;
-				// esperamso hasta que generen->cierren el tablero->calculen las posiciones
-				if(count($mMasters) == 0 || $ultimoNoCerrado|| $ultimoYaTienePosiciones) {
-					if(count($mMasters) > 0){
-						$ultimoNoCerrado = $mMasters[count($mMasters) - 1]['CERRADO'] == 0;
-						$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
+				
+				if(count($mMasters) > 0) {
+					$ultimoNoCerrado = $mMasters[count($mMasters) - 1]['CERRADO'] == 0;
+					if($ultimoNoCerrado){
+						return ['estado'=>'1' , 'termino_ronda' => $terminoRonda , 'calculo_empate'=>0 , 'mensaje'=>'El moderador aun no calcula los puntajes, por favor espera a que termine 1'];
 					}
-					// nos aseguramos que ya hayan sido generadas todas las posiciones por cuestion de timing
+					$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
 					if(count($posiciones) > 0){
-						if($mMasters[count($mMasters) - 1]['POSICIONES_GENERADAS'] == 1){
-							$ultimoYaTienePosiciones = true;
+						if($mMasters[count($mMasters) - 1]['POSICIONES_GENERADAS'] != 1){
+							return ['estado'=>'1' , 'termino_ronda' => $terminoRonda , 
+							'calculo_empate'=>0 , 'mensaje'=>'El moderador aun no calcula los puntajes, por favor espera a que termine 2'];
 						}
 					}
-					$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+
+					$mMasters = $tablero_master->getTablerosMasters($idConcurso);
 				}else{
-					return ['estado'=>'1' , 'termino_ronda' => $terminoRonda , 'calculo_empate'=>0 , 'mensaje'=>'El moderador aun no calcula los puntajes, pro favor espera a que termine'];
+					return ['estado'=>'1' , 'termino_ronda' => $terminoRonda , 'calculo_empate'=>0 , 'mensaje'=>'El moderador aun no calcula los puntajes, por favor espera a que termine 3'];
 				}
 
 				if(count($mMasters) > 0){
@@ -200,7 +203,7 @@
 				$cambio = ['estado'=>1,
 					'yo_concursante' => $sesion->getOne(SessionKey::ID_CONCURSANTE),
 					'mensaje'=>'Ha terminado la ronda y el calculo de puntajes',
-					'termino_ronda'=>$termino,
+					'termino_ronda'=>$terminoRonda,
 					'calculo_empate'=>1,
 					'empate'=>$empate,
 					'info_empate'=>$info_empate];
@@ -208,7 +211,7 @@
 				return $cambio;
 			}
 
-			return ['estado'=>1 , 'termino_ronda'=>$terminoRonda , 'mensaje'=>'Aun no termina la ronda, tu participacion ordinaria termino, pero esp posible que aun puedas recibir preguntas de paso'];
+			return ['estado'=>1 , 'termino_ronda'=>$terminoRonda , 'mensaje'=>'Aun no termina la ronda, tu participacion ordinaria termino, pero es posible que aun puedas recibir preguntas de paso'];
 		}
 	}
 

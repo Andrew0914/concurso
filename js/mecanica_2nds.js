@@ -15,7 +15,7 @@ function obtenerPregunta(boton){
 					showPregunta(response);
 					lanzada = response.pregunta[0].LANZADA;
 					if(lanzada == $("#TURNOS_PREGUNTA_CONCURSANTE").val()){
-						$(boton).hide(300);
+						$("#btn-obtener-pr").hide(300);
 						$("#btn-terminar").show(300);
 					}
 				}else{
@@ -240,6 +240,10 @@ function afterSend(){
 				$("#btn-obtener-pr").show(300);
 				$("#btn-obtener-pr-paso").show(300);
 				$("#btn-paso").hide(300);
+				if(lanzada == $("#TURNOS_PREGUNTA_CONCURSANTE").val()){
+						$("#btn-obtener-pr").hide(300);
+						$("#btn-terminar").show(300);
+				}
 			}else{
 				alert(response.mensaje);
 			}

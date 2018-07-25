@@ -85,7 +85,7 @@
 		<div class="row">
 			<div class="col-md-6 centrado">
 				<button class="btn btn-geo" onclick="obtenerPregunta(this)" id="btn-obtener-pr">OBTENER PREGUNTA</button>
-				<button class="btn btn-gep" onclick="terminarParticipacion()" style="display: none" id="btn-terminar">
+				<button class="btn btn-geo" onclick="terminarParticipacion()" style="display: none" id="btn-terminar">
 					Terminar
 				</button>
 			</div>

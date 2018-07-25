@@ -27,8 +27,8 @@
 				Han empatado algunos concursantes, espera a que el moderador indique que pueden acceder a la ronda de desempate.
 				<br> <br>
 				<?php 
-					$tablero = new TableroPuntaje();
-					$empate = $tablero->esEmpate($sesion->getOne(SessionKey::ID_CONCURSO));
+					$tablero = new TableroPosiciones();
+					$empate = $tablero->esEmpateByConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 					if($empate['estado'] == 1){
 						$empatados = $empate['empatados'];
 						echo "<table class='table table-sm table-bordered table-geo'>";
@@ -41,10 +41,12 @@
 							echo "<tr>";
 							echo "<td>". $e['ID_CONCURSANTE'] . "</td>";
 							echo "<td>". $e['CONCURSANTE'] . "</td>";
-							echo "<td>". $e['totalPuntos'] . "</td>";
+							echo "<td>". $e['PUNTAJE_TOTAL'] . "</td>";
 							echo "</tr>";
 						}
 						echo "</table>";
+					}else{
+						echo "NADIE EMPATO";
 					}
 				?>
 				<br>
