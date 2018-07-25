@@ -33,7 +33,7 @@
 				}
 				$objSheet->setTitle('Tablero '.$m['ID_TABLERO_MASTER']);
 				$objSheet->getCell('A1')->setValue('CONCURSANTE');
-				$objSheet->getCell('B2')->setValue('POSICION');
+				$objSheet->getCell('B1')->setValue('POSICION');
 				$objSheet->getCell('C1')->setValue('PUNTAJE TOTAL');
 				$objSheet->getCell('D1')->setValue('EMPATADO');
 				$posiciones = $tabPos->obtenerPosicionesActuales($m['ID_TABLERO_MASTER']);
@@ -60,7 +60,7 @@
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Puntuaciones generales');
 			$objSheet->getCell('A1')->setValue('CONCURSANTE');
-			$objSheet->getCell('B2')->setValue('RONDA');
+			$objSheet->getCell('B1')->setValue('RONDA');
 			$objSheet->getCell('C1')->setValue('CATEGORIA');
 			$objSheet->getCell('D1')->setValue('PREGUNTA');
 			$objSheet->getCell('E1')->setValue('RESPUESTA');
@@ -80,7 +80,7 @@
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Puntuaciones PASO');
 			$objSheet->getCell('A1')->setValue('CONCURSANTE');
-			$objSheet->getCell('B2')->setValue('RONDA');
+			$objSheet->getCell('B1')->setValue('RONDA');
 			$objSheet->getCell('C1')->setValue('CATEGORIA');
 			$objSheet->getCell('D1')->setValue('PREGUNTA');
 			$objSheet->getCell('E1')->setValue('RESPUESTA');
