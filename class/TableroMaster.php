@@ -18,6 +18,7 @@
 			return $this->find($id);
 		}
 
+
 		public function actualiza($id,$valores,$where = null,$valoresWhere = null){
 			return $this->update($id, $valores, $where, $valoresWhere);
 		}
@@ -35,6 +36,12 @@
 			$whereValues = ['ID_CONCURSO' => $concurso];
 			$valores = ['CERRADO' => 1];
 			return $this->update(0,$valores,$where,$whereValues);
+		}
+
+		public function getLast($concurso){
+			$sentencia = "SELECT * FROM tablero_master WHERE ID_CONCURSO = ? ORDER BY ID_TABLERO_MASTER DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=> $concurso];
+			return $this->query($sentencia,$valores,true)[0];
 		}
 	}	
 ?>

@@ -6,7 +6,10 @@
 	require_once dirname(__FILE__) . '/Concurso.php';
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
 	require_once dirname(__FILE__) . '/Rondas.php';
-	
+	require_once dirname(__FILE__) . '/RondasLog.php';
+	require_once dirname(__FILE__) . '/TableroMaster.php';
+	require_once dirname(__FILE__) . '/TableroPosiciones.php';
+
 	class Concursante extends BaseTable{
 
 		protected $table= 'concursantes';
@@ -124,20 +127,88 @@
 			$concurso = new Concurso();
 			$concurso = $concurso->getConcurso($idConcurso);
 			$ronda = new Rondas();
-			$tablero = new TableroPuntaje();
-			$info_empate = $tablero->esEmpate($idConcurso);
-			if($info_empate['estado'] == 1){
-				$empatados = $info_empate['empatados'];
-				foreach ($empatados as $e) {
-					if($e['ID_CONCURSANTE'] == $concursante){
-						return ['estado'=>1,
-								'mensaje'=>'Puedes acceder por que empataste con alguien',
-								'info_empate'=>$info_empate,
-								'ronda'=>$ronda->getRondaDesempate($concurso['ID_ETAPA'])];
-					}
-				}
+			$tabMaster = new TableroMaster();
+			$lastMaster = $tabMaster->getLast($idConcurso);
+			$tabPosiciones = new TableroPosiciones();
+			$posiciones = $tabPosiciones->obtenerPosicionesActuales($lastMaster['ID_TABLERO_MASTER']);
+			foreach ($posiciones as $p) {
+				if($p['ID_CONCURSANTE'] == $concursante AND $p['EMPATADO'] == 1){
+					return ['estado'=>1,
+								'mensaje'=>'Has empatado con alguien',
+								'ronda'=>$ronda->getRondaDesempate($concurso['ID_ETAPA'])];				}
 			}
 			return ['estado'=>0 , 'mensaje'=>'No has empadado con alguien, finalizo el concurso para ti'];
+		}
+
+		/**
+		 * Efectua el cambio de ronda de la 2nda ronda grupal al posible o no desempate
+		 * @param  integer $idConcurso 
+		 * @return array
+		 */
+		public function terminarParticipacionGrupal($idConcurso){
+			$rondaLog = new RondasLog();
+			$logs = $rondaLog->getLogs($idConcurso);
+			$terminoRonda = 0;
+			foreach ($logs as $log) {
+				if($log['ID_RONDA'] == 5 AND $log['FIN'] == 1){
+					$terminoRonda = 1;
+					break;
+				}
+			}
+			// determinamos el empate
+			$empate = 0;
+			$info_empate = null;
+			// solo si ya terminaron las rondas normales
+			if($terminoRonda == 1){
+				// Obtenemos la informacion de los tableros
+				$tablero_master = new TableroMaster();
+				$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+				$ultimoYaTienePosiciones = false;
+				$ultimoNoCerrado = false;
+				$tabPosiciones = new TableroPosiciones();
+				$posiciones = null;
+				// esperamso hasta que generen->cierren el tablero->calculen las posiciones
+				if(count($mMasters) == 0 || $ultimoNoCerrado|| $ultimoYaTienePosiciones) {
+					if(count($mMasters) > 0){
+						$ultimoNoCerrado = $mMasters[count($mMasters) - 1]['CERRADO'] == 0;
+						$posiciones = $tabPosiciones->obtenerPosicionesActuales($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
+					}
+					// nos aseguramos que ya hayan sido generadas todas las posiciones por cuestion de timing
+					if(count($posiciones) > 0){
+						if($mMasters[count($mMasters) - 1]['POSICIONES_GENERADAS'] == 1){
+							$ultimoYaTienePosiciones = true;
+						}
+					}
+					$mMasters = $tablero_master->getTablerosMasters($concurso['ID_CONCURSO']);
+				}else{
+					return ['estado'=>'1' , 'termino_ronda' => $terminoRonda , 'calculo_empate'=>0 , 'mensaje'=>'El moderador aun no calcula los puntajes, pro favor espera a que termine'];
+				}
+
+				if(count($mMasters) > 0){
+					$info_empate = $tabPosiciones->esEmpate($mMasters[count($mMasters) - 1]['ID_TABLERO_MASTER']);
+					$empate = $info_empate['estado'];
+					if($info_empate['estado'] == 1){
+						// solo habilitamos los emptates para los primeros 3 lugares si es el caso
+						for($x = 0 ; $x < count($info_empate['empatados']) ; $x++ ){
+							if($info_empate['empatados'][$x]['POSICION'] > 3){
+								unset($info_empate['empatados'][$x]);
+							}
+						}
+					}
+				}
+
+				$cambio = ['estado'=>1,
+					'yo_concursante' => $sesion->getOne(SessionKey::ID_CONCURSANTE),
+					'mensaje'=>'Ha terminado la ronda y el calculo de puntajes',
+					'termino_ronda'=>$termino,
+					'calculo_empate'=>1,
+					'empate'=>$empate,
+					'info_empate'=>$info_empate];
+
+				return $cambio;
+			}
+
+			return ['estado'=>1 , 'termino_ronda'=>$terminoRonda , 'mensaje'=>'Aun no termina la ronda, tu participacion ordinaria termino, pero esp posible que aun puedas recibir preguntas de paso'];
 		}
 	}
 
@@ -165,6 +236,9 @@
 				break;
 			case 'accederDesempate':
 				echo json_encode($concursante->accederDesempate($_GET['ID_CONCURSO'],$_GET['ID_CONCURSANTE']));
+				break;
+			case 'terminarParticipacionGrupal':
+				echo json_encode($concursante->terminarParticipacionGrupal($_GET['ID_CONCURSO']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE:GET']);

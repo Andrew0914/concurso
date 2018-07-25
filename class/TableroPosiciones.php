@@ -168,6 +168,14 @@
 			$response['empatados'] = $rs;
 			return $response;
 		}
+
+		public function getByMasters($masters){
+			$tableros = [];
+			foreach ($master as $m) {
+				$tableros["tableros"][] = $this->get("ID_TABLERO_MASTER = ?",['ID_TABLERO_MASTER'=>$m['ID_TABLERO_MASTER']]);
+			}
+			return $tableros;
+		}
 	}	
 
 	/**

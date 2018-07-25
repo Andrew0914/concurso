@@ -69,7 +69,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 						}
 					}else if(response.empate == 0){
 						// fallo al calcular empate
-						console.log("Fallo al calcular empate: " + response.mensaje);
+						console.log("Fallo al calcular empate: " + response.info_empate.mensaje);
 					}else if(response.empate == 2){
 						// termino para todos sin empate
 						window.location.replace('concurso_finalizado');
@@ -86,5 +86,5 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 			alert("Ocurrio un error inesperado");
 			console.log(error);
 		}
-	})
+	});
 }

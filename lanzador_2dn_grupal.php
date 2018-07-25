@@ -116,13 +116,15 @@
 					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda,null,true);
 					if($todasHechas){
 				?> 
+				<!-- CAMBIO DE RONDA -->
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
-						<a class="btn btn-geo btn-block" href="tablero_desempate" target="_self">
+						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
 							Siguiente ->
-						</a>
+						</button>
 					</div>
 				</div>
+				<!-- FIN CAMBIO DE RONDA -->
 				<!-- TABLERO PRELIMINAR  POR RONDA-->
 				<div class="modal" id="mdl-preliminar">
 					<div class="modal-dialog modal-lg">

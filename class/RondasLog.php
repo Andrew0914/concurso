@@ -218,6 +218,10 @@
 			$log = $this->get($where,$valores)[0];
 			return $log['FIN'] == 1;
 		}
+
+		public function getLogs($idConcurso){
+			return $this->get("ID_CONCURSO = ?", ['ID_CONCURSO'=>$idConcurso]);
+		}
 	}
 	/**
 	 * POST REQUESTS

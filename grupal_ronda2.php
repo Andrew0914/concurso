@@ -37,6 +37,7 @@
 		<input type="hidden" name="NIVEL_EMPATE" id="NIVEL_EMPATE" value="<?php echo $concurso['NIVEL_EMPATE'] ?>">
 		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
+		<input type="hidden" name="TURNOS_PREGUNTA_CONCURSANTE" id="TURNOS_PREGUNTA_CONCURSANTE" value="<?php echo $ronda['TURNOS_PREGUNTA_CONCURSANTE'] ?>" />
 		<div class="card-md centrado" id="card-inicio">
 			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
 			<h4 id="mensaje_concurso">
@@ -83,7 +84,10 @@
 		<br>
 		<div class="row">
 			<div class="col-md-6 centrado">
-				<button class="btn btn-geo" onclick="obtenerPregunta()" id="btn-obtener-pr">OBTENER PREGUNTA</button>
+				<button class="btn btn-geo" onclick="obtenerPregunta(this)" id="btn-obtener-pr">OBTENER PREGUNTA</button>
+				<button class="btn btn-gep" onclick="terminarParticipacion()" style="display: none" id="btn-terminar">
+					Terminar
+				</button>
 			</div>
 			<div class="col-md-6 centrado">
 				<button class="btn btn-geo" onclick="obtenerPreguntaPaso()" id="btn-obtener-pr-paso">OBTENER PREGUNTA DE PASO</button>
