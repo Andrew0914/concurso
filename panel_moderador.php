@@ -115,9 +115,9 @@
 					 	<?php } 
 					 		if($concurso1->concursoCerrado($sesion->getOne(SessionKey::ID_CONCURSO))){
 					 	?>
-					 	<button class="btn btn-block btn-geo">
+					 	<!--<button class="btn btn-block btn-geo">
 					 		Revisar puntuaciones
-					 	</button>
+					 	</button>-->
 					 	<?php } ?>
 					</div>
 				</div>
