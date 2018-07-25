@@ -38,7 +38,7 @@
                 </button>
                 <br>
                 <h1>
-                     <a href="#" id="obtener" style="display: none;" class="monserrat-bold">Descargar</a>
+                     <a href="#" id="obtener" style="display: none;" class="monserrat-bold" onclick='desapareccer(this)'>Descargar</a>
                 </h1>
                
             </form>
@@ -59,6 +59,10 @@
                         alert("NO SE PUDO GENERAR EL EXCEL");
                     }
                 }); 
+            }
+
+            function desapareccer(enlace){
+                $(enlace).slideUp(300);
             }
         </script>
         <!-- FIN SCRIPTS  -->
