@@ -64,7 +64,7 @@
 				}
 			}
 		}
-		
+		//acentamos USADO asi el ultimoMaster den ser USADO = 0 para que ya este generado y cerrado pero aun no usado y mande al desemopate o no real
 		$cambio = ['estado'=>1,
 					'yo_concursante' => $sesion->getOne(SessionKey::ID_CONCURSANTE),
 					'mensaje'=>'Cambio de ronda',

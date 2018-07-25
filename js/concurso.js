@@ -106,7 +106,7 @@ function cerrarConcurso(concurso){
     data: {'ID_CONCURSO': concurso , 'functionConcurso':'cerrarConcurso'},
     success:function(response){
       if(response.estado == 1){
-        window.location.replace('crear');
+        window.location.replace('obtener_excel');
       }
     },
     error:function(error){
