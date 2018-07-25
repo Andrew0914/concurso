@@ -109,12 +109,19 @@
 			$rs = $this->get($where,$whereValues);
 			if(count($rs) > 0){
 				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO_PREGUNTA'] != 1){
-					return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
+					if($rs[0]['RESPUESTA_CORRECTA'] == 1){
+						return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
+					}else{
+						return ['estado'=>2 
+						, 'mensaje'=>'El equipo actual ha contestado mal, puede robar el siguiente equipo: '
+						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
+					}
+					
 				}
 				if($rs[0]['PASO_PREGUNTA'] == 1){
 					return ['estado'=>2 
-					, 'mensaje'=>'El concursante actual paso la pregunta'
-					, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
+						, 'mensaje'=>'El equipo actual ha pasado la pregunta, la quiere tomar el equipo: '
+						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
 				}
 			}
 
@@ -424,12 +431,12 @@
 						return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
 					} 
 				}else{
-					return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta'];
+					return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta x'];
 				}
 			}catch(Exception $ex){
 				return ['estado'=>0 , 'mensaje'=>'Ocurrio un error al pasar:'.$ex->getMessage()];
 			}
-			return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta'];
+			return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta y'];
 		}
 
 		public function obtenerPreguntaPaso($concurso,$concursante,$ronda){

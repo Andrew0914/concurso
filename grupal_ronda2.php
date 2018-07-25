@@ -79,7 +79,7 @@
 			</div>
 			<p id="content-respuestas"></p>
 			<br>
-			<button class="btn btn-geo btn-lg" onclick="paso()" id="btn-paso">PASO</button>
+			<button class="btn btn-geo btn-lg" onclick="paso(false)" id="btn-paso">PASO</button>
 		</article>
 		<br>
 		<div class="row">

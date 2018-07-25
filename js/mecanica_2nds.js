@@ -114,7 +114,7 @@ function saveRespuesta(paso){
 	  });
 }
 
-function paso(){
+function paso(porError){
 	var posicion = $("#PREGUNTA_POSICION").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
@@ -134,7 +134,9 @@ function paso(){
 			  'PASO':1
 		  },success:function(data){
 			 if(data.estado == 1){
-				afterSend();
+			 	if(!porError){
+					afterSend();
+				}
 				notFinish = true;
 			  }else{
 				console.log(data.mensaje)
@@ -231,6 +233,7 @@ function afterSend(){
 				}else{
 					mensaje += " INCORRECTA </h4>";
 					mensaje += "<img src='image/incorrecta.png'/>"
+					paso(true);
 				}
 				$("#resultado-mi-pregunta").html(mensaje);
 				$("#cronometro-content").css("display","none");

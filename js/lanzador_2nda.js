@@ -85,7 +85,7 @@ function contestoOpaso(){
                 $("#loading").hide(300);
             }else if(response.estado == 2){
                 clearInterval(timerContesto);
-                if(confirm("El concursante paso la pregunta, ¿Quiere tomarla el EQUIPO :" + response.concursante['CONCURSANTE'] + "?")){
+                if(confirm(response.mensaje + response.concursante['CONCURSANTE'] + "?")){
                     $("#loading").hide(300);
                     tomoPaso(response.concursante['ID_CONCURSANTE']);
                 }else{
