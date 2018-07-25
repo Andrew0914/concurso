@@ -102,12 +102,12 @@ function contestoOpaso(){
 
 function tomoPaso(concursante){
     $.ajax({
-        url: 'class/TableroPuntaje',
+        url: 'class/TableroPuntaje.php',
         type: 'POST',
         dataType: 'json',
         data: {'ID_CONCURSO':$("#ID_CONCURSO").val(),
                 'ID_RONDA':$("#ID_RONDA").val(),
-                'PREGUNTA':$("#PREGUNTA").val(),
+                'PREGUNTA':$("#ID_PREGUNTA").val(),
                 'ID_CONCURSANTE':$("#ID_CONCURSANTE").val(),
                 'functionTablero':'tomoPaso'},
         success:function(response){
@@ -135,7 +135,7 @@ function contestoPaso(concursante){
         dataType: 'json',
         data: {'ID_CONCURSO':$("#ID_CONCURSO").val(),
                 'ID_RONDA':$("#ID_RONDA").val(),
-                'PREGUNTA':$("#PREGUNTA").val(),
+                'PREGUNTA':$("#ID_PREGUNTA").val(),
                 'ID_CONCURSANTE':concursante,
                 'functionTableroPaso':'pasoContestado'},
         success:function(response){
@@ -143,6 +143,7 @@ function contestoPaso(concursante){
                 clearInterval(timerPaso);
                 alert("El concursante ha contestado la pregunta");
                 $("#btn-siguiente").show(300);
+                $("#loading").hide(300);
             }else{
                 console.log('Aun no contesta');
             }

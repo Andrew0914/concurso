@@ -131,6 +131,7 @@ function paso(){
 		  },success:function(data){
 			 if(data.estado == 1){
 				afterSend();
+				notFinish = true;
 			  }else{
 				console.log(data.mensaje)
 			  }
@@ -153,7 +154,7 @@ function obtenerPreguntaPaso(){
 			if(response.estado == 1){
 					showPreguntaPaso(response);
 			}else {
-				alert(response.mensaje + " VUELVE A INTENTAR");
+				alert(response.mensaje);
 			}
 		},error:function(error){
 			console.log(error);
@@ -162,7 +163,7 @@ function obtenerPreguntaPaso(){
 }
 
 function saveRespuestaPaso(){
-	var posicion = $jq("#PREGUNTA_POSICION-paso").val();
+	var posicion = $("#PREGUNTA_POSICION-paso").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
 	var pregunta = $("#ID_PREGUNTA-paso").val();
@@ -188,6 +189,7 @@ function saveRespuestaPaso(){
 			  'PREGUNTA_POSICION':posicion
 		  },success:function(data){
 			 if(data.estado == 1){
+			 	notFinish1 = true;
 				afterSendPaso();
 			  }else{
 				console.log(data.mensaje)
@@ -245,13 +247,11 @@ function afterSend(){
 	});
 }
 
-function showPreguntaPaso(){
+function showPreguntaPaso(response){
 	$("#mdl-pr-paso").modal();
 	// segundo para cada pregunta
 	var segundos = $("#segundos_ronda").val();
 	//cambiamos la vista
-	$("body").removeClass('azul');
-	$("body").addClass('blanco');
 	$("#pregunta-paso").show(300);
 	$("#resultado-mi-pregunta-paso").html("");
 	// seteamos los valores de lap regunta a mostrar
@@ -275,17 +275,19 @@ function showPreguntaPaso(){
 	  }
 	contenido += "</div>";
 	$("#content-respuestas-paso").html(contenido);
-	cronometroPaso(5,null,function(){saveRespuestaPaso();});
+	cronometroPaso(5,function(){},function(){saveRespuestaPaso();});
 }
 
-function eligeIncisoPaso(){
+function eligeIncisoPaso(boton){
 	$(boton).parent().parent().children('div').children('button').removeClass('btn-checked');
 	$(boton).addClass('btn-checked');
 	$($(boton).siblings('input[type=radio]')[0]).prop('checked',true);
-	saveRespuesta(0);
+	saveRespuestaPaso(0);
+	notFinish1 = true;
 }
 
 function afterSendPaso(){
+	notFinish1 = true;
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
 	var concursante = $("#ID_CONCURSANTE").val();
@@ -300,7 +302,6 @@ function afterSendPaso(){
 				'ID_RONDA':ronda,
 				'ID_CONCURSANTE':concursante,
 				'PREGUNTA':pregunta,
-				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value,
 				'functionTableroPaso':'miPuntajePregunta'},
 		success:function(response){
 			console.log(response);

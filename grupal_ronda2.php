@@ -91,19 +91,14 @@
 		</div>
 	</section>
 	<!-- PREGUNTAS DE PASO-->
-	<div class="modal" id="mdl-pr-paso">
-		<div class="modal-dialog modal-lg">
+	<div class="modal" id="mdl-pr-paso" style="padding: 1px;">
+		<div class="modal-dialog modal-full">
 		    <div class="modal-content">
-		    	<!-- Modal Header -->
-		    	<div class="modal-header">
-		        	<h4 class="modal-title">Pregunta de paso</h4>
-		       		<button type="button" class="close" data-dismiss="modal">&times;</button>
-		      	</div>
 			    <!-- Modal body -->
 			    <div class="modal-body">
 			    	<!-- CRONOMETRO PASO-->
 					<div class="row" id="cronometro-content-paso" style="display: none">
-						<div class="col-md-4 offset-md-4 centrado">
+						<div class="col-md-4 offset-md-4 centrado" >
 							<svg id="animated-paso" viewbox="0 0 100 100">
 							  <circle cx="50" cy="50" r="45" fill="#FFF"/>
 							  <path id="progress-paso" stroke-linecap="round" stroke-width="4" stroke="rgb(180,185,210)" fill="none"
@@ -131,16 +126,28 @@
 			    </div>
 		      	<!-- Modal footer -->
 		    	<div class="modal-footer">
-		        	<button type="button" class="btn btn-geo" data-dismiss="modal">Cerrar</button>
+		        	<button type="button" class="btn btn-geo" onclick="$('#mdl-pr-paso').modal('hide')">Cerrar</button>
 		      	</div>
 		    </div>
 	  	</div>
 	</div>
 	<!-- PREGUNTAS DE PASO-->
+	<style type="text/css">
+		.modal-full {
+		    min-width: 100%;
+		    margin: 0;
+		}
+
+		.modal-full .modal-content {
+		    min-height: 100vh;
+		}
+	</style>
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.js"></script>
 	<script type="text/javascript" src="js/snap.svg-min.js"></script>
 	<script type="text/javascript" src="js/cronometro.js"></script>
+	<script type="text/javascript" src="js/cronometroPaso.js"></script>
 	<script type="text/javascript" src="js/mecanica_2nds.js"></script>
 	<!-- FIN SCRIPTS  -->
 </body>

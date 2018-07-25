@@ -135,11 +135,11 @@
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
 			if($this->update(0,['CONCURSANTE_TOMO'=>1] , $where , $whereValues)){
-				$respone['estado'] = 1;
-				$respone['mensaje'] = 'Pregunta tomada para el siguiente concursante';
+				$response['estado'] = 1;
+				$response['mensaje'] = 'Pregunta tomada para el siguiente concursante';
 			}
 
-			return $respone;
+			return $response;
 		}
 
 		/**
@@ -435,8 +435,12 @@
 		public function obtenerPreguntaPaso($concurso,$concursante,$ronda){
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND CONCURSANTE_PASO = ?  ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1;";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'CONCURSANTE_PASO'=> $concursante];
-			$ultimaPreguntaPaso = $this->get($where,$whereValues)[0];
-			
+			$result = $this->get($where,$whereValues);
+			if(count($result) <= 0){
+				return ['estado'=>0 , 'mensaje'=>'No te han pasado ninguna pregunta'];
+			}
+			$ultimaPreguntaPaso = $result[0];
+	
 			if($ultimaPreguntaPaso['CONCURSANTE_TOMO'] != 1){
 				return ['estado'=>0 , 'mensaje'=>'No has tomado ninguna pregunta'];
 			}
@@ -452,6 +456,9 @@
 						, 'ID_CONCURSANTE'=>$ultimaPreguntaPaso['ID_CONCURSANTE']
 						,'ID_PREGUNTA'=>$ultimaPreguntaPaso['PREGUNTA']];
 			$pregunta = $this->query($sentencia,$valores,true);
+			$objRespuesta = new Respuestas();
+			$respuestas = $objRespuesta->getRespuestasByPregunta($pregunta[0]['ID_PREGUNTA']);
+			$pregunta['respuestas'] = $respuestas;
 			return ['estado'=>1 , 'mensaje'=>'Pregunta de paso obtenida', 'pregunta'=>$pregunta];
 		}
 	}
@@ -481,7 +488,6 @@
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);
-				break;
 		}
 	}
 
