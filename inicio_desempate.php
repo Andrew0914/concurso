@@ -24,7 +24,7 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				Han empatado algunos concursantes, espera a que el moderador indique que pueden acceder a la ronda de desempate.
+				Ultimo empate generado
 				<br> <br>
 				<?php 
 					$tablero = new TableroPosiciones();
