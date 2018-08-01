@@ -17,7 +17,7 @@
 		 * @return array             
 		 */
 		public function generaPreguntas($etapa,$idConcurso,$nivel_empate = 0){
-			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
+			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas para el desempate correctamente'];
 			$mensaje ="";
 			$concurso = new Concurso();
 			$concurso = $concurso->getConcurso($idConcurso);
@@ -41,6 +41,10 @@
 					$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
 					$preguntaAleatoria = array_rand($preguntas);
 				}
+				if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
+					$cont -=1;
+					continue;
+				}
 				$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
 				, 'ID_CONCURSO' => $idConcurso 
 				, 'ID_RONDA' => $idRonda
@@ -50,13 +54,16 @@
 					$valida *= 0;
 				}	
 			}
-			if($valida){
+			if(false){
 				if($mensaje ==''){
 					$mensaje = "GENERACION DE PREGUNTAS EXITOSA !";
 				}
 
 				$rs = ['estado'=> 1,
 					'mensaje'=>$mensaje];
+			}else{
+				$genera->eliminar(0,"ID_CONCURSO=?  AND ID_RONDA = ? AND NIVEL_EMPATE = ?" 
+					, ['ID_CONCURSO' => $idConcurso  ,'ID_RONDA'=>$ronda['ID_RONDA'] , 'NIVEL_EMPATE'=>$nivel_empate]);
 			}
 
 			return $rs;
@@ -65,5 +72,5 @@
 	}
 
 	/*$desempate = new Desempate();
-	echo json_encode($desempate->generaPreguntas(1,166));*/
+	echo json_encode($desempate->generaPreguntas(2,125));*/
 ?>

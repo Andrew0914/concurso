@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
-    <body class="content content-xs blanco">
+    <body class="content content-sm blanco">
         <section class="centrado">
             <h1>
                 <img src="image/logo_geollin.png" />
@@ -36,11 +36,16 @@
                 <button class="btn btn-lg btn-geo" type="button" onclick="getExcel()">
                     Obtener Excel
                 </button>
-                <br>
+                <br><br>
                 <h1>
-                     <a href="#" id="obtener" style="display: none;" class="monserrat-bold" onclick='desapareccer(this)'>Descargar</a>
+                     <a href="#" id="obtener" style="display: none;" class="monserrat-bold" onclick='desapareccer(this)'>
+                        <u>Descargar</u> <img src="image/download.png"> 
+                    </a>
                 </h1>
-               
+                <br><br>
+                <h5>
+                    <a href="moderador"><u>Volver al inicio </u> </a>
+                </h5>
             </form>
         </section>
         <!-- INICIO SCRIPTS -->
