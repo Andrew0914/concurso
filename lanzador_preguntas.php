@@ -114,7 +114,7 @@
 				<!-- FIN CAMBIO DE RONDA -->
 				<!-- TABLERO PRELIMINAR  POR RONDA-->
 				<div class="modal" id="mdl-preliminar">
-					<div class="modal-dialog modal-lg">
+					<div class="modal-dialog modal-big">
 					    <div class="modal-content">
 					    	<!-- Modal Header -->
 					    	<div class="modal-header">
@@ -138,18 +138,44 @@
 												$mejores = $response['mejores'];
 												foreach ($mejores as $mejor) {
 													echo "<tr>";
-													if($mejor['lugar'] == 1){
-														echo "<td><img src='image/gold_medal.png'></td>";
-													}else if($mejor['lugar']==2){
-														echo "<td><img src='image/silver_medal.png'></td>";
-													}
-													else if($mejor['lugar']==3){
-														echo "<td><img src='image/bronze_medal.png'></td>";
-													}else{
-														echo "<td>".$mejor['lugar']."<small> lugar</small></td>";
-													}
+													echo "<td><b>".$mejor['lugar']."<small> lugar</small></b></td>";
 													echo "<td>".$mejor['CONCURSANTE'] . '</td>';
 													echo "<td>".$mejor['totalPuntos'].'</td>';
+													echo "</tr>";	
+												}
+											 ?>
+										</tbody>
+									</table>
+									<!--PUNTAJES DETALLE PRELIMINARES -->
+									<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%;">
+										<thead>
+											<tr>
+												<th>Concursante</th>
+												<th>Ronda</th>
+												<th>Categoria</th>
+												<th> Pregunta </th>
+												<th>Respuesta</th>
+												<th>Puntaje</th>
+												<th>Roba Puntos</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php 
+												$puntajes = $tablero->getResultados($concurso['ID_CONCURSO'],$ronda['IS_DESEMPATE'])['tablero'];
+												foreach ($puntajes as $puntaje) {
+													echo "<tr>";
+													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
+													echo "<td>" . $puntaje['RONDA'] . '</td>';
+													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
+													echo "<td>".$puntaje['PREGUNTA'].'</td>';
+													echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
+													if($puntaje['ES_IMAGEN'] == 1){
+														echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
+													}else{	
+														echo $puntaje['RESPUESTA'].'</td>';
+													}
+													echo "<td>".$puntaje['PUNTAJE'].'</td>';
+													echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
 													echo "</tr>";	
 												}
 											 ?>
@@ -270,6 +296,14 @@
 			}
 
 			.modal-full .modal-content {
+			    min-height: 100vh;
+			}
+
+			.modal-big {
+			    min-width: 95%;
+			}
+
+			.modal-big .modal-content {
 			    min-height: 100vh;
 			}
 		</style>

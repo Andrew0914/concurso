@@ -220,13 +220,34 @@
 			$objConcurso = $objConcurso->getConcurso($concurso);
 			$rondas = new Rondas();
 			try{
-				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,t.PREGUNTA_POSICION,p.PREGUNTA,r.INCISO , r.RESPUESTA,t.PASO_PREGUNTA,t.PUNTAJE,r.ES_IMAGEN,ro.RONDA,ca.CATEGORIA FROM tablero_puntajes as t LEFT JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE LEFT JOIN preguntas as p ON t.PREGUNTA = p.ID_PREGUNTA LEFT JOIN respuestas as r ON t.RESPUESTA = r.ID_RESPUESTA LEFT JOIN rondas ro ON t.ID_RONDA = ro.ID_RONDA INNER JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA WHERE t.ID_CONCURSO = ?";
+				$query = "SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,
+				IF(tp.PASO_PREGUNTA = 1 ,
+					CONCAT('Paso pregunta a ' , (SELECT CONCURSANTE FROM concursantes cp WHERE cp.ID_CONCURSANTE = tp.CONCURSANTE_PASO )),
+					'NO')  AS PASO_PREGUNTAS ,
+				tp.PUNTAJE
+				FROM tablero_puntajes tp 
+				LEFT JOIN rondas r ON tp.ID_RONDA = r.ID_RONDA
+				LEFT JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE
+				LEFT JOIN preguntas p ON tp.PREGUNTA = p.ID_PREGUNTA
+				LEFT JOIN respuestas w ON tp.RESPUESTA = w.ID_RESPUESTA
+				LEFT JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA
+				WHERE tp.ID_CONCURSO = ?";
 				$values = [':ID_CONCURSO'=>$concurso];
 				if($es_empate){
-					$query.= " AND t.ID_RONDA = ? AND NIVEL_EMPATE = ?";
+					$query.= " AND tp.ID_RONDA = ? AND tp.NIVEL_EMPATE = ?";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
 					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
 				}
+				$values['ID_CONCURSO'] = $concurso;
+				$query.= " UNION ";
+				$query.= " SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE
+					FROM tablero_pasos tps
+					LEFT JOIN rondas r ON tps.ID_RONDA = r.ID_RONDA
+					LEFT JOIN concursantes c ON tps.ID_CONCURSANTE = c.ID_CONCURSANTE
+					LEFT JOIN preguntas p ON tps.PREGUNTA = p.ID_PREGUNTA
+					LEFT JOIN respuestas w ON tps.RESPUESTA = w.ID_RESPUESTA
+					LEFT JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA
+					WHERE tps.ID_CONCURSO = ?";
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;
 				$response['estado'] = 1;
@@ -439,6 +460,13 @@
 			return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta y'];
 		}
 
+		/**
+		 * Obtiene 
+		 * @param  [type] $concurso    [description]
+		 * @param  [type] $concursante [description]
+		 * @param  [type] $ronda       [description]
+		 * @return [type]              [description]
+		 */
 		public function obtenerPreguntaPaso($concurso,$concursante,$ronda){
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND CONCURSANTE_PASO = ?  ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1;";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'CONCURSANTE_PASO'=> $concursante];
@@ -468,6 +496,7 @@
 			$pregunta['respuestas'] = $respuestas;
 			return ['estado'=>1 , 'mensaje'=>'Pregunta de paso obtenida', 'pregunta'=>$pregunta];
 		}
+
 	}
 	/**
 	 * POST REQUESTS
