@@ -66,10 +66,8 @@
 					<table class='table table-sm table-bordered table-striped table-geo'>
 						<thead>
 							<tr>
-								<th>#Pregunta</th>
 								<th>Concursante</th>
 								<th>Pregunta</th>
-								<th>Dificultad</th>
 								<th>Puntaje</th>
 								<th>&nbsp;</th>
 							</tr>
@@ -89,10 +87,8 @@
 									}
 								
 									echo "<tr class='monserrat-bold'" . $alterna . ">";
-									echo "<td>" . $pregunta['PREGUNTA_POSICION']. "</td>";
 									echo "<td>" . $pregunta['CONCURSANTE']. "</td>";
 									echo "<td>" . $pregunta['CATEGORIA']. "</td>";
-									echo  "<td>".$pregunta['DIFICULTAD'] ."</td>";
 									echo "<td>". $pregunta['PUNTAJE']."</td>";
 									$onclick = " onclick='leer(\"".addslashes ($pregunta['PREGUNTA'])."\",";
 									$onclick .= $pregunta['ID_PREGUNTA']. ",";
