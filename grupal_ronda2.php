@@ -43,11 +43,11 @@
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
 				<br><br>
-				En cuanto el moderador te lance/asigne la pregunta por favor oprime [OBTENER PREGUNTA]
+				En cuanto el moderador te lance/asigne la pregunta por favor oprime <b>[OBTENER PREGUNTA]</b>
 				<br>
 				ó
 				<br>
-				Oprime [OBTENER PREGUNTA DE PASO] si te pasaron una pregunta y el moderador te ha confirmado
+				Oprime <b>[ROBA PUNTOS]</b> si te pasaron una pregunta y el moderador te ha confirmado
 				<br>
 			</h4>
 			<br>
@@ -90,7 +90,7 @@
 				</button>
 			</div>
 			<div class="col-md-6 centrado">
-				<button class="btn btn-geo" onclick="obtenerPreguntaPaso()" id="btn-obtener-pr-paso">OBTENER PREGUNTA DE PASO</button>
+				<button class="btn btn-geo" onclick="obtenerPreguntaPaso()" id="btn-obtener-pr-paso">ROBA PUNTOS</button>
 			</div>
 		</div>
 	</section>
