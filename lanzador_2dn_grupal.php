@@ -143,9 +143,21 @@
 											</tr>
 										</thead>
 										<tbody>
-											<?php 
+											<?php
 												$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO),$ronda['IS_DESEMPATE'] );
 												$mejores = $response['mejores'];
+												// obtengo los puntajes de paso tambien
+												$pasos = new TableroPaso();
+												$mejoresPaso = $pasos->getMejores($concurso)['mejores'];
+												// unifico/sumo puntajes de los ordinarios y robapuntos
+												for($x = 0 ; $x<count($mejores) ; $x++) {
+													foreach ($mejoresPaso as $mp) {
+														if($mejores[$x]['ID_CONCURSANTE'] == $mp['ID_CONCURSANTE']){
+															$mejores[$x]['totalPuntos'] = $mejores[$x]['totalPuntos']  + $mp['totalPuntos'];
+														}
+													}
+												}
+												// muestro puntuaciones totales en una tabla
 												foreach ($mejores as $mejor) {
 													echo "<tr>";
 													echo "<td>".$mejor['lugar']."<small> lugar</small></td>";
