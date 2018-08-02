@@ -32,7 +32,6 @@ function generarConcurso(formulario){
         dataType: "json",
         success : function(response){
           if(response.estado == 1){
-            alert(response.mensaje);
           	window.location.replace("panel");
           }else{
           	alert(response.mensaje);
@@ -56,7 +55,6 @@ function irConcurso(){
     $.get('class/Concurso.php?functionConcurso=irConcurso&concurso='+concurso,
       function(data, textStatus, xhr) {
         if(data.estado == 1){
-          alert(data.mensaje);
           window.location.replace("panel");
         }
     },'json');

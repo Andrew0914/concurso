@@ -252,7 +252,7 @@ function afterSend(){
 			}
 		},
 		error: function(error){
-			alert("No pudimos mostrate el resultado de tu pregunta");
+			alert("No pudimos mostrarte el resultado de tu pregunta");
 			console.log(error);
 		}
 	});

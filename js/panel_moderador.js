@@ -113,9 +113,10 @@ function generaTableros(concurso){
 				'ID_CONCURSO' : concurso,
 				'IS_DESEMPATE' : isDesempate},
 		success:function(response){
-			alert(response.mensaje);
 			if(response.estado == 1){
 				window.location.replace("tablero?id_master="+response.tablero_master);
+			}else{
+				alert("No hemos podido calcular los tableros");
 			}
 		},
 		error:function(error){

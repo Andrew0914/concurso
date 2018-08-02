@@ -214,7 +214,6 @@ function siguienteRonda(){
                 alert(response.mensaje);
                 window.location.replace('panel');
             }else if(response.estado == 3){
-                alert("A continuacion la 2da ronda grupal");
                 window.location.replace("lanzador_2dn_grupal");
             }else{
                 alert(response.mensaje);

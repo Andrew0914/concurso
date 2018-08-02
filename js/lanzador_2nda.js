@@ -41,8 +41,8 @@ function lanzarPregunta(segundos,boton){
                 'ID_CONCURSANTE': idConcursante},
         dataType: "json",
         success : function(response){
-            alert("El " + $("#concursante").text() + " puede obtener su pregunta" );
         	if(response.estado == 1){
+                alert("El " + $("#concursante").text() + " puede obtener su pregunta" );
                 $(boton).hide(300);
                 $("#loading").show(300)
                 var respuestas = response.respuestas;
@@ -80,7 +80,6 @@ function contestoOpaso(){
         success:function(response){
             if(response.estado == 1){
                 clearInterval(timerContesto);
-                alert("El concursante ha contestado la pregunta");
                 $("#btn-siguiente").show(300);
                 $("#loading").hide(300);
             }else if(response.estado == 2){
@@ -112,7 +111,7 @@ function tomoPaso(concursante){
                 'functionTablero':'tomoPaso'},
         success:function(response){
             if(response.estado == 1){
-                alert("Has confirmado la aceptacion del concursante, ahora puede obtener la pregunta de paso");
+                alert("El concursante puede robar la pregunta");
                 $("#btn-siguiente").hide(300);
                 $("#loading").show(300);
                 contestoPaso(concursante);
@@ -141,7 +140,6 @@ function contestoPaso(concursante){
         success:function(response){
             if(response.estado == 1){
                 clearInterval(timerPaso);
-                alert("El concursante ha contestado la pregunta");
                 $("#btn-siguiente").show(300);
                 $("#loading").hide(300);
             }else{
