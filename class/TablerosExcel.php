@@ -9,14 +9,16 @@
  	error_reporting(E_ALL);
 	class TablerosExcel{
 		
-		public function __construct(){}
+		public function __construct(){
+			PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);
+		}
 
 		public function generarExcel($concurso){
 			$indexHoja = 0;
 			//generamos el objeto de excel
 			$objPHPExcel = new PHPExcel;
-			$objPHPExcel->getDefaultStyle()->getFont()->setName('Calibri');
-			$objPHPExcel->getDefaultStyle()->getFont()->setSize(12);
+			$objPHPExcel->getDefaultStyle()->getFont()->setName('Arial');
+			$objPHPExcel->getDefaultStyle()->getFont()->setSize(10);
 			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, "Excel2007");
 			// especificamos la primer hoja para iniciar
 			$tabMaster = new TableroMaster();
@@ -32,6 +34,7 @@
 					$objSheet = $objPHPExcel->createSheet($indexHoja);
 				}
 				$objSheet->setTitle('Tablero '.$m['ID_TABLERO_MASTER']);
+				$objSheet->getStyle('A1:D1')->getFont()->setBold(true)->setSize(12);
 				$objSheet->getCell('A1')->setValue('CONCURSANTE');
 				$objSheet->getCell('B1')->setValue('POSICION');
 				$objSheet->getCell('C1')->setValue('PUNTAJE TOTAL');
@@ -50,52 +53,36 @@
 					
 					$indexCelda++;
 				}
+				
 				$indexHoja++;
 			}
 			//obtenemos lso tableros de puntaciones a dealle
 			$tabPuntaje = new TableroPuntaje();
-			$tabPaso = new TableroPaso();
 			$puntajes = $tabPuntaje->getResultados($concurso)['tablero'];
-			$pasos = $tabPaso->getResultados($concurso)['tablero'];
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
-			$objSheet->setTitle('Puntuaciones generales');
-			$objSheet->getCell('A1')->setValue('CONCURSANTE');
-			$objSheet->getCell('B1')->setValue('RONDA');
-			$objSheet->getCell('C1')->setValue('CATEGORIA');
-			$objSheet->getCell('D1')->setValue('PREGUNTA');
+			$objSheet->setTitle('Puntuaciones Detalle');
+			$objSheet->getStyle('A1:F1')->getFont()->setBold(true)->setSize(12);
+			$objSheet->getCell('A1')->setValue('RONDA');
+			$objSheet->getCell('B1')->setValue('CONCURSANTE');
+			$objSheet->getCell('C1')->setValue('PREGUNTA');
+			$objSheet->getCell('D1')->setValue('INCISO');
 			$objSheet->getCell('E1')->setValue('RESPUESTA');
-			$objSheet->getCell('F1')->setValue('PUNTAJE');
+			$objSheet->getCell('F1')->setValue('CATEGORIA');
+			$objSheet->getCell('G1')->setValue('ROBA PUNTOS');
+			$objSheet->getCell('H1')->setValue('PUNTAJE');
 			$indexCelda = 2;
 			foreach ($puntajes as $pu) {
-				$objSheet->getCell('A'.$indexCelda)->setValue( $concursante->getConcursante($pu['ID_CONCURSANTE'])['CONCURSANTE'] );
-				$objSheet->getCell('B'.$indexCelda)->setValue($pu['RONDA']);
-				$objSheet->getCell('C'.$indexCelda)->setValue($pu['CATEGORIA']);
-				$objSheet->getCell('D'.$indexCelda)->setValue($pu['PREGUNTA']);
+				$objSheet->getCell('A'.$indexCelda)->setValue($pu['RONDA']);
+				$objSheet->getCell('B'.$indexCelda)->setValue($pu['CONCURSANTE']);
+				$objSheet->getCell('C'.$indexCelda)->setValue($pu['PREGUNTA']);
+				$objSheet->getCell('D'.$indexCelda)->setValue($pu['INCISO']);
 				$objSheet->getCell('E'.$indexCelda)->setValue($pu['RESPUESTA']);
-				$objSheet->getCell('F'.$indexCelda)->setValue($pu['PUNTAJE']);
+				$objSheet->getCell('F'.$indexCelda)->setValue($pu['CATEGORIA']);
+				$objSheet->getCell('G'.$indexCelda)->setValue($pu['PASO_PREGUNTAS']);
+				$objSheet->getCell('H'.$indexCelda)->setValue($pu['PUNTAJE']);
 				$indexCelda++;
 			}
 
-			$indexHoja += 1;
-			$objSheet = $objPHPExcel->createSheet($indexHoja);
-			$objSheet->setTitle('Puntuaciones PASO');
-			$objSheet->getCell('A1')->setValue('CONCURSANTE');
-			$objSheet->getCell('B1')->setValue('RONDA');
-			$objSheet->getCell('C1')->setValue('CATEGORIA');
-			$objSheet->getCell('D1')->setValue('PREGUNTA');
-			$objSheet->getCell('E1')->setValue('RESPUESTA');
-			$objSheet->getCell('F1')->setValue('PUNTAJE');
-			$indexCelda = 2;
-			foreach ($pasos as $pa) {
-				$objSheet->getCell('A'.$indexCelda)->setValue( $concursante->getConcursante($pa['ID_CONCURSANTE'])['CONCURSANTE'] );
-				$objSheet->getCell('B'.$indexCelda)->setValue($pa['RONDA']);
-				$objSheet->getCell('C'.$indexCelda)->setValue($pa['CATEGORIA']);
-				$objSheet->getCell('D'.$indexCelda)->setValue($pa['PREGUNTA']);
-				$objSheet->getCell('E'.$indexCelda)->setValue($pa['RESPUESTA']);
-				$objSheet->getCell('F'.$indexCelda)->setValue($pa['PUNTAJE']);
-				$indexCelda++;
-			}
-	
 			$nombre = "tableros_concurso_".$concurso.".xlsx";
 			$ruta = "../gen_excel/".$nombre;
 			$objWriter->save($ruta);
