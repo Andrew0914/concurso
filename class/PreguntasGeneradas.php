@@ -131,6 +131,7 @@
 							, 'ID_CONCURSO' => $idConcurso 
 							, 'ID_RONDA' => 5
 							, 'ID_CONCURSANTE'=>$cnc['ID_CONCURSANTE']
+							, 'OLEADA'=>$cont 
 							, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,5) + 1) ];
 							if($this->save($valoresInsert) <= 0){
 								$valida *= 0;
@@ -203,7 +204,7 @@
 				INNER JOIN grados_dificultad g ON p.ID_GRADO = g.ID_GRADO
 				INNER JOIN categorias c ON p.ID_CATEGORIA = c.ID_CATEGORIA
 				INNER JOIN concursantes cr ON pg.ID_CONCURSANTE = cr.ID_CONCURSANTE
-				WHERE pg.ID_RONDA = ? AND pg.ID_CONCURSO = ? ORDER BY p.ID_GRADO ASC";
+				WHERE pg.ID_RONDA = ? AND pg.ID_CONCURSO = ? ORDER BY g.ID_GRADO,pg.OLEADA,cr.CONCURSANTE_POSICION";
             $values = array('ID_RONDA'=>$ronda,'ID_CONCURSO'=>$concurso);
 			return $this->query($query,$values);
 		}

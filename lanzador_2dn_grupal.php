@@ -10,6 +10,7 @@
 		require_once 'class/RondasLog.php';
 		require_once 'class/TableroPaso.php';
 		require_once 'class/TableroPuntaje.php';
+		require_once 'class/Concursante.php';
 		$sesion = new Sesion();
 		$generadas = new PreguntasGeneradas();
 		$etapa = new Etapas();
@@ -67,7 +68,7 @@
 						<thead>
 							<tr>
 								<th>Concursante</th>
-								<th>Pregunta</th>
+								<th>Categoria</th>
 								<th>Puntaje</th>
 								<th>&nbsp;</th>
 							</tr>
@@ -76,17 +77,18 @@
 							<?php 
 								$preguntas = $generadas->getPreguntas2nda($idConcurso,$idRonda);
 								$onclick = "";
-								$alterna = '';
-								$filas =2;
+								$concursante = new Concursante();
+								$countConcursantes = $concursante->getCountConcursates($sesion->getOne(SessionKey::ID_CONCURSO))[0]['total'];
+								$prMostradas = 1;
+								$cambio = "";
 								foreach ($preguntas as $pregunta) {
-									if($filas > $ronda['TURNOS_PREGUNTA_CONCURSANTE']){
-										$alterna = " style='border-bottom:50px solid rgba(158,219,180,0.75)' ";
-										$filas = 1;
+									if($prMostradas == $countConcursantes){
+										$cambio = " style='border-bottom:20px solid rgb(140,138,130)' ";
+										$prMostradas = 0;
 									}else{
-										$alterna = "";
+										$cambio = "";
 									}
-								
-									echo "<tr class='monserrat-bold'" . $alterna . ">";
+									echo "<tr class='monserrat-bold'". $cambio .">";
 									echo "<td>" . $pregunta['CONCURSANTE']. "</td>";
 									echo "<td>" . $pregunta['CATEGORIA']. "</td>";
 									echo "<td>". $pregunta['PUNTAJE']."</td>";
@@ -102,7 +104,7 @@
 									}
 									echo $button;
 									echo  "</tr>";
-									$filas++;
+									$prMostradas++;
 								}
 							 ?>
 						 </tbody>
