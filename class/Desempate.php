@@ -3,6 +3,7 @@
 	require_once dirname(__FILE__) . '/Rondas.php';
 	require_once dirname(__FILE__) . '/Reglas.php';
 	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
+	require_once dirname(__FILE__) . '/Preguntas.php';
 	require_once dirname(__FILE__) . '/Categorias.php';
 
 	class Desempate{
@@ -17,6 +18,7 @@
 		 * @return array             
 		 */
 		public function generaPreguntas($etapa,$idConcurso,$nivel_empate = 0){
+
 			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas para el desempate correctamente'];
 			$mensaje ="";
 			$concurso = new Concurso();
@@ -30,6 +32,9 @@
 			$regla = $objRegla->getReglasByRonda($idRonda)[0];
 			$categoria = new Categorias();
 			$cat = $categoria->getCategoria($concurso['ID_CATEGORIA']);
+			if(!$this->suficientesPreguntas($concurso['ID_CATEGORIA'],$idConcurso,$regla['ID_REGLA'])){
+				return ['estado'=>0 , 'mensaje'=>'Ya no es posible desplegar un desempate,por que las preguntas disponibles son insuficiones'];
+			}
 			// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
 			$grados = explode(',',$regla['GRADOS']);
 			for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
@@ -54,7 +59,7 @@
 					$valida *= 0;
 				}	
 			}
-			if(false){
+			if($valida){
 				if($mensaje ==''){
 					$mensaje = "GENERACION DE PREGUNTAS EXITOSA !";
 				}
@@ -69,8 +74,34 @@
 			return $rs;
 		}
 
+		public function suficientesPreguntas($categoria , $concurso,$regla){
+			$preguntas = new Preguntas();
+			$reglas = new Reglas();
+			$generadas = new PreguntasGeneradas();
+			$disponibles = $preguntas->preguntasTotalesDisponibles($categoria);
+			$usadas = $generadas->preguntasGeneradas($categoria,$concurso);
+			$necesarias = $reglas->getCountGrados($regla);
+			foreach ($disponibles as $d) {
+				foreach ($usadas as $u) {
+					if($d['grado'] == $u['grado']){
+						$aunDisponibles = 0;
+						$aunDisponibles = $d['cantidad'] - $u['cantidad'];
+						foreach($necesarias as $n){
+							if($n['grado'] == $u['grado']){
+								if($aunDisponibles < $n['cantidad']){
+									return false;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
 	}
 
-	/*$desempate = new Desempate();
-	echo json_encode($desempate->generaPreguntas(2,125));*/
+	$desempate = new Desempate();
+	echo json_encode($desempate->generaPreguntas(2,139));
 ?>

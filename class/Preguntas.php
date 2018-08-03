@@ -18,5 +18,19 @@
 			$valores= ['ID_PREGUNTA'=>$pregunta];
 			return $this->query($sentencia,$valores)[0]['PUNTAJE'];
 		}
+
+		public function preguntasTotalesDisponibles($categoria){
+			$sentencia = 'SELECT "1" grado,COUNT(*) cantidad FROM preguntas
+					WHERE ID_CATEGORIA = ? AND ID_GRADO = 1 
+					UNION
+					SELECT "2" grado,COUNT(*) cantidad FROM preguntas 
+					WHERE ID_CATEGORIA = ? AND ID_GRADO = 2 
+					UNION
+					SELECT "3" grado,COUNT(*) cantidad FROM preguntas 
+					WHERE ID_CATEGORIA = ? AND ID_GRADO = 3 ';
+			$valores = [$categoria , $categoria , $categoria];
+			return $this->query($sentencia ,$valores);
+		}
+
 	}
  ?>

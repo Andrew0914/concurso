@@ -418,6 +418,15 @@
 			return $this->save($valores);
 		}
 
+		/**
+		 * Hace el lanzamineto especial para preguntas de 2nda
+		 * @param  integwe $idGenerada    
+		 * @param  integwe $concurso      
+		 * @param  integwe $idRonda       
+		 * @param  integwe $idCategoria   
+		 * @param  integwe $idConcursante 
+		 * @return array   
+		 */
 		public function lanzarPregunta2nda($idGenerada,$concurso,$idRonda,$idCategoria,$idConcursante){
 			//objeto del a ronda 
 			$ronda = new Rondas();
@@ -451,6 +460,18 @@
 				,'respuestas'=>$respuestas];
 		}
 
+		public function preguntasGeneradas($categoria,$concurso){
+			$sentencia = 'SELECT "1" grado,COUNT(*) cantidad FROM preguntas_generadas pg LEFT JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA
+			WHERE p.ID_CATEGORIA = ? AND ID_GRADO = 1 AND pg.ID_CONCURSO = ?
+			UNION
+			SELECT "2" grado ,COUNT(*) cantidad FROM preguntas_generadas pg LEFT JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA
+			WHERE p.ID_CATEGORIA = ? AND ID_GRADO = 2 AND pg.ID_CONCURSO = ?
+			UNION 
+			SELECT "3" grado,COUNT(*) cantidad FROM preguntas_generadas pg LEFT JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA
+			WHERE p.ID_CATEGORIA = ? AND ID_GRADO = 3 AND pg.ID_CONCURSO = ?';
+			$valores = [$categoria,$concurso,$categoria,$concurso,$categoria,$concurso];
+			return $this->query($sentencia,$valores);
+		}
 
 	}
 
