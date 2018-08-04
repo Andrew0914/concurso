@@ -65,13 +65,16 @@
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
 			$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
-
-			if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ){
+			// regla para paso de preguntas
+			if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ==1 ){
 				$v_puntaje['PUNTAJE'] *= -1;
+				// regla para resta por error
 			}else if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
 				$v_puntaje['PUNTAJE'] *= -1;
+			}else if($correcta == 0 AND $reglas[0]['RESTA_PASO'] ==0 AND $reglas[0]['RESTA_ERROR'] == 0){
+				// regla para ronda comun sin negativos
+				$v_puntaje['PUNTAJE'] = 0;
 			}
-			
 			return $this->update(0, $v_puntaje, $where, $whereValues);
 		}
 
