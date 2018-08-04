@@ -193,15 +193,39 @@
 		public function getMarcadorPregunta($concurso,$ronda,$pregunta){
 			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
 			try{
-				$concursante = new Concursante();
-				$sentencia = 'SELECT SUM(CASE WHEN t.RESPUESTA_CORRECTA = 1 then 1 else 0 end) correctas ,
-						SUM(CASE WHEN t.RESPUESTA_CORRECTA = 0 then 1 else 0 end) incorrectas
-						FROM tablero_puntajes t  WHERE t.ID_CONCURSO = ?
-						AND t.ID_RONDA = ? AND t.PREGUNTA = ?;';
-
-				$valores =['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda, 'PREGUNTA'=>$pregunta];
-				$response['marcadores']= $this->query($sentencia,$valores,true);
-				$response['cont_concursantes'] = $concursante->getCountConcursates($concurso);
+				// obtenenmos lso valores solo en las contestadas
+				$sentencia = 'SELECT "totales" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ?
+					UNION
+					SELECT "correctas" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND RESPUESTA_CORRECTA = 1
+					UNION
+					SELECT "incorrectas" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND RESPUESTA_CORRECTA = 0';
+				$valores =[$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta];
+				$rs = $this->query($sentencia , $valores);
+				$this->escribirPrueba(json_encode($rs));
+				$totales = 0;
+				$correctas = 0;
+				$incorrectas = 0;
+				// asignamos para hacer los calculos
+				foreach ($rs as $r) {
+					if($r['tipo'] =='totales'){
+						$totales = $r['cantidad'];
+					}else if($r['tipo'] =='correctas'){
+						$correctas = $r['cantidad'];
+					}else if($r['tipo'] =='incorrectas'){
+						$incorrectas = $r['cantidad'];
+					}
+				}
+				if($totales <= 0){
+					$response['incorrectas'] = 0;
+					$response['correctas'] = 0;
+					$response['por_incorrectas'] = 0;
+					$response['por_correctas'] = 0;
+				}else{
+					$response['incorrectas'] = $incorrectas;
+					$response['correctas'] = $correctas;
+					$response['por_incorrectas'] = ($incorrectas * 100) / $totales;
+					$response['por_correctas'] = ($correctas * 100) / $totales;;
+				}
 				$response['estado']= 1;
 				$response['mensaje']='Marcadores obtenidos con exito';
 
@@ -211,7 +235,11 @@
 			
 			return $response;
 		}
-
+		function escribirPrueba($txt){
+		    $myfile = fopen("../pruebas.txt", "w") or die("Unable to open file!");
+		    fwrite($myfile, $txt);
+		    fclose($myfile);
+		  }
 		/**
 		 * Genera la informacion para el tablero de resumen general
 		 * @param  integer  $concurso   

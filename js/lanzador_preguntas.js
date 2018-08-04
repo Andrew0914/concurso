@@ -82,7 +82,6 @@ function todosContestaron(){
             notFinish = true;
             afterAnswer();
         }
-        //getMarcadorPregunta();
         getActividadPregunta();
        },
        error:function(error){
@@ -92,9 +91,7 @@ function todosContestaron(){
 }
 
 function afterAnswer(){
-    $("#reloj-cronometro").css("display","none");
-    $("#btn-siguiente").show(300);
-    $("#animated text").text("00:00");
+    getMarcadorPregunta();
 }
 
 /**
@@ -126,7 +123,21 @@ function getMarcadorPregunta(){
         dataType: 'json',
         data: {'ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA':pregunta,'functionTablero':'getMarcadorPregunta'},
         success:function(response){
-            console.log(response);
+            if(response.estado == 1){
+                $("#num_incorrectas").text(response.incorrectas);
+                $("#histo-incorrectas").css({
+                    'width': response.por_incorrectas + "%",
+                    'background-color': 'red'
+                });
+                $("#num_correctas").text(response.correctas);
+                $("#histo-correctas").css({
+                    'width': response.por_correctas + "%",
+                    'background-color': 'green'
+                });
+                $("#reloj-cronometro").css("display","none");
+                $("#btn-siguiente").show(300);
+                $("#animated text").text("00:00");
+            }
         },
         error:function(error){
             console.log(error);
