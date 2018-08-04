@@ -214,10 +214,12 @@
 
 		/**
 		 * Genera la informacion para el tablero de resumen general
-		 * @param  integer $concurso
-		 * @return array          
+		 * @param  integer  $concurso   
+		 * @param  boolean $es_empate  
+		 * @param  boolean $preliminar 
+		 * @return array             
 		 */
-		public function getResultados($concurso,$es_empate = false){
+		public function getResultados($concurso,$es_empate = false,$preliminar = false){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			$objConcurso = new Concurso();
 			$objConcurso = $objConcurso->getConcurso($concurso);
@@ -240,6 +242,9 @@
 					$query.= " AND tp.ID_RONDA = ? AND tp.NIVEL_EMPATE = ?";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
 					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
+				}else if($preliminar){
+					$query.= " AND tp.ID_RONDA = ?";
+					$values['ID_RONDA'] = $objConcurso['ID_RONDA'];
 				}
 				$values['ID_CONCURSO'] = $concurso;
 				$query.= " UNION ";

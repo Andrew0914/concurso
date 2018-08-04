@@ -135,7 +135,7 @@
 				$response['master']= $master->getMaster($master_creado);
 				$sentencia = "SELECT tp.*,c.CONCURSANTE FROM tablero_posiciones tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE  WHERE tp.ID_TABLERO_MASTER = ? GROUP BY c.ID_CONCURSANTE ORDER BY tp.POSICION";
 				$response['posiciones'] = $this->query($sentencia,['ID_TABLERO_MASTER'=>$master_creado]);
-				$response['puntajes'] = $puntajes->getResultados($concurso,$es_empate);
+				$response['puntajes'] = $puntajes->getResultados($concurso,$es_empate,false);
 				$response['pasos'] = $pasos->getResultados($concurso);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Se obtuvieron los tableros exitosamente';

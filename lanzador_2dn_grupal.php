@@ -185,7 +185,7 @@
 										</thead>
 										<tbody>
 											<?php 
-												$puntajes = $tablero->getResultados($concurso['ID_CONCURSO'],$ronda['IS_DESEMPATE'])['tablero'];
+												$puntajes = $tablero->getResultados($concurso['ID_CONCURSO'],$ronda['IS_DESEMPATE'],true)['tablero'];
 												foreach ($puntajes as $puntaje) {
 													echo "<tr>";
 													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
