@@ -204,7 +204,6 @@
 					SELECT "incorrectas" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND RESPUESTA_CORRECTA = 0';
 				$valores =[$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta];
 				$rs = $this->query($sentencia , $valores);
-				$this->escribirPrueba(json_encode($rs));
 				$totales = 0;
 				$correctas = 0;
 				$incorrectas = 0;

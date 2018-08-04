@@ -25,7 +25,8 @@ var Comet = Class.create();
 			 this.comet.noerror = true;
 		  },
 		  onComplete: function(transport) {
-		  	if(!finalizar){
+		  	var response = transport.responseText.evalJSON();
+		  	if(response.todas_lanzadas != 1){
 		  		if (!this.comet.noerror){
 					setTimeout(function(){ comet.connect() }, 1000); 
 				}
@@ -35,6 +36,7 @@ var Comet = Class.create();
 			  	}
 		  	}
 		  }
+
 		});
 		this.ajax.comet = this;
 	 },
