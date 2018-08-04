@@ -182,6 +182,17 @@
 			}
 			return $tableros;
 		}
+
+		/**
+		 * Devuelve la cantidad e concursantes empatados en el tablero master indicado
+		 * @param  integer $last_master 
+		 * @return integer          
+		 */
+		public function getCountEmpatados($last_master){
+			$sentencia = "SELECT COUNT(*) as TOTAL FROM tablero_posiciones WHERE ID_TABLERO_MASTER = ?";
+			$valores = ['ID_TABLERO_MASTER' => $last_master];
+			return $this->query($sentencia,$valores)[0]['TOTAL'];
+		}
 	}	
 
 	/**

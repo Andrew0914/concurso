@@ -121,7 +121,7 @@ function getMarcadorPregunta(){
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
-        data: {'ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA':pregunta,'functionTablero':'getMarcadorPregunta'},
+        data: {'functionTablero':'getMarcadorPregunta','ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA': pregunta},
         success:function(response){
             if(response.estado == 1){
                 $("#num_incorrectas").text(response.incorrectas);
@@ -156,7 +156,7 @@ function getActividadPregunta(){
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
-        data: {'ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA':pregunta,'functionTablero':'getActividadPregunta'},
+        data: {'functionTablero':'getActividadPregunta','ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA': pregunta},
         success:function(response){
             if(response.estado == 1){
                 $("#num_contestadas").text(response.contestadas);

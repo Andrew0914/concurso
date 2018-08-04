@@ -7,6 +7,9 @@
 	require_once dirname(__FILE__) . '/Reglas.php'; 
 	require_once dirname(__FILE__) . '/Preguntas.php'; 
 	require_once dirname(__FILE__) . '/TableroPaso.php'; 
+	require_once dirname(__FILE__) . '/TableroPosiciones.php';
+	require_once dirname(__FILE__) . '/TableroMaster.php';
+	require_once dirname(__FILE__) . '/Rondas.php'; 
 
 	class TableroPuntaje extends BaseTable{
 
@@ -235,11 +238,7 @@
 			
 			return $response;
 		}
-		function escribirPrueba($txt){
-		    $myfile = fopen("../pruebas.txt", "w") or die("Unable to open file!");
-		    fwrite($myfile, $txt);
-		    fclose($myfile);
-		  }
+		
 		/**
 		 * Genera la informacion para el tablero de resumen general
 		 * @param  integer  $concurso   
@@ -359,7 +358,20 @@
 				$concursante = new Concursante();
 				$sentencia = 'SELECT COUNT(*) total FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ?';
 				$valores =['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda, 'PREGUNTA'=>$pregunta];
-				$countConcursantes  = $concursante->getCountConcursates($concurso)[0]['total'];
+				// preguntamos si la ronda es empate para solo tomar encuenta a los ultimos concursantes como participantes activos
+				$objRonda = new Rondas();
+				$objRonda = $objRonda->getRonda($ronda);
+				$countConcursantes = 0;
+				// si es una ronda de empate el cumulo total de concursantes son solo los empatados
+				if($objRonda['IS_DESEMPATE'] == 1){
+					$master = new TableroMaster();
+					$master = $master->getLast($concurso);
+					$tabPocisiones = new TableroPosiciones();
+					$countConcursantes  = $tabPocisiones->getCountEmpatados($master['ID_TABLERO_MASTER']);
+				}else{
+					// si no el cumulo son todos los registrados
+					$countConcursantes  = $concursante->getCountConcursates($concurso)[0]['total'];
+				}
 				$prTablero = $this->query($sentencia , $valores)[0]['total'];
 				// CONTESTADAS
 				$response['contestadas']= $prTablero;
@@ -368,6 +380,7 @@
 				}else{
 					$response['porcentaje_contestadas'] = ($prTablero * 100) / $countConcursantes;
 				}
+				// no contestadas
 				if($countConcursantes > $prTablero){
 					$diferencia = ($countConcursantes - $prTablero);
 					$response['no_contestadas'] = $diferencia;
