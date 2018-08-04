@@ -329,14 +329,25 @@
 			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
 			try{
 				$concursante = new Concursante();
-				$sentencia = 'SELECT SUM(CASE WHEN NOT ISNULL (t.RESPUESTA)  then 1 else 0 end) contestadas ,
-					SUM(CASE WHEN ISNULL(t.RESPUESTA)  then 1 else 0 end) nocontestadas
-					FROM tablero_puntajes t  WHERE t.ID_CONCURSO = 	?
-					AND t.ID_RONDA = ? AND t.PREGUNTA = ?';
-
+				$sentencia = 'SELECT COUNT(*) total FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ?';
 				$valores =['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda, 'PREGUNTA'=>$pregunta];
-				$response['marcadores']= $this->query($sentencia,$valores,true);
-				$response['cont_concursantes'] = $concursante->getCountConcursates($concurso);
+				$countConcursantes  = $concursante->getCountConcursates($concurso)[0]['total'];
+				$prTablero = $this->query($sentencia , $valores)[0]['total'];
+				// CONTESTADAS
+				$response['contestadas']= $prTablero;
+				if($prTablero <= 0){
+					$response['porcentaje_contestadas'] = 0;
+				}else{
+					$response['porcentaje_contestadas'] = ($prTablero * 100) / $countConcursantes;
+				}
+				if($countConcursantes > $prTablero){
+					$diferencia = ($countConcursantes - $prTablero);
+					$response['no_contestadas'] = $diferencia;
+					$response['por_no_contestadas'] = (($diferencia * 100) / $countConcursantes);
+				}else{
+					$response['no_contestadas'] = 0;
+					$response['por_no_contestadas'] = 0;
+				}
 				$response['estado']= 1;
 				$response['mensaje']='Marcadores obtenidos con exito';
 

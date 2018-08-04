@@ -42,10 +42,9 @@ function lanzarPregunta(segundos,boton){
                 // activamos el cronometro
 				cronometro(segundos,function(){
                     todosContestaron();
-                    getActividadPregunta();
                 },function(){
                     stopExecPerSecond= true;
-                    getMarcadorPregunta();
+                    afterAnswer();
                 });
                 var respuestas = response.respuestas;
                 var contenido = "<tr>";
@@ -71,15 +70,31 @@ function todosContestaron(){
    var concurso = $("#ID_CONCURSO").val();
    var ronda = $("#ID_RONDA").val();
    var pregunta = $("#ID_PREGUNTA").val();
-   $.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='+concurso+'&ID_RONDA='+ronda
-    +'&ID_PREGUNTA='+pregunta+'&NIVEL_EMPATE=' + document.getElementById('NIVEL_EMPATE').value, 
-      function(data) {
-        if(data.estado == 1){
+   var nivelEmpate = $("#NIVEL_EMPATE").val();
+   $.ajax({
+       url: 'class/TableroPuntaje.php',
+       type: 'GET',
+       dataType: 'json',
+       data: {'functionTablero':'todosContestaron','ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA': pregunta, 'NIVEL_EMPATE':nivelEmpate},
+       success:function(response){
+        if(response.estado == 1){
             stopExecPerSecond= true;
-            //obtenemos como les fue a los participantes
-            getMarcadorPregunta();
-         }
-   },'json');
+            notFinish = true;
+            afterAnswer();
+        }
+        //getMarcadorPregunta();
+        getActividadPregunta();
+       },
+       error:function(error){
+        console.log(error);
+       }
+   });
+}
+
+function afterAnswer(){
+    $("#reloj-cronometro").css("display","none");
+    $("#btn-siguiente").show(300);
+    $("#animated text").text("00:00");
 }
 
 /**
@@ -106,43 +121,16 @@ function getMarcadorPregunta(){
     var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
     $.ajax({
-        url: 'class/TableroPuntaje.php?functionTablero=getMarcadorPregunta',
+        url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
-        data: 'ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta,
+        data: {'ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA':pregunta,'functionTablero':'getMarcadorPregunta'},
         success:function(response){
-            if(response.estado == 1){
-                notFinish = true;
-                stopExecPerSecond= true;
-                $("#reloj-cronometro").css("display","none");
-                $("#animated text").text(0);
-                var marcadores = response.marcadores;
-                var correctas = 0;
-                var incorrectas = 0;
-                for (var m= 0; m< marcadores.length ; m++ ){
-                    correctas = marcadores[m].correctas;
-                    incorrectas = marcadores[m].incorrectas;
-                }
-                var concursantes = response.cont_concursantes[0].total;
-                $("#btn-siguiente").show(300);
-                var porcentajeCorrectas = ((correctas * 100) / concursantes) + '%';
-                $("#num_correctas").text(correctas);
-                $("#histo-correctas").css({
-                    'width': porcentajeCorrectas,
-                    'background-color': 'green'
-                });
-                var porcentajeIncorrectas = ((incorrectas * 100) / concursantes) + '%';
-                $("#num_incorrectas").text(incorrectas);
-                $("#histo-incorrectas").css({
-                    'width': porcentajeIncorrectas,
-                    'background-color': 'red'
-                });
-                getActividadPregunta();
-            }else{
-                alert(response.mensaje);
-            }
+            console.log(response);
         },
-        error:function(error){}
+        error:function(error){
+            console.log(error);
+        }
     });
 }
 
@@ -154,42 +142,27 @@ function getActividadPregunta(){
     var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
     $.ajax({
-        url: 'class/TableroPuntaje.php?functionTablero=getActividadPregunta',
+        url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
-        data: 'ID_CONCURSO='+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta,
+        data: {'ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA':pregunta,'functionTablero':'getActividadPregunta'},
         success:function(response){
             if(response.estado == 1){
-                var marcadores = response.marcadores;
-                var contestadas = 0;
-                var nocontestadas = 0;
-                for (var m= 0; m< marcadores.length ; m++ ){
-                    contestadas = marcadores[m].contestadas;
-                    nocontestadas = marcadores[m].nocontestadas;
-                }
-                var concursantes = response.cont_concursantes[0].total;
-                var porcentajaContestadas = ((contestadas * 100) / concursantes) + '%';
-                $("#num_contestadas").text(contestadas);
+                $("#num_contestadas").text(response.contestadas);
                 $("#histo-contestadas").css({
-                    'width': porcentajaContestadas,
-                    'background-color': '#BDBDBD'
+                    'width': response.porcentaje_contestadas + "%",
+                    'background-color': 'gray'
                 });
-                var porcentajeNocontestadas = ((nocontestadas * 100) / concursantes) + '%';
-                if(nocontestadas == null){ 
-                    porcentajeNocontestadas = '100%';
-                    nocontestadas = concursantes;
-                }
-                $("#num_nocontestadas").text(nocontestadas);
+                $("#num_nocontestadas").text(response.no_contestadas);
                 $("#histo-nocontestadas").css({
-                    'width': porcentajeNocontestadas,
-                    'background-color': '#848484'
+                    'width': response.por_no_contestadas + "%",
+                    'background-color': 'black'
                 });
-
-            }else{
-                alert(response.mensaje);
             }
         },
-        error:function(error){}
+        error:function(error){
+            console.log(error);
+        }
     });
 }
 

@@ -51,15 +51,12 @@ function initTimerPerSecond(segundos,functionPerSecond, finishFunction){
 		if((contador % 2) == 0){
 			functionPerSecond();
 		}
-
 		if(contador == segundos && !notFinish){
 			finishFunction();
 		}
-
 		if(contador == segundos || stopExecPerSecond){
 			clearInterval(timerPerSecond);
 		}
-
 		contador ++;
 	},1000);
 }
