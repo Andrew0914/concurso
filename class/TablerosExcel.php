@@ -61,7 +61,7 @@
 			$puntajes = $tabPuntaje->getResultados($concurso)['tablero'];
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Puntuaciones Detalle');
-			$objSheet->getStyle('A1:F1')->getFont()->setBold(true)->setSize(12);
+			$objSheet->getStyle('A1:H1')->getFont()->setBold(true)->setSize(12);
 			$objSheet->getCell('A1')->setValue('RONDA');
 			$objSheet->getCell('B1')->setValue('CONCURSANTE');
 			$objSheet->getCell('C1')->setValue('PREGUNTA');

@@ -5,7 +5,6 @@
 	require_once dirname(__FILE__) . '/Reglas.php';
 	require_once dirname(__FILE__) . '/Categorias.php';
 	require_once dirname(__FILE__) . '/Preguntas.php';
-	require_once dirname(__FILE__) . '/Turnos.php';
 	require_once dirname(__FILE__) . '/Respuestas.php';
 
 	class PreguntasGeneradas extends BaseTable{
