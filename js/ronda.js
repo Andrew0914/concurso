@@ -51,30 +51,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		success:function(response){
 			if(response.estado == 1){
 				if(response.termino == 1){
-					if(response.empate == 1){
-						// hubo empate 
-						var yoConcursante = response.yo_concursante;
-						var empatados = response.info_empate.empatados;
-						var soyEmpatado = false;
-						for(var t= 0; t< empatados.length ; t++){
-							if(empatados[t].ID_CONCURSANTE == yoConcursante){
-								soyEmpatado = true;
-								break;
-							}
-						}
-						if(soyEmpatado){
-							window.location.replace('inicio_desempate');
-						}else{
-							window.location.replace('concurso_finalizado');
-						}
-					}else if(response.empate == 0){
-						// fallo al calcular empate
-						console.log("Fallo al calcular empate: " + response.info_empate.mensaje);
-					}else if(response.empate == 2){
-						// termino para todos sin empate
-						window.location.replace('concurso_finalizado');
-					}
-					
+					window.location.replace('inicio_desempate');
 				}else{
 					accederRonda(response.ronda);	
 				}
@@ -83,7 +60,6 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 			}
 		},
 		error:function(error){
-			alert("Ocurrio un error inesperado");
 			console.log(error);
 		}
 	});

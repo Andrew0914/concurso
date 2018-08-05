@@ -244,11 +244,7 @@
 					if($log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA'],'NIVEL_EMPATE'=>$nivel_empate])){
 						//actualizamos el concurso a la ronda
 						if($this->update($idConcurso,['ID_RONDA'=> $desempate['ID_RONDA'],'NIVEL_EMPATE'=>$nivel_empate] )){
-							$master = new TableroMaster();
-							//cerramos el tablero master actual
-							if($master->cerrarTablero($idTableroMaster)){
-								$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
-							}
+							$rs = ['estado' => 1 , 'mensaje' => 'Accedio al desempate', 'ronda'=>$desempate];
 						}
 					}
 				}

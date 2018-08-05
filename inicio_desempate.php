@@ -23,32 +23,9 @@
 			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
 			<h4 id="mensaje_concurso">
 				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
-				<br><br>
-				Ultimo empate generado
-				<br> <br>
-				<?php 
-					$tablero = new TableroPosiciones();
-					$empate = $tablero->esEmpateByConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
-					if($empate['estado'] == 1){
-						$empatados = $empate['empatados'];
-						echo "<table class='table table-sm table-bordered table-geo'>";
-						echo "<thead>";
-						echo "<tr> <th> # </th>";
-						echo "<th> Concursante </th>";
-						echo "<th> Puntaje </th> </tr>";
-						echo "</thead>";
-						foreach ($empatados as $e) {
-							echo "<tr>";
-							echo "<td>". $e['ID_CONCURSANTE'] . "</td>";
-							echo "<td>". $e['CONCURSANTE'] . "</td>";
-							echo "<td>". $e['PUNTAJE_TOTAL'] . "</td>";
-							echo "</tr>";
-						}
-						echo "</table>";
-					}else{
-						echo "NADIE EMPATO";
-					}
-				?>
+				<br>
+				El concurso ha terminado, los puntajes se estan calculando para determinar las posiciones y si ocurrió un empate
+				por favor espera a que el moderador indique que puedes dar click en <b>Continuar</b>
 				<br>
 				<button class="btn btn-geo" onclick="accederDesempate(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_CONCURSANTE); ?>)">
 					Continuar

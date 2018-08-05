@@ -123,21 +123,45 @@
 			}
 		}
 
+		/**
+		 * Determina si el concursante puede acceder al desempate o no 
+		 * @param  integer $idConcurso  
+		 * @param  integer $concursante 
+		 * @return array              
+		 */
 		public function accederDesempate($idConcurso, $concursante){
-			$concurso = new Concurso();
-			$concurso = $concurso->getConcurso($idConcurso);
-			$ronda = new Rondas();
 			$tabMaster = new TableroMaster();
-			$lastMaster = $tabMaster->getLast($idConcurso);
-			$tabPosiciones = new TableroPosiciones();
-			$posiciones = $tabPosiciones->obtenerPosicionesActuales($lastMaster['ID_TABLERO_MASTER']);
-			foreach ($posiciones as $p) {
-				if($p['ID_CONCURSANTE'] == $concursante AND $p['EMPATADO'] == 1){
-					return ['estado'=>1,
-								'mensaje'=>'Has empatado con alguien',
-								'ronda'=>$ronda->getRondaDesempate($concurso['ID_ETAPA'])];				}
+			$last = $tabMaster->getLast($idConcurso);
+			// validamos que las puntuaciones ya esten listas para usarse
+			if($last['POSICIONES_GENERADAS'] != 1 AND $last['CERRADO'] != 0){
+				return ['estado' => 0 
+				, 'mensaje' => 'Aun no se determinan los puntajes por favor espera a que el moderador lo indique']; 
 			}
-			return ['estado'=>0 , 'mensaje'=>'No has empadado con alguien, finalizo el concurso para ti'];
+			// si ya fue validado
+			$tabPosiciones = new TableroPosiciones();
+			$mPosiciones = $tabPosiciones->obtenerPosicionesActuales($last['ID_TABLERO_MASTER']);
+			$es_emaptado = 0;
+			foreach ($mPosiciones as $pos) {
+				if($pos['ID_CONCURSANTE'] == $concursante){
+					if($pos['EMPATADO'] == 1){
+						$es_emaptado = 1;
+						break;
+					}
+				}
+			}
+			if($es_emaptado == 1){
+				$concurso = new Concurso();
+				$concurso = $concurso->getConcurso($idConcurso);
+				$ronda = new Rondas();
+				$rondaDesempate = $ronda->getRondaDesempate($concurso['ID_ETAPA']);
+				return ['estado' => 1 
+					, 'mensaje'=> 'Estas empatdo' 
+					, 'posiciones'=>$mPosiciones 
+					, 'empatado'=>$es_emaptado 
+					, 'ronda'=>$rondaDesempate['ID_RONDA']];
+			}
+
+			return ['estado'=> 1, 'mensaje' => 'No ha ocurrido empate', 'empatado'=>$es_emaptado];
 		}
 
 		/**

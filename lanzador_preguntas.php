@@ -10,6 +10,8 @@
 		require_once 'class/RondasLog.php';
 		require_once 'class/Categorias.php';
 		require_once 'class/TableroPuntaje.php';
+		require_once 'class/TableroMaster.php';
+
 		$sesion = new Sesion();
 		$generadas = new PreguntasGeneradas();
 		$etapa = new Etapas();
@@ -102,6 +104,11 @@
 				<?php 
 					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
 					if($todasHechas){
+						if($ronda['IS_DESEMPATE'] == 1){
+							$master = new TableroMaster();
+							$last_master = $master->getLast($sesion->getOne(SessionKey::ID_CONCURSO));
+							$master->cerrarTablero($last_master['ID_TABLERO_MASTER']);
+						}
 				?> 
 				<!-- CAMBIO DE RONDA -->
 				<div class="row" style="width: 100%">

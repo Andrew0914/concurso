@@ -41,14 +41,23 @@ function setConcursantes(concurso){
 }
 
 function accederDesempate(idConcurso,concursante){
-	$.get('class/Concursante.php?ID_CONCURSO='+idConcurso
-		+"&ID_CONCURSANTE=" + concursante
-		+"&functionConcursante=accederDesempate",
-	 function(data) {
-		if(data.estado == 1){
-			accederRonda(data.ronda.ID_RONDA);
-		}else{
-			window.location.replace('concurso_finalizado');
+	$.ajax({
+		url: 'class/Concursante.php',
+		type: 'GET',
+		dataType: 'json',
+		data: {'functionConcursante':'accederDesempate' , 'ID_CONCURSO':idConcurso,'ID_CONCURSANTE':concursante},
+		success:function(response){
+			if(response.estado == 1){
+				if(response.emptado == 1){
+					alert(response.mensaje);
+					accederRonda(response.ronda);
+				}else{
+					alert(response.mensaje);
+					window.location.replace('concurso_finalizado');
+				}
+			}
+		},error:function(error){
+			console.log(error);
 		}
-  	},'json');
+	});
 }
