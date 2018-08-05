@@ -1,3 +1,4 @@
+
 <?php 
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/Respuestas.php';
@@ -24,19 +25,25 @@
 		 * @param  [assoc array] $data 
 		 * @return [assoc array]       
 		 */
-		public function preRespuesta($preRespuesta){
-			unset($preRespuesta['functionTablero']);
-
-			$preRespuesta = ['ID_CONCURSO'=>$preRespuesta['ID_CONCURSO'],
-							'ID_RONDA'=>$preRespuesta['ID_RONDA'],
-							'ID_CONCURSANTE'=>$preRespuesta['ID_CONCURSANTE'],
-							'PREGUNTA_POSICION'=>$preRespuesta['PREGUNTA_POSICION'],
-							'PREGUNTA'=>$preRespuesta['PREGUNTA'],
-							'NIVEL_EMPATE'=>$preRespuesta['NIVEL_EMPATE']];
-							
-			if(!$this->existeEnTablero($preRespuesta)){
-				$preRespuesta['RESPUESTA_CORRECTA'] = 0;
-				if($this->save($preRespuesta)){
+		public function preRespuesta($data){
+			$final = $data['final'];
+			unset($data['functionTablero']);
+			unset($data['final']);
+			$data = ['ID_CONCURSO'=>$data['ID_CONCURSO'],
+							'ID_RONDA'=>$data['ID_RONDA'],
+							'ID_CONCURSANTE'=>$data['ID_CONCURSANTE'],
+							'PREGUNTA_POSICION'=>$data['PREGUNTA_POSICION'],
+							'PREGUNTA'=>$data['PREGUNTA'],
+							'NIVEL_EMPATE'=>$data['NIVEL_EMPATE']];
+			if(!$this->existeEnTablero($data)){
+				if($final == 1){
+					$data['RESPUESTA_CORRECTA'] = 0;
+				}
+				if($this->save($data)){
+					if($final == 1){
+						$this->generaPuntaje($data['ID_CONCURSANTE'],$data['ID_CONCURSO'],$data['ID_RONDA']
+											,$data['PREGUNTA'] , $data['RESPUESTA'],0,0);
+					}
 					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
 				}
 				return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
@@ -44,6 +51,11 @@
 			return ['estado' => 2, 'mensaje'=>'Ya existe la pre respuesta almacenada'];	
 		}
 
+		/**
+		 * Valida si existe en el tablero para no volver a insertarla
+		 * @param  [type] $preRespuesta [description]
+		 * @return [type]               [description]
+		 */
 		public function existeEnTablero($preRespuesta){
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA = ? AND NIVEL_EMPATE = ?";
 			return count($this->get($where, $preRespuesta)) > 0;
@@ -448,7 +460,7 @@
 				$response['estado'] = 1;
 			}catch(Exception $ex){
 				$response['estado'] = 0;
-				$response['mensaje'] = 'No se obtuvo tu puntaje :'. $ex->getMessage();
+				$response['mensaje'] = 'No se obtuvo tu puntaje :'. $ex->getTraceAsString();
 			}
 
 			return $response;

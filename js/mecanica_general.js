@@ -115,13 +115,14 @@ function eligeInciso(boton){
 	 $jq(boton).addClass('btn-checked');
 	 // checamos el radio oculto
 	 $jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked',true);
-	 sendPreRespuestas();
+	 sendPreRespuestas(0);
 }
 
 /**
  * Rregistra la accion previa a mandar la respuesta , para validar que todos hayan contestado
+ * @param  integer final 
  */
-function sendPreRespuestas(){
+function sendPreRespuestas(final){
 	var posicion = $jq("#PREGUNTA_POSICION").val();
 	var concurso = $jq("#ID_CONCURSO").val();
 	var ronda = $jq("#ID_RONDA").val();
@@ -134,11 +135,12 @@ function sendPreRespuestas(){
 			'ID_CONCURSANTE':concursante,
 			'PREGUNTA_POSICION':posicion,
 			'PREGUNTA': pregunta,
+			'final':final,
 			'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
 		},
 		function(data, textStatus, xhr) {
 			if(data.estado == 0){
-				sendPreRespuestas(idPregunta);
+				sendPreRespuestas(final);
 			}else{
 				console.log('Se mando pre respuesta');
 			}
@@ -183,7 +185,7 @@ function sendRespuesta(){
 	// SI NO EXISTE OPCION SELECCIONADA
 	if(respuesta == ''){
 		// solo mandamso la pre respuesta (con la respuesta nula)
-		sendPreRespuestas();
+		sendPreRespuestas(1);
 		afterSend();
 	}else{
 		// MANDAMOS LA RESPUESTA SELECCIONADA
@@ -251,11 +253,20 @@ function afterSend(){
 				$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
 				$jq("#content-respuestas").html("");
 			}else{
-				alert(response.mensaje);
+				$jq("#resultado-mi-pregunta").html(response.mensaje);
+				$jq("#cronometro-content").css("display","none");
+				$jq("#animated text").text(0);
+				$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
+				$jq("#content-respuestas").html("");
 			}
 		},
 		error: function(error){
-			alert("No pudimos mostrate el resultado de tu pregunta");
+			$jq("#resultado-mi-pregunta").html("No pudimos mostrarte el marcador de tu pregunta :( ");
+			$jq("#cronometro-content").css("display","none");
+			$jq("#animated text").text(0);
+			$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
+			$jq("#content-respuestas").html("");
+			console.log("error mi marcador");
 			console.log(error);
 		}
 	});

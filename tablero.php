@@ -31,12 +31,7 @@
 	<section class="centrado">
 		<br>
 		<div class="row">
-			<div class="col-md-2 offset-md-8">
-				<button class="btn btn-geo btn-block" id="btnObtenerPuntaje" onclick="location.reload();" >
-					Actualizar tablero
-				</button>
-			</div>
-			<div class="col-md-2">
+			<div class="col-md-4 offset-md-8">
 				<?php 
 					switch ($empate['estado']) {
 						case 0:

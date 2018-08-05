@@ -26,7 +26,7 @@
 				<br>
 				El concurso ha terminado, los puntajes se estan calculando para determinar las posiciones y si ocurrió un empate
 				por favor espera a que el moderador indique que puedes dar click en <b>Continuar</b>
-				<br>
+				<br><br>
 				<button class="btn btn-geo" onclick="accederDesempate(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO).','.$sesion->getOne(SessionKey::ID_CONCURSANTE); ?>)">
 					Continuar
 				</button>

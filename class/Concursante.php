@@ -131,6 +131,10 @@
 		 */
 		public function accederDesempate($idConcurso, $concursante){
 			$tabMaster = new TableroMaster();
+			if(count($tabMaster->getTablerosMasters($idConcurso)) <= 0){
+				return ['estado' => 0 
+				, 'mensaje' => 'Aun no se genera ninguna tablero para determinar las puntuaciones,por favor espera a que el moderador lo genere']; 
+			}
 			$last = $tabMaster->getLast($idConcurso);
 			// validamos que las puntuaciones ya esten listas para usarse
 			if($last['POSICIONES_GENERADAS'] != 1 AND $last['CERRADO'] != 0){

@@ -91,7 +91,9 @@ function todosContestaron(){
 }
 
 function afterAnswer(){
-    getMarcadorPregunta();
+    setTimeout(function(){
+        getMarcadorPregunta();
+    },1000);
 }
 
 /**

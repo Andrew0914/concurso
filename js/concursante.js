@@ -55,6 +55,8 @@ function accederDesempate(idConcurso,concursante){
 					alert(response.mensaje);
 					window.location.replace('concurso_finalizado');
 				}
+			}else{
+				alert(response.mensaje);
 			}
 		},error:function(error){
 			console.log(error);

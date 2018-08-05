@@ -23,7 +23,6 @@
                 $password = $settings['database']['password'];
                 $database = $settings['database']['schema'];
                 //creamos el objeto
-                
                 parent::__construct($host, $usuario, $password, $database);
 
                 // si sucedio un error

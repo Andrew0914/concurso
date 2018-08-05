@@ -62,7 +62,7 @@
 		<div class="row">
 			<div class="col-md-12 centrado">
 				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					<h5 class="monserrat-bold">Ver Puntajes</h5>
+					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>
 				</button>
 			</div>
 		</div>
