@@ -259,7 +259,13 @@ function afterSend(){
 }
 
 function showPreguntaPaso(response){
-	$("#mdl-pr-paso").modal();
+	// preparo tambien mi pantalla para el preliminar
+	$("body").removeClass('azul');
+	$("body").addClass('blanco');
+	$("#card-inicio").hide(300);
+	$("#pregunta").show(300);
+	// ABRIMOS EL MODAL
+	$("#mdl-pr-paso").modal({backdrop: 'static', keyboard: false});
 	// segundo para cada pregunta
 	var segundos = $("#segundos_ronda").val();
 	//cambiamos la vista
@@ -329,8 +335,10 @@ function afterSendPaso(){
 				$("#resultado-mi-pregunta").html(mensaje);
 				$("#cronometro-content-paso").css("display","none");
 				$("#animated-paso text").text(0);
-				$("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
+				$("#pregunta p").text("Termino tu pregunta de roba puntos");
 				$("#content-respuestas-paso").html("");
+				$("#content-respuestas").html("");
+				$("#btn-paso").hide(300);
 				//cerramos el modal de robapuntos
 				$('#mdl-pr-paso').modal('hide');
 			}else{
@@ -355,7 +363,7 @@ function terminarParticipacion(){
 				if(response.termino_ronda == 1){
 					window.location.replace('inicio_desempate');
 				}else{
-					alert(response.mensaje);
+					alert("Aun o termina tu la ronda por completo.");
 				}
 			}else{
 				alert("Vuelve a intentar :( ");

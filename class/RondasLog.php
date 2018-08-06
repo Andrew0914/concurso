@@ -229,6 +229,16 @@
 		public function getLogs($idConcurso){
 			return $this->get("ID_CONCURSO = ?", ['ID_CONCURSO'=>$idConcurso]);
 		}
+
+		public function inicioRonda($concurso){
+			$valores = ['ID_CONCURSO'=>$concurso['ID_CONCURSO'] 
+						,'ID_RONDA'=>$concurso['ID_RONDA']
+						,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA']
+						,'NIVEL_EMPATE'=>$concurso['NIVEL_EMPATE']];
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA= ? AND NIVEL_EMPATE = ?";
+			$rs = $this->get($where,$valores); 
+			return $rs[0]['INICIO'] == 1 AND $rs[0]['FIN'] == 0 ;
+		}
 	}
 	/**
 	 * POST REQUESTS
@@ -246,7 +256,4 @@
 			break;
 		}
 	}
-
-	/*$obj = new RondasLog();
-	echo "Rondas: ". json_decode($obj->rondasTerminadasCategoria(62,1));*/
 ?>

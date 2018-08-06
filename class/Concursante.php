@@ -130,18 +130,20 @@
 		 * @return array              
 		 */
 		public function accederDesempate($idConcurso, $concursante){
+			
 			$tabMaster = new TableroMaster();
+			// debe existir tableros calculados
 			if(count($tabMaster->getTablerosMasters($idConcurso)) <= 0){
 				return ['estado' => 0 
 				, 'mensaje' => 'Aun no se genera ninguna tablero para determinar las puntuaciones,por favor espera a que el moderador lo genere']; 
 			}
+			// el ultimo tablero no debe estar cerrado
 			$last = $tabMaster->getLast($idConcurso);
-			// validamos que las puntuaciones ya esten listas para usarse
 			if($last['CERRADO'] != 0){
 				return ['estado' => 0 
 				, 'mensaje' => 'Aun no se determinan los puntajes por favor espera a que el moderador lo indique']; 
 			}
-
+			// el ultimo tablero ya debe tener todos los calculos hechos
 			if($last['POSICIONES_GENERADAS'] != 1){
 				return ['estado' => 0 
 				, 'mensaje' => 'Falta por calcularse las posicioens y determina posibles empates por favor espera a que el moderador lo indique']; 
@@ -159,9 +161,20 @@
 				}
 			}
 			if($es_emaptado == 1){
+				// si es que esto empatado la ronda de empata tiene que ser inicializada para que entre
 				$concurso = new Concurso();
 				$concurso = $concurso->getConcurso($idConcurso);
 				$ronda = new Rondas();
+
+				if(!$ronda->getRonda($concurso['ID_RONDA'])['IS_DESEMPATE']){
+					return ['estado' => 0 
+					, 'mensaje' => 'Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados']; 
+				}
+				$log = new RondasLog();
+				if(!$log->inicioRonda($concurso)){
+					return ['estado' => 0 
+					, 'mensaje' => 'Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados']; 
+				}
 				$rondaDesempate = $ronda->getRondaDesempate($concurso['ID_ETAPA']);
 				return ['estado' => 1 
 					, 'mensaje'=> 'Estas empatdo' 
@@ -189,11 +202,7 @@
 					break;
 				}
 			}
-			if($terminoRonda != 1){
-				return ['estado'=>1 , 'termino_ronda'=>$terminoRonda , 'mensaje'=>'Aun no termina la ronda, tu participacion ordinaria termino, pero es posible que aun puedas recibir preguntas de roba puntos'];
-			}
-			
-			return ['estado'=>1 , 'termino_ronda'=>$terminoRonda , 'mensaje'=>'Ha concluido la ronda'];
+			return ['estado'=>1 , 'termino_ronda'=>$terminoRonda ];
 		}
 	}
 

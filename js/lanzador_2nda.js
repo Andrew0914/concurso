@@ -49,7 +49,7 @@ function lanzarPregunta(segundos,boton){
                 for(var r = 0; r < respuestas.length; r++){
                     contenido += "<td><h4>" + respuestas[r].INCISO + " ) ";
                     if(respuestas[r].ES_IMAGEN == 1){
-                        contenido += "<img src='image/respuestas/"respuestas[r].RESPUESTA + "'/>";
+                        contenido += "<img src='image/respuestas/" + respuestas[r].RESPUESTA + "'/>";
                     }else{
                         contenido += respuestas[r].RESPUESTA;
                     }
