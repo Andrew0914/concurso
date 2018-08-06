@@ -325,11 +325,14 @@ function afterSendPaso(){
 					mensaje += " INCORRECTA </h4>";
 					mensaje += "<img src='image/incorrecta.png'/>"
 				}
-				$("#resultado-mi-pregunta-paso").html(mensaje);
+				// motramos el marcador de la pregunta en la pantalla principal
+				$("#resultado-mi-pregunta").html(mensaje);
 				$("#cronometro-content-paso").css("display","none");
 				$("#animated-paso text").text(0);
-				$("#pregunta-paso p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
+				$("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
 				$("#content-respuestas-paso").html("");
+				//cerramos el modal de robapuntos
+				$('#mdl-pr-paso').modal('hide');
 			}else{
 				alert(response.mensaje);
 			}
@@ -350,42 +353,17 @@ function terminarParticipacion(){
 		success:function(response){
 			if(response.estado == 1){
 				if(response.termino_ronda == 1){
-					if(response.calculo_empate == 1){
-						if(response.empate == 1){
-							// hubo empate 
-							var yoConcursante = response.yo_concursante;
-							var empatados = response.info_empate.empatados;
-							var soyEmpatado = false;
-							for(var t= 0; t< empatados.length ; t++){
-								if(empatados[t].ID_CONCURSANTE == yoConcursante){
-									soyEmpatado = true;
-									break;
-								}
-							}
-							if(soyEmpatado){
-								window.location.replace('inicio_desempate');
-							}else{
-								window.location.replace('concurso_finalizado');
-							}
-						}else if(response.empate == 0){
-							// fallo al calcular empate
-							alert("Fallo al calcular empate: " + response.info_empate.mensaje);
-						}else if(response.empate == 2){
-							// termino para todos sin empate
-							window.location.replace('concurso_finalizado');
-						}
-					}else{
-						alert(response.mensaje);
-					}
+					window.location.replace('inicio_desempate');
 				}else{
 					alert(response.mensaje);
 				}
 			}else{
+				alert("Vuelve a intentar :( ");
 				console.log('Fallo el listener de cambio de ronda: ' + response.mensaje);
 			}
 		},
 		error:function(error){
-			alert("Ocurrio un error inesperado");
+			alert("Vuelve a intentar :( ");
 			console.log(error);
 		}
 	});

@@ -59,6 +59,8 @@
 			<button type="button" name="btn_generar_concursantes" id="btn_generar_concursantes" class="btn btn-geo" onclick="generaConcursantes()">
 				Generar concursantes
 			</button>
+			<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
+			<br> <br>
 			<button type="button" name="btn_generar_concurso" id="btn_generar_concurso" class="btn btn-geo" onclick="generarConcurso($('#form-genera-concurso'))" style="display: none;">
 				Generar concurso
 			</button>

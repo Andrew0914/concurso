@@ -61,7 +61,7 @@
 			$puntajes = $tabPuntaje->getResultados($concurso)['tablero'];
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Puntuaciones Detalle');
-			$objSheet->getStyle('A1:H1')->getFont()->setBold(true)->setSize(12);
+			$objSheet->getStyle('A1:I1')->getFont()->setBold(true)->setSize(12);
 			$objSheet->getCell('A1')->setValue('RONDA');
 			$objSheet->getCell('B1')->setValue('CONCURSANTE');
 			$objSheet->getCell('C1')->setValue('PREGUNTA');
@@ -70,6 +70,7 @@
 			$objSheet->getCell('F1')->setValue('CATEGORIA');
 			$objSheet->getCell('G1')->setValue('ROBA PUNTOS');
 			$objSheet->getCell('H1')->setValue('PUNTAJE');
+			$objSheet->getCell('I1')->setValue('RONDA EMPATE');
 			$indexCelda = 2;
 			foreach ($puntajes as $pu) {
 				$objSheet->getCell('A'.$indexCelda)->setValue($pu['RONDA']);
@@ -80,6 +81,11 @@
 				$objSheet->getCell('F'.$indexCelda)->setValue($pu['CATEGORIA']);
 				$objSheet->getCell('G'.$indexCelda)->setValue($pu['PASO_PREGUNTAS']);
 				$objSheet->getCell('H'.$indexCelda)->setValue($pu['PUNTAJE']);
+				if($pu['NIVEL_EMPATE'] == 0){
+					$objSheet->getCell('I'.$indexCelda)->setValue("No aplica");
+				}else{
+					$objSheet->getCell('I'.$indexCelda)->setValue($pu['NIVEL_EMPATE']);
+				}
 				$indexCelda++;
 			}
 

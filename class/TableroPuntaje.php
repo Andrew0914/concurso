@@ -277,7 +277,7 @@
 				IF(tp.PASO_PREGUNTA = 1 ,
 					CONCAT('Paso pregunta a ' , (SELECT CONCURSANTE FROM concursantes cp WHERE cp.ID_CONCURSANTE = tp.CONCURSANTE_PASO )),
 					'NO')  AS PASO_PREGUNTAS ,
-				tp.PUNTAJE
+				tp.PUNTAJE,tp.NIVEL_EMPATE
 				FROM tablero_puntajes tp 
 				LEFT JOIN rondas r ON tp.ID_RONDA = r.ID_RONDA
 				LEFT JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE
@@ -296,7 +296,7 @@
 				}
 				$values['ID_CONCURSO'] = $concurso;
 				$query.= " UNION ";
-				$query.= " SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE
+				$query.= " SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE,'0' as NIVEL_EMPATE
 					FROM tablero_pasos tps
 					LEFT JOIN rondas r ON tps.ID_RONDA = r.ID_RONDA
 					LEFT JOIN concursantes c ON tps.ID_CONCURSANTE = c.ID_CONCURSANTE

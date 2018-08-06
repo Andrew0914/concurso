@@ -49,16 +49,15 @@ function accederDesempate(idConcurso,concursante){
 		success:function(response){
 			if(response.estado == 1){
 				if(response.empatado == 1){
-					alert(response.mensaje);
 					accederRonda(response.ronda);
 				}else{
-					alert(response.mensaje);
 					window.location.replace('concurso_finalizado');
 				}
 			}else{
 				alert(response.mensaje);
 			}
 		},error:function(error){
+			alert("Vuelve a intentar :( ");
 			console.log(error);
 		}
 	});

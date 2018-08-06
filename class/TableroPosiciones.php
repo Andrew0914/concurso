@@ -189,7 +189,7 @@
 		 * @return integer          
 		 */
 		public function getCountEmpatados($last_master){
-			$sentencia = "SELECT COUNT(*) as TOTAL FROM tablero_posiciones WHERE ID_TABLERO_MASTER = ?";
+			$sentencia = "SELECT COUNT(*) as TOTAL FROM tablero_posiciones WHERE ID_TABLERO_MASTER = ? AND EMPATADO = 1";
 			$valores = ['ID_TABLERO_MASTER' => $last_master];
 			return $this->query($sentencia,$valores)[0]['TOTAL'];
 		}

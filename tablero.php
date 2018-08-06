@@ -48,6 +48,8 @@
 							break;
 					}
 				?>
+				<br>
+				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
 			</div>
 		</div>
 		<h1 class="title">

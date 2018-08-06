@@ -36,12 +36,12 @@
 			$objConcurso = $objConcurso->getConcurso($concurso);
 			$rondas = new Rondas();
 			try{
-				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos 
+				$sentencia = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos 
 						FROM tablero_pasos as t INNER JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
 						WHERE t.ID_CONCURSO = ? ";
-				$values = [':ID_CONCURSO'=>$concurso];
-				$query .= " GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC ";
-				$mejores = $this->query($query,$values,true);
+				$values = ['ID_CONCURSO'=>$concurso];
+				$sentencia .= " GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC ";
+				$mejores = $this->query($sentencia,$values,true);
 				usort($mejores,array($this,"cmp"));
 				for($i =0 ; $i < count($mejores) ; $i++) {
 					$mejores[$i]['lugar'] = $i+1;

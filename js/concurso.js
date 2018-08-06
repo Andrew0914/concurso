@@ -30,6 +30,9 @@ function generarConcurso(formulario){
         url  : 'class/Concurso.php',
         data :$(formulario).serialize()+"&functionConcurso=generaConcurso",
         dataType: "json",
+        beforeSend:function(){
+          $("#loading-s").show(300);
+        },
         success : function(response){
           if(response.estado == 1){
           	window.location.replace("panel");
@@ -102,6 +105,9 @@ function cerrarConcurso(concurso){
     type: 'POST',
     dataType: 'json',
     data: {'ID_CONCURSO': concurso , 'functionConcurso':'cerrarConcurso'},
+    beforeSend:function(){
+      $("#loading-s").show(300);
+    },
     success:function(response){
       if(response.estado == 1){
         window.location.replace('obtener_excel');
@@ -122,6 +128,9 @@ function irDesempate(concurso,tableroMaster){
     data: {'ID_CONCURSO': concurso 
           , 'functionConcurso':'irDesempate'
           , 'ID_TABLERO_MASTER' : tableroMaster},
+    beforeSend:function(){
+      $("#loading-s").show(300);
+    },
     success:function(response){
       if(response.estado == 1){
         window.location.replace('leer_preguntas');

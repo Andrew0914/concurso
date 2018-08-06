@@ -150,7 +150,7 @@
 												$mejores = $response['mejores'];
 												// obtengo los puntajes de paso tambien
 												$pasos = new TableroPaso();
-												$mejoresPaso = $pasos->getMejores($concurso)['mejores'];
+												$mejoresPaso = $pasos->getMejores($sesion->getOne(SessionKey::ID_CONCURSO))['mejores'];
 												// unifico/sumo puntajes de los ordinarios y robapuntos
 												for($x = 0 ; $x<count($mejores) ; $x++) {
 													foreach ($mejoresPaso as $mp) {

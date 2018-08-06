@@ -42,13 +42,19 @@ function lanzarPregunta(segundos,boton){
         dataType: "json",
         success : function(response){
         	if(response.estado == 1){
-                alert("El " + $("#concursante").text() + " puede obtener su pregunta" );
                 $(boton).hide(300);
                 $("#loading").show(300)
                 var respuestas = response.respuestas;
                 var contenido = "<tr>";
                 for(var r = 0; r < respuestas.length; r++){
-                    contenido += "<td><h4>" + respuestas[r].INCISO + " ) "+ respuestas[r].RESPUESTA + "</h4></td>";
+                    contenido += "<td><h4>" + respuestas[r].INCISO + " ) ";
+                    if(respuestas[r].ES_IMAGEN == 1){
+                        contenido += "<img src='image/respuestas/"respuestas[r].RESPUESTA + "'/>";
+                    }else{
+                        contenido += respuestas[r].RESPUESTA;
+                    }
+                    
+                    contenido += "</h4></td>";
                 }
                 contenido += "</tr>";
                 $("#content-respuestas tbody").html(contenido);
@@ -111,7 +117,6 @@ function tomoPaso(concursante){
                 'functionTablero':'tomoPaso'},
         success:function(response){
             if(response.estado == 1){
-                alert("El concursante puede robar la pregunta");
                 $("#btn-siguiente").hide(300);
                 $("#loading").show(300);
                 contestoPaso(concursante);

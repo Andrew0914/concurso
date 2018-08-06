@@ -104,11 +104,6 @@
 				<?php 
 					$todasHechas = $generadas->todasHechas($idConcurso,$idRonda,$categoria['ID_CATEGORIA']);
 					if($todasHechas){
-						if($ronda['IS_DESEMPATE'] == 1){
-							$master = new TableroMaster();
-							$last_master = $master->getLast($sesion->getOne(SessionKey::ID_CONCURSO));
-							$master->cerrarTablero($last_master['ID_TABLERO_MASTER']);
-						}
 				?> 
 				<!-- CAMBIO DE RONDA -->
 				<div class="row" style="width: 100%">

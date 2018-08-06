@@ -112,6 +112,9 @@ function generaTableros(concurso){
 		data: {'functionTabPosiciones': 'generaPosiciones',
 				'ID_CONCURSO' : concurso,
 				'IS_DESEMPATE' : isDesempate},
+		beforeSend:function(){
+          $("#loading-s").show(300);
+        },
 		success:function(response){
 			if(response.estado == 1){
 				window.location.replace("tablero?id_master="+response.tablero_master);

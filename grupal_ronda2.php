@@ -130,7 +130,6 @@
 			    </div>
 		      	<!-- Modal footer -->
 		    	<div class="modal-footer">
-		        	<button type="button" class="btn btn-geo" onclick="$('#mdl-pr-paso').modal('hide')">Cerrar</button>
 		      	</div>
 		    </div>
 	  	</div>

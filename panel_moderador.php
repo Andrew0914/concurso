@@ -64,6 +64,8 @@
 				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
 					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>
 				</button>
+				<br><br>
+				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
 			</div>
 		</div>
 		<br>

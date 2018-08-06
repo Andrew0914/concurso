@@ -5,7 +5,6 @@
 	require_once dirname(__FILE__) . '/Categorias.php';
 	require_once dirname(__FILE__) . '/util/Sesion.php';
 	require_once dirname(__FILE__) . '/util/SessionKey.php';
-
 	class RondasLog extends BaseTable{
 
 		protected $table = 'rondas_log';
@@ -84,6 +83,14 @@
 			$logs = $this->get($where,$valores);
 			$todasFinalizadas = 0;
 			$todas = 0;
+			// cerramos el ultimo tablero al cambio si es una ronda de desempate
+			if($es_empate){
+				$master = new TableroMaster();
+				$last_master = $master->getLast($idConcurso);
+				if(!$master->cerrarTablero($last_master['ID_TABLERO_MASTER'])){
+					return ['estado'=>0,'mensaje'=>'No se pudo ceerrar el tablero anterior para el desempate'];
+				}
+			}
 			foreach ($logs as $log) {
 				$todas++;
 				if($log['FIN'] == 0){
@@ -235,7 +242,7 @@
 				echo json_encode($log->siguienteRonda($_POST['ID_CONCURSO'],$_POST['ID_CATEGORIA'],$_POST['rondaActual'],$_POST['IS_DESEMPATE'],$_POST['NIVEL_EMPATE']));
 				break;
 			default:
-				echo  json_encode(['estado'=>0,'Operacion no valida RondasLog:POST']);
+				echo  json_encode(['estado'=>0,'mensaje'=>'Operacion no valida RondasLog:POST']);
 			break;
 		}
 	}
