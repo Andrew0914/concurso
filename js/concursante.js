@@ -48,7 +48,7 @@ function accederDesempate(idConcurso,concursante){
 		data: {'functionConcursante':'accederDesempate' , 'ID_CONCURSO':idConcurso,'ID_CONCURSANTE':concursante},
 		success:function(response){
 			if(response.estado == 1){
-				if(response.emptado == 1){
+				if(response.empatado == 1){
 					alert(response.mensaje);
 					accederRonda(response.ronda);
 				}else{

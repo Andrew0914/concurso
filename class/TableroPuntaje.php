@@ -106,8 +106,18 @@
 
 			$contestaron = $this->query($query,$valores , true)[0]['total'];
 			$concursante = new Concursante();
-			$total_concursantes = $concursante->getCountConcursates($concurso)[0]['total'];
-
+			$total_concursantes = 0;
+			$objRonda = new Rondas();
+			$objRonda = $objRonda->getRonda($ronda);
+			if($objRonda['IS_DESEMPATE'] == 1){
+				$master = new TableroMaster();
+				$master = $master->getLast($concurso);
+				$tabPocisiones = new TableroPosiciones();
+				$total_concursantes  = $tabPocisiones->getCountEmpatados($master['ID_TABLERO_MASTER']);
+			}else{
+				// si no el cumulo son todos los registrados
+				$total_concursantes = $concursante->getCountConcursates($concurso)[0]['total'];
+			}
 			return  $total_concursantes == $contestaron;
 		}
 
