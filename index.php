@@ -1,6 +1,6 @@
 <?php
 
-require_once 'class/util/Route.php';
+
 	$route = new Route();
 
 	// rutas de la app
