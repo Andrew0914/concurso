@@ -43,8 +43,18 @@
 			}
 			$objConcurso = new Concurso();
 			$aConcurso = $objConcurso->getConcurso($concurso);
+			$logs = new RondasLog();
+			$log = $logs->getLog($aConcurso['ID_RONDA'],$aConcurso['ID_CONCURSO']
+				,$aConcurso['ID_CATEGORIA'],$aConcurso['NIVEL_EMPATE']);
+			if($log['FIN'] == 1){
+				return json_encode(['estado'=>0, 'mensaje'=> 'Ya no puedes acceder al concurso por que las ronda ha finalizado']);
+			}
+			$gen = new PreguntasGeneradas();
+			if($gen->inicioLanzamiento($aConcurso['ID_RONDA'],$aConcurso['ID_CONCURSO'],$aConcurso['NIVEL_EMPATE'])){
+				return json_encode(['estado'=>0
+					, 'mensaje'=> 'No es posible que entres a este concurso, el moderador ya ha comenzado a lanzar preguntas']);
+			}
 			$sesion = new Sesion();
-
 			$valuesSesion = [SessionKey::ID_CONCURSANTE => $objConcursante[0]['ID_CONCURSANTE'] ,
 							SessionKey::CONCURSANTE => $objConcursante[0]['CONCURSANTE'],
 							SessionKey::ID_CONCURSO => $objConcursante[0]['ID_CONCURSO'],

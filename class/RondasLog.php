@@ -239,6 +239,16 @@
 			$rs = $this->get($where,$valores); 
 			return $rs[0]['INICIO'] == 1 AND $rs[0]['FIN'] == 0 ;
 		}
+
+		public function getLog($ronda,$concurso,$categoria,$nivel_empate){
+			$valores = ['ID_CONCURSO'=>$concurso
+						,'ID_RONDA'=>$ronda
+						,'ID_CATEGORIA'=>$categoria
+						,'NIVEL_EMPATE'=>$nivel_empate];
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA= ? AND NIVEL_EMPATE = ?";
+			$rs = $this->get($where,$valores); 
+			return $rs[0];
+		}
 	}
 	/**
 	 * POST REQUESTS

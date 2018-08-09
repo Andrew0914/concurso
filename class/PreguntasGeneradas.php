@@ -196,6 +196,12 @@
 			return $this->query($query,$values);
 		}
 
+		/**
+		 * Genera las preguntas exclusivamente para la 2nda ronda grupal que es distinta al resto
+		 * @param  integer $concurso 
+		 * @param  integer $ronda    
+		 * @return array           
+		 */
 		public function getPreguntas2nda($concurso,$ronda){
 			$query = "SELECT pg.PREGUNTA_POSICION,p.PREGUNTA,pg.ID_PREGUNTA,
 				pg.ID_GENERADA,pg.LANZADA,pg.HECHA,g.*,c.*,cr.ID_CONCURSANTE,cr.CONCURSANTE
@@ -261,6 +267,12 @@
 			return $this->query($query,$values);
 		}
 
+		/**
+		 * Obtiene la cantidad de preguntas generadas
+		 * @param  integer $etapa    
+		 * @param  integer $concurso 
+		 * @return array           
+		 */
 		public function getCantidadGeneradas($etapa,$concurso){
 			$rs = ['estado'=>0,'mensaje'=>'No se obtuvieron los contadores'];
 			try {
@@ -459,6 +471,12 @@
 				,'respuestas'=>$respuestas];
 		}
 
+		/**
+		 * Me devuelve la cantidad de preguntas generadas de la categoria por grado
+		 * @param  integer $categoria 
+		 * @param  integer $concurso  
+		 * @return array            
+		 */
 		public function preguntasGeneradas($categoria,$concurso){
 			$sentencia = 'SELECT "1" grado,COUNT(*) cantidad FROM preguntas_generadas pg LEFT JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA
 			WHERE p.ID_CATEGORIA = ? AND ID_GRADO = 1 AND pg.ID_CONCURSO = ?
@@ -470,6 +488,23 @@
 			WHERE p.ID_CATEGORIA = ? AND ID_GRADO = 3 AND pg.ID_CONCURSO = ?';
 			$valores = [$categoria,$concurso,$categoria,$concurso,$categoria,$concurso];
 			return $this->query($sentencia,$valores);
+		}
+
+		/**
+		 * Verifica si ya hay  preguntas lanzada para la ronda
+		 * @param  integer $ronda        
+		 * @param  integer $concurso     
+		 * @param  integer $categoria    
+		 * @param  integer $nivel_empate 
+		 * @return boolean               
+		 */
+		public function inicioLanzamiento($ronda,$concurso,$nivel_empate){
+			$valores = ['ID_CONCURSO'=>$concurso
+						,'ID_RONDA'=>$ronda
+						,'NIVEL_EMPATE'=>$nivel_empate];
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ?  AND NIVEL_EMPATE = ? AND LANZADA > 0";
+			$rs = $this->get($where,$valores);
+			return count($rs) > 0;
 		}
 
 	}
