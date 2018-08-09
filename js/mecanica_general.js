@@ -1,62 +1,66 @@
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
-var finalizar = false;
+var enPregunta = false;
 var Comet = Class.create();
-  Comet.prototype = {
-	 lanzada: 0,
-	 finish: false,
-	 url: 'class/listeners/lst_pregunta_lanzada.php',
-	 noerror: true,
-	 initialize: function() { },
-	 connect: function(){
-	 	var categoria = document.getElementById('ID_CATEGORIA').value;
-	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
+Comet.prototype = {
+	lanzada: 0,
+	finish: false,
+	url: 'class/listeners/lst_pregunta_lanzada.php',
+	noerror: true,
+	initialize: function() { },
+	connect: function(){
+		var categoria = document.getElementById('ID_CATEGORIA').value;
+		var esDesempate = document.getElementById('IS_DESEMPATE').value;
 		this.ajax = new Ajax.Request(this.url, {
-		  method: 'get',
-		  parameters: { 'lanzada' : this.lanzada , 
-						'ID_CONCURSO': document.getElementById("ID_CONCURSO").value,
-						'ID_RONDA': document.getElementById("ID_RONDA").value,
-						'ID_CATEGORIA': categoria,
-						'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value,
-						'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value},
-		  onSuccess: function(transport) {
-			 var response = transport.responseText.evalJSON();
-			 this.comet.lanzada = response['lanzada'];
-			 this.comet.handleResponse(response);
-			 this.comet.noerror = true;
-		  },
-		  onComplete: function(transport) {
-		  	var response = transport.responseText.evalJSON();
-		  	if(response.todas_lanzadas != 1){
-		  		if (!this.comet.noerror){
-					setTimeout(function(){ comet.connect() }, 1000); 
+		method: 'get',
+		parameters: { 'lanzada' : this.lanzada , 
+			'ID_CONCURSO': document.getElementById("ID_CONCURSO").value,
+			'ID_RONDA': document.getElementById("ID_RONDA").value,
+			'ID_CATEGORIA': categoria,
+			'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value,
+			'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value},
+		onSuccess: function(transport) {
+			var response = transport.responseText.evalJSON();
+			if(response.tiempo_muerto == 0){
+				this.comet.lanzada = response['lanzada'];
+				this.comet.handleResponse(response);
+			}
+			this.comet.noerror = true;
+		},
+		onComplete: function(transport) {
+			var response = transport.responseText.evalJSON();
+			if(response.todas_lanzadas != 1){
+				if(!enPregunta){
+					if(response.tiempo_muerto != 1){
+						if (!this.comet.noerror){
+							setTimeout(function(){ this.comet.connect() }, 1000); 
+						}
+						else{
+							this.comet.connect();
+							this.comet.noerror = false;
+						}
+					}else{
+						setTimeout(function(){ comet.connect(); }, 2000);
+					}
+				}else{
+					console.log("Se encuentra en pregunta");
 				}
-				else{
-					this.comet.connect();
-					this.comet.noerror = false;
-			  	}
-		  	}
-		  }
-
+			}else{
+				console.log("Todas las preguntas lanzadas: listener off");
+			}	
+		}
 		});
 		this.ajax.comet = this;
-	 },
-	 disconnect: function(){
+	},
+	disconnect: function(){
 		return true;
-	 },
-	 handleResponse: function(response){
-	 	showPregunta(response);
-	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
-	 	if(esDesempate == undefined || esDesempate == 0){
-	 		if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
-	 			finalizaRonda(response.concurso);
-	 		}
-	 	}else{
-	 		if(this.lanzada >=  document.getElementById('CANTIDAD_PREGUNTAS').value){
-	 			finalizaRonda(response.concurso);
-	 		}
-	 	}
+	},
+	handleResponse: function(response){
+		showPregunta(response);
+		if(this.lanzada == document.getElementById('PREGUNTAS_POR_CATEGORIA').value ){
+			finalizaRonda(response.concurso);
+		}
 	}
-  }
+}
 
 var comet = new Comet();
 comet.connect();
@@ -66,6 +70,7 @@ comet.connect();
  * @param  {json} response [description]
  */
 function showPregunta(response){
+	enPregunta = true;
 	// segundo para cada pregunta
 	var segundos = $jq("#segundos_ronda").val();
 	//cambiamos la vista
@@ -142,7 +147,12 @@ function sendPreRespuestas(final){
 			if(data.estado == 0){
 				sendPreRespuestas(final);
 			}else{
-				console.log('Se mando pre respuesta');
+				if(final == 1){
+					enPregunta = false;
+					if(comet.lanzada != document.getElementById('PREGUNTAS_POR_CATEGORIA').value ){
+						comet.connect();
+					}
+				}
 			}
 	},'json');
 }
@@ -205,6 +215,10 @@ function sendRespuesta(){
 				afterSend();
 				stopExecPerSecond= true;
 				notFinish = true;
+				enPregunta = false;
+				if(comet.lanzada != document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+					comet.connect();
+				}
 			  }else{
 				console.log(data.mensaje)
 			  }
@@ -237,7 +251,6 @@ function afterSend(){
 				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value,
 				'functionTablero':'miPuntajePregunta'},
 		success:function(response){
-			console.log(response);
 			if(response.estado == 1){
 				var mensaje  = "<h4>Tu respuesta fue:";
 				if(response.puntaje.RESPUESTA_CORRECTA == 1){
@@ -266,7 +279,6 @@ function afterSend(){
 			$jq("#animated text").text(0);
 			$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
 			$jq("#content-respuestas").html("");
-			console.log("error mi marcador");
 			console.log(error);
 		}
 	});
@@ -290,7 +302,6 @@ function finalizaCategoria(response){
  * @return {[type]}          [description]
  */
 function finalizaRonda(response){
-	finalizar = true;
 	initListenerCambioRonda($jq("#ID_RONDA").val(), $jq("#ID_CATEGORIA").val());
 }
 
