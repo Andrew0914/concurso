@@ -16,6 +16,7 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="content blanco centrado content-sm">
+	<?php include 'menu.php'; ?>
 	<!-- CABECERA-->
 	<header>
 		<h1>

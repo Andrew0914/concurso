@@ -11,6 +11,7 @@
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
     <body class="content content-sm blanco">
+        <?php include 'menu.php'; ?>
         <section class="centrado">
             <h1>
                 <img src="image/logo_geollin.png" />
