@@ -44,8 +44,11 @@
 				<option value=''>Selecciona una Categoria para iniciar</option>
 			</select>
 			<br>
-			<input type="text" id="CANTIDAD_PARTICIPANTES" name="CANTIDAD_PARTICIPANTES" class="form-control" placeholder="Cantidad de participantes" />
-			<br>
+			<input type="text" id="CANTIDAD_PARTICIPANTES" name="CANTIDAD_PARTICIPANTES" class="form-control" placeholder="Cantidad de participantes" /> 
+			<button class="btn btn-sm monserrat-bold" style="float: right;display: none" title="cambiar numero" id="btn-deshacer" onclick="deshacerConcursantes()" type="button">
+				<b>&times;</b>
+			</button>
+			<br><br>
 			<table class="table table-bordered table-geo" id="tbl-concursantes" style="width: 100%">
 				<thead>
 					<tr>
