@@ -12,7 +12,7 @@
  ?>
 <head>
 	<meta charset="utf-8">
-	<title>Concursante::Responder</title>
+	<title>Concursante</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">

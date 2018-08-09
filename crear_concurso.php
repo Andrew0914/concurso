@@ -10,7 +10,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Geollin</title>
+	<title>Crear Concurso</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
