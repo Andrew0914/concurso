@@ -20,23 +20,28 @@ var Comet = Class.create();
 						'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value},
 		  onSuccess: function(transport) {
 			 var response = transport.responseText.evalJSON();
-			 this.comet.lanzada = response['lanzada'];
-			 this.comet.handleResponse(response);
-			 this.comet.noerror = true;
+			 if(response.tiempo_muerto != 1 ){
+			 	this.comet.lanzada = response['lanzada'];
+			 	this.comet.handleResponse(response);
+			 	this.comet.noerror = true;
+			 }
 		  },
 		  onComplete: function(transport) {
 		  	var response = transport.responseText.evalJSON();
-		  	if(response.todas_lanzadas != 1){
-		  		if (!this.comet.noerror){
-					setTimeout(function(){ comet.connect() }, 1000); 
-				}
-				else{
-					this.comet.connect();
-					this.comet.noerror = false;
+		  	if(response.tiempo_muerto != 1){
+		  		if(response.todas_lanzadas != 1){
+			  		if (!this.comet.noerror){
+						setTimeout(function(){ comet.connect() }, 1000); 
+					}
+					else{
+						this.comet.connect();
+						this.comet.noerror = false;
+				  	}
 			  	}
+		  	}else{
+		  		setTimeout(function(){ comet.connect() }, 1500); 
 		  	}
 		  }
-
 		});
 		this.ajax.comet = this;
 	 },
@@ -45,18 +50,11 @@ var Comet = Class.create();
 	 },
 	 handleResponse: function(response){
 	 	showPregunta(response);
-	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
-	 	if(esDesempate == undefined || esDesempate == 0){
-	 		if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
-	 			finalizaRonda(response.concurso);
-	 		}
-	 	}else{
-	 		if(this.lanzada >=  document.getElementById('CANTIDAD_PREGUNTAS').value){
-	 			finalizaRonda(response.concurso);
-	 		}
-	 	}
+ 		if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+ 			finalizaRonda(response.concurso);
+ 		}	 	
 	}
-  }
+}
 
 var comet = new Comet();
 comet.connect();

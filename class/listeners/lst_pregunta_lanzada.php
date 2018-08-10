@@ -25,18 +25,28 @@
   $response = array();
   $objRonda = new Rondas(); 
   $ronda = $objRonda->getRonda($idRonda);
+  $todas_lanzadas = 0;
+  $tiempo_muerto = 0;
+  $bol_tiempo_muerto = 0;
   while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
   {
     sleep(1); // sleep 10ms to unload the CPU
+    if($tiempo_muerto >= 60){
+      $bol_tiempo_muerto = 1;
+      break;
+    }
     $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate,$nivel_empate);
     $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
     $currentLanzada = $lanzadaBD[0]['LANZADA'];
     if($lastLanzada >= $ronda['PREGUNTAS_POR_CATEGORIA']){
-      return ['todas_lanzadas' => 1];
+      $todas_lanzadas = 1;
+      break;
     }
+    $tiempo_muerto++;
   }
   // return a json array
-  $response['todas_lanzadas'] = 0;
+  $response['todas_lanzadas'] = $todas_lanzadas;
+  $response['tiempo_muerto'] = $bol_tiempo_muerto;
   $response['pregunta']= $lanzadaBD;
   $response['lanzada'] = $currentLanzada;
   echo json_encode($response);

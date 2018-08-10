@@ -49,7 +49,13 @@ function lanzarPregunta(segundos,boton){
                 var respuestas = response.respuestas;
                 var contenido = "<tr>";
                 for(var r = 0; r < respuestas.length; r++){
-                    contenido += "<td><h4>" + respuestas[r].INCISO + " ) "+ respuestas[r].RESPUESTA + "</h4></td>";
+                    contenido += "<td><h4>" + respuestas[r].INCISO + " ) ";
+                    if(respuestas[r].ES_IMAGEN == 1){
+                        contenido += "<img src='image/respuestas/" + respuestas[r].RESPUESTA + "'/>";
+                    }else{
+                        contenido += respuestas[r].RESPUESTA;
+                    }
+                    contenido += "</h4></td>";
                 }
                 contenido += "</tr>";
                 $("#content-respuestas tbody").html(contenido);
@@ -93,7 +99,7 @@ function todosContestaron(){
 function afterAnswer(){
     setTimeout(function(){
         getMarcadorPregunta();
-    },1000);
+    },1500);
 }
 
 /**

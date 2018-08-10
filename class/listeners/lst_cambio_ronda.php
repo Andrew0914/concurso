@@ -20,7 +20,7 @@
 		// Mientras no haya cambiado la ronda
 		while($concurso['ID_RONDA'] == $rondaActual AND $concurso['ID_CATEGORIA'] == $categoriaActual) {
 			sleep(1);
-			if($tiempo_muerto >= 20){
+			if($tiempo_muerto >= 60){
 				$bol_tiempo_muerto = 1;
 				break;
 			}

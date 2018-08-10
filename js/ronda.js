@@ -52,7 +52,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 			if(response.estado == 1){
 				if(response.tiempo_muerto == 1){
 					console.log("Cayo en tiempo muerto");
-					setTimeout(function(){initListenerCambioRonda(rondaActual, categoriaActual)},2000)
+					setTimeout(function(){initListenerCambioRonda(rondaActual, categoriaActual)},1500);
 				}else{
 					if(response.termino == 1){
 						window.location.replace('inicio_desempate');
