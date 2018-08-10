@@ -6,6 +6,9 @@
  * @return [type]      [description]
  */
   function escribirPrueba($txt){
+  	$myfile = fopen("pruebas.txt", "r") or die("Unable to open file!");
+  	$txt = $txt . '\n' . fread($myfile,filesize("pruebas.txt"));
+  	fclose($myfile);
     $myfile = fopen("pruebas.txt", "w") or die("Unable to open file!");
     fwrite($myfile, $txt);
     fclose($myfile);

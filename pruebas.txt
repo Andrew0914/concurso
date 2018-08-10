@@ -1,1 +1,0 @@
-[{"tipo":"totales","cantidad":1},{"tipo":"correctas","cantidad":1},{"tipo":"incorrectas","cantidad":0}]

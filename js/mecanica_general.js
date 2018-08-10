@@ -50,9 +50,9 @@ var Comet = Class.create();
 	 },
 	 handleResponse: function(response){
 	 	showPregunta(response);
- 		if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+	 	if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
  			finalizaRonda(response.concurso);
- 		}	 	
+	 	}	 	
 	}
 }
 
@@ -113,7 +113,12 @@ function eligeInciso(boton){
 	 $jq(boton).addClass('btn-checked');
 	 // checamos el radio oculto
 	 $jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked',true);
-	 sendPreRespuestas(0);
+	 if($jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked')){
+	 	console.log("ejecucion eligeInciso pre");
+	 	sendPreRespuestas(0);
+	 }else{
+	 	eligeInciso(boton);
+	 }
 }
 
 /**
@@ -138,6 +143,7 @@ function sendPreRespuestas(final){
 		},
 		function(data, textStatus, xhr) {
 			if(data.estado == 0){
+				console.log("ejecucion al recibir estado 0 pre");
 				sendPreRespuestas(final);
 			}else{
 				console.log('Se mando pre respuesta');
@@ -183,6 +189,8 @@ function sendRespuesta(){
 	// SI NO EXISTE OPCION SELECCIONADA
 	if(respuesta == ''){
 		// solo mandamso la pre respuesta (con la respuesta nula)
+		console.log("ejecucion al final en sendRespuesta pre");
+		console.log(respuestas);
 		sendPreRespuestas(1);
 		afterSend();
 	}else{

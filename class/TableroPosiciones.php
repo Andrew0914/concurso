@@ -42,6 +42,7 @@
 		 * @return boolean           
 		 */
 		public function generaPosiciones($concurso,$es_empate = false){
+			
 			$valida = 1;
 			$master = new TableroMaster();
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
@@ -49,6 +50,7 @@
 			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			$objConcurso = new Concurso();
 			$objConcurso = $objConcurso->getConcurso($concurso);
+			$this->escribirPrueba(json_encode($objConcurso));
 			// si es grupal contamos las puntuacioens del paso para medir las posiciones
 			if($objConcurso['ID_ETAPA'] == 2){
 				$pasos = new TableroPaso();
@@ -113,6 +115,15 @@
 
 			return ['estado'=>1 , 'mensaje' => 'Tableros generados' , 'tablero_master'=>$id_master ];
 		}
+
+		private   function escribirPrueba($txt){
+		  	$myfile = fopen("pruebas.txt", "rb") or die("Unable to open file!");
+		  	$txt = $txt . '\n\n' . fread($myfile,filesize("pruebas.txt"));
+		  	fclose($myfile);
+		    $myfile = fopen("pruebas.txt", "wb") or die("Unable to open file!");
+		    fwrite($myfile, $txt);
+		    fclose($myfile);
+		  }
 
 		public function cambioMiposicion($concursante, $master){
 			$where = "ID_CONCURSANTE = ? AND ID_TABLERO_MASTER = ?";
