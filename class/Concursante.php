@@ -134,7 +134,8 @@
 		 * @return array              
 		 */
 		public function accederDesempate($idConcurso, $concursante){
-			
+			$concurso = new Concurso();
+			$concurso = $concurso->getConcurso($idConcurso);
 			$tabMaster = new TableroMaster();
 			// debe existir tableros calculados
 			if(count($tabMaster->getTablerosMasters($idConcurso)) <= 0){
@@ -144,6 +145,9 @@
 			// el ultimo tablero no debe estar cerrado
 			$last = $tabMaster->getLast($idConcurso);
 			if($last['CERRADO'] != 0){
+				if($concurso['FECHA_CIERRE'] != null AND $concurso['FECHA_CIERRE'] != ''){
+					return ['estado'=> 1, 'mensaje' => 'El concurso ha sido cerrado', 'empatado'=>0];
+				}
 				return ['estado' => 0 
 				, 'mensaje' => 'Aun no se determinan los puntajes por favor espera a que el moderador lo indique']; 
 			}
@@ -166,10 +170,7 @@
 			}
 			if($es_emaptado == 1){
 				// si es que esto empatado la ronda de empata tiene que ser inicializada para que entre
-				$concurso = new Concurso();
-				$concurso = $concurso->getConcurso($idConcurso);
 				$ronda = new Rondas();
-
 				if(!$ronda->getRonda($concurso['ID_RONDA'])['IS_DESEMPATE']){
 					return ['estado' => 0 
 					, 'mensaje' => 'Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados']; 

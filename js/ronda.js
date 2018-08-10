@@ -50,10 +50,15 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		data: {"rondaActual": rondaActual,'categoriaActual':categoriaActual},
 		success:function(response){
 			if(response.estado == 1){
-				if(response.termino == 1){
-					window.location.replace('inicio_desempate');
+				if(response.tiempo_muerto == 1){
+					console.log("Cayo en tiempo muerto");
+					setTimeout(function(){initListenerCambioRonda(rondaActual, categoriaActual)},2000)
 				}else{
-					accederRonda(response.ronda);	
+					if(response.termino == 1){
+						window.location.replace('inicio_desempate');
+					}else{
+						accederRonda(response.ronda);	
+					}
 				}
 			}else{
 				console.log('Fallo el listener de cambio de ronda: ' + response.mensaje);

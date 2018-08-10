@@ -15,16 +15,24 @@
 		$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 		$log = new RondasLog();
 		$termino = 0;
+		$tiempo_muerto = 0;
+		$bol_tiempo_muerto = 0;
 		// Mientras no haya cambiado la ronda
 		while($concurso['ID_RONDA'] == $rondaActual AND $concurso['ID_CATEGORIA'] == $categoriaActual) {
 			sleep(1);
+			if($tiempo_muerto >= 20){
+				$bol_tiempo_muerto = 1;
+				break;
+			}
 			$concurso = $objConcurso->getConcurso($sesion->getOne(SessionKey::ID_CONCURSO));
 			if($log->rondasTerminadasCategoria($concurso['ID_CONCURSO'],$concurso['ID_CATEGORIA'])){
 				$termino = 1;
 				break;
 			}
+			$tiempo_muerto++;
 		}
 		$cambio = ['estado'=>1,
+					'tiempo_muerto'=> $bol_tiempo_muerto,
 					'mensaje'=>'Cambio de ronda',
 					'ronda'=>$concurso['ID_RONDA'],
 					'etapa'=>$concurso['ID_ETAPA'],

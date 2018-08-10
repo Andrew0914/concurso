@@ -15,7 +15,7 @@
 	.sidenav a {
 	    padding: 10px;
 	    text-decoration: none;
-	    font-size: 16px;
+	    font-size: 20px;
 	    color: #818181;
 	    display: block;
 	    transition: 0.3s;
@@ -48,9 +48,11 @@
 </style>
 <div id="mySidenav" class="sidenav">
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <br><br>
   <a href="moderador">Acceder a un Concurso</a>
   <a href="obtener_excel">Obtener Excel De Resultados</a>
   <a href="crear">Crear Un Concurso Nuevo</a>
+  <a href="inicio">Inicio Concursante</a>
 </div>
 
 <span class="btn btn-geo btn-menu" onclick="openNav()">&#9776;</span>
