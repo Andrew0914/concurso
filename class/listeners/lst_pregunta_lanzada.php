@@ -25,27 +25,18 @@
   $response = array();
   $objRonda = new Rondas(); 
   $ronda = $objRonda->getRonda($idRonda);
-  $tiempo_muerto = 0;
-  $response['todas_lanzadas'] = 0;
-  $response['tiempo_muerto'] = 0;
-  while ($currentLanzada <= $lastLanzada)
+  while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
   {
-    sleep(1);
-    // si lleva 10 segundos sin salir del while salimos para no desgastar los recursos
-    if($tiempo_muerto >= 30){
-      $response['tiempo_muerto'] = 1;
-      break;
-    }
+    sleep(1); // sleep 10ms to unload the CPU
     $lanzadaBD = $generada->ultimaLanzada($idConcurso,$idRonda,$idCategoria,$es_desempate,$nivel_empate);
     $lanzadaBD['respuestas'] = $objRespuesta->getRespuestasByPregunta($lanzadaBD[0]['ID_PREGUNTA']);
     $currentLanzada = $lanzadaBD[0]['LANZADA'];
-    // si ya es la ultima pregunta salimos del ciclo para no desgastar recursos
     if($lastLanzada >= $ronda['PREGUNTAS_POR_CATEGORIA']){
-      $response['todas_lanzadas']= 1;
-      break;
+      return ['todas_lanzadas' => 1];
     }
-    $tiempo_muerto++;
   }
+  // return a json array
+  $response['todas_lanzadas'] = 0;
   $response['pregunta']= $lanzadaBD;
   $response['lanzada'] = $currentLanzada;
   echo json_encode($response);

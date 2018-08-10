@@ -49,20 +49,14 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		dataType: 'json',
 		data: {"rondaActual": rondaActual,'categoriaActual':categoriaActual},
 		success:function(response){
-			if(response.tiempo_muerto == 1){
-				setTimeout(function(){
-					initListenerCambioRonda(rondaActual,categoriaActual);
-				},2500);
-			}else{
-				if(response.estado == 1){
-					if(response.termino == 1){
-						window.location.replace('inicio_desempate');
-					}else{
-						accederRonda(response.ronda);	
-					}
+			if(response.estado == 1){
+				if(response.termino == 1){
+					window.location.replace('inicio_desempate');
 				}else{
-					console.log('Fallo el listener de cambio de ronda: ' + response.mensaje);
+					accederRonda(response.ronda);	
 				}
+			}else{
+				console.log('Fallo el listener de cambio de ronda: ' + response.mensaje);
 			}
 		},
 		error:function(error){
