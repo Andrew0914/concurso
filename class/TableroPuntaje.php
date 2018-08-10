@@ -41,6 +41,7 @@
 				}
 				if($this->save($data)){
 					if($final == 1){
+						$data['RESPUESTA'] = null;
 						$this->generaPuntaje($data['ID_CONCURSANTE'],$data['ID_CONCURSO'],$data['ID_RONDA']
 											,$data['PREGUNTA'] , $data['RESPUESTA'],0,0);
 					}
