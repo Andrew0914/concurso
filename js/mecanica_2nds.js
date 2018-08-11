@@ -14,10 +14,6 @@ function obtenerPregunta(boton){
 				if(response.pregunta[0].LANZADA > lanzada){
 					showPregunta(response);
 					lanzada = response.pregunta[0].LANZADA;
-					if(lanzada == $("#TURNOS_PREGUNTA_CONCURSANTE").val()){
-						$("#btn-obtener-pr").hide(300);
-						$("#btn-terminar").show(300);
-					}
 				}else{
 					alert("Espera a que te lancen una pregunta");
 				}
@@ -243,12 +239,12 @@ function afterSend(){
 				$("#btn-obtener-pr").show(300);
 				$("#btn-obtener-pr-paso").show(300);
 				$("#btn-paso").hide(300);
-				if(lanzada == $("#TURNOS_PREGUNTA_CONCURSANTE").val()){
-						$("#btn-obtener-pr").hide(300);
-						$("#btn-terminar").show(300);
-				}
 			}else{
 				alert(response.mensaje);
+			}
+			if(lanzada == $("#TURNOS_PREGUNTA_CONCURSANTE").val()){
+				$("#btn-obtener-pr").hide(300);
+				$("#btn-terminar").show(300);
 			}
 		},
 		error: function(error){
@@ -343,6 +339,11 @@ function afterSendPaso(){
 				$('#mdl-pr-paso').modal('hide');
 			}else{
 				alert(response.mensaje);
+			}
+
+			if(lanzada == $("#TURNOS_PREGUNTA_CONCURSANTE").val()){
+				$("#btn-obtener-pr").hide(300);
+				$("#btn-terminar").show(300);
 			}
 		},
 		error: function(error){
