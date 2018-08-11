@@ -56,7 +56,7 @@
 			$log = new RondasLog();
 			$rondasTerminadas = $log->rondasTerminadasCategoria($sesion->getOne(SessionKey::ID_CONCURSO) , $categoria['ID_CATEGORIA']);
 			$concursoCerrado = $concurso1->concursoCerrado($sesion->getOne(SessionKey::ID_CONCURSO));
-			if($rondasTerminadas AND !$concursoCerrado){
+			if($rondasTerminadas AND true){
 		?>
 		<br>
 		<div class="row">

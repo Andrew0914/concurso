@@ -296,7 +296,7 @@
 					$values['ID_RONDA'] = $objConcurso['ID_RONDA'];
 				}
 				$values['ID_CONCURSO'] = $concurso;
-				$query.= " UNION ";
+				$query.= " UNION ALL ";
 				$query.= " SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE,'0' as NIVEL_EMPATE
 					FROM tablero_pasos tps
 					LEFT JOIN rondas r ON tps.ID_RONDA = r.ID_RONDA

@@ -72,6 +72,7 @@
 			$objSheet->getCell('H1')->setValue('PUNTAJE');
 			$objSheet->getCell('I1')->setValue('RONDA EMPATE');
 			$indexCelda = 2;
+
 			foreach ($puntajes as $pu) {
 				$objSheet->getCell('A'.$indexCelda)->setValue($pu['RONDA']);
 				$objSheet->getCell('B'.$indexCelda)->setValue($pu['CONCURSANTE']);

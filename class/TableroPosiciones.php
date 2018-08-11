@@ -34,6 +34,18 @@
 			$valores = ['ID_TABLERO_MASTER' => $tablero_master];
 			return $this->get($where,$valores);
 		}
+		/**
+		 * Ordena los lugares por total de puntajes
+		 * @param  object $a 
+		 * @param  object $b 
+		 * @return boolean    
+		 */
+		private function cmp($a , $b){	
+		    if ($a['totalPuntos'] == $b['totalPuntos']) {
+		        return 0;
+		    }
+		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
+		}
 
 		/**
 		 * Genera y almacena las posiciones de los puntajes
@@ -60,10 +72,17 @@
 						}
 					}
 				}
+				// como se le agregaron puntajes de paso cambian los lugres asi que ordenamos
+				usort($mejores,array($this,"cmp"));
+				//ajustamos lugares
+				for($i =0 ; $i < count($mejores) ; $i++) {
+					$mejores[$i]['lugar'] = $i+1;
+				}
 			}
 			if($id_master <= 0){
 				return ['estado'=>0 , 'mensaje' => 'No se pudo generar el tablero maestro'];
 			}
+			
 			// almacenamos las posiciones brutas
 			foreach ($mejores as $mejor) {
 				$posicion = [ 'ID_CONCURSANTE' => $mejor['ID_CONCURSANTE']
