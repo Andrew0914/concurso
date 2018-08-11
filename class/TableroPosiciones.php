@@ -42,7 +42,6 @@
 		 * @return boolean           
 		 */
 		public function generaPosiciones($concurso,$es_empate = false){
-			
 			$valida = 1;
 			$master = new TableroMaster();
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
@@ -50,7 +49,6 @@
 			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			$objConcurso = new Concurso();
 			$objConcurso = $objConcurso->getConcurso($concurso);
-			$this->escribirPrueba(json_encode($objConcurso));
 			// si es grupal contamos las puntuacioens del paso para medir las posiciones
 			if($objConcurso['ID_ETAPA'] == 2){
 				$pasos = new TableroPaso();
@@ -116,7 +114,7 @@
 			return ['estado'=>1 , 'mensaje' => 'Tableros generados' , 'tablero_master'=>$id_master ];
 		}
 
-		private   function escribirPrueba($txt){
+		public function escribirPrueba($txt){
 		  	$myfile = fopen("pruebas.txt", "rb") or die("Unable to open file!");
 		  	$txt = $txt . '\n\n' . fread($myfile,filesize("pruebas.txt"));
 		  	fclose($myfile);
@@ -211,15 +209,16 @@
 	 */
 	if(isset($_POST['functionTabPosiciones'])){
 		$function = $_POST['functionTabPosiciones'];
-		$pos = new TableroPosiciones();
+		$tablero = new TableroPosiciones();
 		switch ($function) {
-			case 'generaPosiciones':
+			case 'generaPosicionesx':
+				$tablero->escribirPrueba("Entrada a caso swithc");
 				$concurso = $_POST['ID_CONCURSO'];
 				$es_desempate = $_POST['IS_DESEMPATE'];
-				echo json_encode($pos->generaPosiciones($concurso,$es_desempate));
+				echo json_encode($tablero->generaPosiciones($concurso,$es_desempate));
 				break;
 			default:
-				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TableroPosiciones:POST']);
+				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);
 				break;
 		}
 	}

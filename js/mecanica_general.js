@@ -1,5 +1,5 @@
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
-var finalizar = false;
+var lastLanzada = false;
 var Comet = Class.create();
   Comet.prototype = {
 	 lanzada: 0,
@@ -49,9 +49,14 @@ var Comet = Class.create();
 		return true;
 	 },
 	 handleResponse: function(response){
-	 	showPregunta(response);
+	 	if(!lastLanzada){
+	 		showPregunta(response);
+	 	}else{
+	 		console.log('Baia baia quiciste ponerme de nuevo la ultima');
+	 	}
 	 	if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
  			finalizaRonda(response.concurso);
+ 			lastLanzada = true;
 	 	}	 	
 	}
 }
@@ -64,6 +69,7 @@ comet.connect();
  * @param  {json} response [description]
  */
 function showPregunta(response){
+	console.log("Mostrando pregunta");
 	// segundo para cada pregunta
 	var segundos = $jq("#segundos_ronda").val();
 	//cambiamos la vista
@@ -114,7 +120,6 @@ function eligeInciso(boton){
 	 // checamos el radio oculto
 	 $jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked',true);
 	 if($jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked')){
-	 	console.log("ejecucion eligeInciso pre");
 	 	sendPreRespuestas(0);
 	 }else{
 	 	eligeInciso(boton);
@@ -146,7 +151,7 @@ function sendPreRespuestas(final){
 				console.log("ejecucion al recibir estado 0 pre");
 				sendPreRespuestas(final);
 			}else{
-				console.log('Se mando pre respuesta');
+				//console.log('Se mando pre respuesta');
 			}
 	},'json');
 }
@@ -189,8 +194,6 @@ function sendRespuesta(){
 	// SI NO EXISTE OPCION SELECCIONADA
 	if(respuesta == ''){
 		// solo mandamso la pre respuesta (con la respuesta nula)
-		console.log("ejecucion al final en sendRespuesta pre");
-		console.log(respuestas);
 		sendPreRespuestas(1);
 		afterSend();
 	}else{
@@ -214,8 +217,10 @@ function sendRespuesta(){
 			  }else{
 				console.log(data.mensaje)
 			  }
-		  },error:function(error){
-			 console.log(error)
+		  },error:function(a,b,c){
+			 console.log(a);
+			 console.log(b);
+			 console.log(c);
 		  }
 	  });
 
@@ -243,7 +248,6 @@ function afterSend(){
 				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value,
 				'functionTablero':'miPuntajePregunta'},
 		success:function(response){
-			console.log(response);
 			if(response.estado == 1){
 				var mensaje  = "<h4>Tu respuesta fue:";
 				if(response.puntaje.RESPUESTA_CORRECTA == 1){
@@ -278,17 +282,7 @@ function afterSend(){
 	});
 }
 
-/**
- * Metodo para finalizar la ronda reseteando y apareciendo el boton para pasar a la siguiente ronda
- * @return {[type]} [description]
- */
-function finalizaCategoria(response){
-	if(response.ID_CATEGORIA !== $jq("#ID_CATEGORIA").val()){
-		//accederRonda(response.ID_RONDA);
-		console.log(response);
-		fin = true;
-	}
-}
+
 
 /**
  * Finaliza la ronda inicializando el listener de cambio de ronda
@@ -296,10 +290,5 @@ function finalizaCategoria(response){
  * @return {[type]}          [description]
  */
 function finalizaRonda(response){
-	finalizar = true;
 	initListenerCambioRonda($jq("#ID_RONDA").val(), $jq("#ID_CATEGORIA").val());
 }
-
-//cachamos el evento de refresh para evita trampas
-$jq(document).ready(function() {	
-});
