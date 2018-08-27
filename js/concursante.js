@@ -31,11 +31,12 @@ function setConcursantes(concurso){
   $.get('class/Concursante.php?concurso='+idConcurso+"&functionConcursante=getConcursantes",
 	 function(data) {
 		var concursantes = data.concursantes;
-		var content = "";
+		var content = "<option value=''>Elige un concursante</option>";
 		for(var d=0; d<concursantes.length; d++){
 		  content += "<option value='" + concursantes[d].CONCURSANTE;
 		  content += "'>" + concursantes[d].CONCURSANTE + "</option>";
 		}
+		$("#CONCURSANTE").css("width","75%");
 		$("#CONCURSANTE").html(content);
   },'json');
 }
