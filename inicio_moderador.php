@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
-    <body class="content content-xs blanco">
+    <body class="content content-sm blanco">
         <?php include 'menu.php'; ?>
         <section class="centrado">
             <h1>
@@ -33,6 +33,7 @@
                         }
                     ?>
                 </select>
+                <select id="selectTagWidth"><option id="widthTempOption"></option></select>
                 <br>
                 <button class="btn btn-lg btn-geo" type="button" onclick="irConcurso()">
                     Entrar al panel
@@ -44,6 +45,7 @@
         <!-- INICIO SCRIPTS -->
         <script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="js/concurso.js"></script>
+        <script type="text/javascript" src="js/ajuste-select.js"></script>
         <!-- FIN SCRIPTS  -->
     </body>
 </html>

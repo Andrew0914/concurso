@@ -100,7 +100,9 @@ html,body{
 	display: block;
 	margin: 0 auto;
 	width: 75%;
-	padding: 6px;
+	font-size:100%;
+	padding: 8px;
+	padding-right: 25px;
 	font-family: 'monserrat';
 	border: 2px solid rgb(158,219,180);
 	border-radius: 10px;
@@ -109,7 +111,9 @@ html,body{
 	background-color: white;
 	cursor: pointer;
 }
-
+#selectTagWidth{
+	display : none;
+} 
 input[type=text],input[type=number]{
 	font-family: 'monserrat';
 	border: 2px solid rgb(158,219,180);

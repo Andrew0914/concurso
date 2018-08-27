@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
-    <body class="content content-xs blanco">
+    <body class="content content-sm blanco">
         <section class="centrado">
             <h1>
                 <img src="image/logo_geollin.png" />
@@ -36,6 +36,7 @@
                         }
                     ?>
                 </select>
+                <select id="selectTagWidth"><option id="widthTempOption"></option></select>
                 <br>
                 <label for="CONCURSANTE"><b>Concursante</b></label>
                 <select name="CONCURSANTE" id="CONCURSANTE" class="select-geo">
@@ -54,6 +55,7 @@
         <script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="js/ronda.js"></script>
         <script type="text/javascript" src="js/concursante.js"></script>
+        <script type="text/javascript" src="js/ajuste-select.js"></script>
         <!-- FIN SCRIPTS  -->
     </body>
 </html>
