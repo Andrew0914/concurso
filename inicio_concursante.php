@@ -22,6 +22,10 @@
                 El juego esta por comenzar por favor elige el concurso y el equipo al que perteneces.
             </h4>
             <br>
+            <button class="btn btn-geo" style="position:absolute;top:2%;left:90%" onclick="location.reload();" alt="actualiza si no aparece el concurso" title="actualiza si no aparece el concurso">
+                <img src="image/refresh-button.png">
+            </button>
+            <br>
             <label for="ID_CONCURSO"><b>Concurso</b></label>
             <form id="form-accede-concurso">
                 <select id="ID_CONCURSO" name="ID_CONCURSO" class="select-geo"  onchange="setConcursantes(this)">
