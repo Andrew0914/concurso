@@ -39,15 +39,22 @@
 			$values = ['ID_CONCURSO'=>$concurso,'CONCURSANTE'=>$concursante,'PASSWORD'=>$password];
 			$objConcursante = $this->get($whereClause,$values);
 			if(count($objConcursante) <= 0){
-				return json_encode(['estado'=>0, 'mensaje'=> 'No eres un concursante de este concurso']);
+				return json_encode(['estado'=>0, 'mensaje'=> 'Datos de concursante incorrectoss']);
 			}
 			$objConcurso = new Concurso();
 			$aConcurso = $objConcurso->getConcurso($concurso);
 			$gen = new PreguntasGeneradas();
-			if($gen->inicioLanzamiento($aConcurso['ID_RONDA'],$aConcurso['ID_CONCURSO'],$aConcurso['NIVEL_EMPATE'])){
+			if($gen->inicioLanzamiento($aConcurso['ID_RONDA'],$aConcurso['ID_CONCURSO']
+										,$aConcurso['NIVEL_EMPATE'])){
 				return json_encode(['estado'=>0
 					, 'mensaje'=> 'No es posible que entres a este concurso, el moderador ya ha comenzado a lanzar preguntas']);
 			}
+			// verificamos que no hayan iniciado sesion con el mismo concursabte
+			if($objConcursante[0]['INICIO_SESION'] == 1){
+				return json_encode(['estado'=>0, 'mensaje'=> 'Ya han ingresado con este concursante']);
+			}
+			// establecemos la sesion iniciada para este concursante
+			$this->update($objConcursante[0]['ID_CONCURSANTE'] , ['INICIO_SESION'=>1]);
 			$sesion = new Sesion();
 			$valuesSesion = [SessionKey::ID_CONCURSANTE => $objConcursante[0]['ID_CONCURSANTE'] ,
 							SessionKey::CONCURSANTE => $objConcursante[0]['CONCURSANTE'],
@@ -57,7 +64,6 @@
 							SessionKey::ID_CATEGORIA => $aConcurso['ID_CATEGORIA']];
 
 			$sesion->setMany($valuesSesion);
-
 			
 			return json_encode(['estado'=>1, 
 				'mensaje'=> 'Inicio exitoso',
