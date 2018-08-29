@@ -63,3 +63,11 @@ function accederDesempate(idConcurso,concursante){
 		}
 	});
 }
+
+$(document).ready(function(){
+	// atrapamos el evento subit para acceder al concurso
+	$("#form-accede-concurso").on('submit', function(event) {
+		event.preventDefault();
+		accederConcurso(document.getElementById("form-accede-concurso"));
+	});
+});

@@ -36,9 +36,10 @@
 		<input type="hidden" name="NIVEL_EMPATE" id="NIVEL_EMPATE" value="<?php echo $concurso['NIVEL_EMPATE'] ?>">
 		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
 		<div class="card-md centrado" id="card-inicio">
-			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
+			<h2><img src="image/logo_geollin.png" /></h2>
+			<h3><b>Gracias</b></h3>
 			<h4 id="mensaje_concurso">
-				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
+				<span style="color: #545454" class="monserrat-bold"><?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></span>
 				<br><br>
 				En cuanto todo este listo el moderador comenzara la ronda 1 de <b><?php echo strtoupper($cat['CATEGORIA']); ?></b>
 				<br>

@@ -38,10 +38,11 @@
 		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
 		<input type="hidden" name="TURNOS_PREGUNTA_CONCURSANTE" id="TURNOS_PREGUNTA_CONCURSANTE" value="<?php echo $ronda['TURNOS_PREGUNTA_CONCURSANTE'] ?>" />
-		<div class="card-md centrado" id="card-inicio">
-			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
+		<div class="card-lg centrado" id="card-inicio">
+			<h3><img src="image/logo_geollin.png" /></h3>
+			<h2 ><b>Gracias</b></h2>
 			<h4 id="mensaje_concurso">
-				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
+				<h3 style="color: #545454" class="monserrat-bold"><?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></h3>
 				<br><br>
 				En cuanto el moderador te lance/asigne la pregunta por favor oprime <b>[OBTENER PREGUNTA]</b>
 				<br>

@@ -10,6 +10,7 @@
 	    overflow-x: hidden;
 	    transition: 0.5s;
 	    padding-top: 60px;
+	    text-align: left;
 	}
 
 	.sidenav a {
@@ -59,7 +60,7 @@
 
 <script>
 	function openNav() {
-	    document.getElementById("mySidenav").style.width = "250px";
+	    document.getElementById("mySidenav").style.width = "300px";
 	}
 
 	function closeNav() {

@@ -52,12 +52,15 @@
 				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
 			</div>
 		</div>
-		<h1 class="title">
+		<h1>
+            <img src="image/logo_geollin.png" />
+        </h1>
+		<h4 class="title">
 			Concurso: <?php  echo $concurso['CONCURSO']; ?>
-		</h1>
-		<h4>
-			Inicio : <?php echo $concurso['FECHA_INICIO']; ?>
 		</h4>
+		<h5>
+			Inicio : <?php echo $concurso['FECHA_INICIO']; ?>
+		</h5>
 		<br>
 		<!-- TABLERO PUNTAJE -->
 		<div class="row">
