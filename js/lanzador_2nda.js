@@ -207,6 +207,10 @@ function siguienteRonda(){
     })
 }
 
+function mostrarResumen(){
+    $("#divtablero").slideToggle(500);
+}
+
 $(document).ready(function(){
     $('#mdl-leer-pregunta').on('hidden.bs.modal', function () {
         closeModal();
