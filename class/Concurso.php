@@ -9,6 +9,9 @@
 	require_once dirname(__FILE__) . '/RondasLog.php';
 	require_once dirname(__FILE__) . '/Desempate.php';
 	require_once dirname(__FILE__) . '/TableroMaster.php';
+	require_once dirname(__FILE__) . '/TableroPaso.php';
+	require_once dirname(__FILE__) . '/TableroPosiciones.php';
+	require_once dirname(__FILE__) . '/TableroPuntaje.php';
 
 	class Concurso extends BaseTable{
 
@@ -136,6 +139,13 @@
 			return $response;
 		}
 
+		/**
+		 * Acutlaiza un concurso indicado
+		 * @param integer $id
+		 * @param array $values
+		 * @param string $where
+		 * @param array $whereValues
+		 */
 		public function actualiza($id,$values,$where,$whereValues){
 			return $this->update($id,$values,$where,$whereValues);
 		}
@@ -207,7 +217,11 @@
 			$sesion->setOne(SessionKey::ID_RONDA, $primerRonda['ID_RONDA']);
 			return ['estado'=>1 , 'mensaje'=>'Inicio de categoria exitoso', 'ID_RONDA'=> $primerRonda['ID_RONDA']];
 		}
-
+		
+		/**
+		 * Cierra el concurso
+		 * @param integer $concurso
+		 */
 		public function cerrarConcurso($concurso){
 			$sesion = new Sesion();
 			$valores = ['FECHA_CIERRE' => date('Y-m-d H:i:s')];
@@ -255,9 +269,69 @@
 			return $rs; 
 		}
 
+		/**
+		 * Verifica si el concurso ha sido cerrado o tiene fecha de cierre
+		 * @param integer $concurso 
+		 */
 		public function concursoCerrado($concurso){
 			$cierre = $this->find($concurso)['FECHA_CIERRE'];
 			return $cierre != null AND $cierre != '';
+		}
+
+		/**
+		 * Resetea el concurso, remueve el log de rondas , tableros y genera nuecas preguntas
+		 * @param integer $idConcurso
+		 */
+		public function resetConcurso($idConcurso){
+			//Buscamos el concurso a resetear
+			$concurso = $this->getConcurso($idConcurso);
+			$valida = 1;
+			// Reseteamos el concurso a la primer ronda de acuerdo a su etapa
+			$objRonda = new Rondas();
+			$primerRonda = $objRonda->getPrimeraRonda($concurso['ID_ETAPA']);
+			if(!$this->actualiza($concurso['ID_CONCURSO']
+			, ['ID_RONDA'=>$primerRonda['ID_RONDA'],'NIVEL_EMPATE'=>0],"",null)){
+				return ['estado'=>0 , 'mensaje'=>'No se pudo restablecer la ronda inicial'];
+			}
+			// eliminamos las rondas de empate del log
+			$rondaDesempate = $objRonda->getRondaDesempate($concurso['ID_ETAPA']);
+			$rondaLog = new RondasLog();
+			if(!$rondaLog->eliminar(0
+						,"ID_CONCURSO = ? AND ID_RONDA = ?" 
+						, ['ID_CONCURSO'=> $concurso['ID_CONCURSO'] , 'ID_RONDA'=>$rondaDesempate['ID_RONDA']])){
+				
+				return ['estado'=>0,'mensaje'=>'No se pudo eliminar el avance de rondas'];
+			}
+			if(!$rondaLog->actualiza(0,['FIN'=>0 , 'NIVEL_EMPATE'=>0],'ID_CONCURSO = ?',['ID_CONCURSO'=>$concurso['ID_CONCURSO']])){
+				return ['estado'=>0 , 'mensaje'=>'No se pudieron restablecer los inicios de ronda'];
+			}
+			// eliminamos los tableros generados para el concurso
+			$whereDelete = 'ID_CONCURSO = ?';
+			$valuesDelete = ['ID_CONCURSO'=>$concurso['ID_CONCURSO']];
+			$tabPuntajes = new TableroPuntaje();
+			if(!$tabPuntajes->eliminar(0,$whereDelete,$valuesDelete)){
+				return ['estado'=>0, 'mensaje'=>'No se pudieron restablecer los puntajes'];
+			}
+			$tabPaso = new TableroPaso();
+			if(!$tabPaso->eliminar(0,$whereDelete,$valuesDelete)){
+				return ['estado'=>0, 'mensaje'=>'No se pudieron restablecer los puntajes de paso'];
+			}
+			// tablero master borrara sus posicomes generadas ON DELETE CASCADE
+			$tabMaster = new TableroMaster();
+			if(!$tabMaster->eliminar(0,$whereDelete,$valuesDelete)){
+				return ['estado'=>0, 'mensaje'=>'No se pudieron restablecer los tableros'];
+			}
+			// eliminamos las preguntas generadas y realizamos una nueva aleatorio
+			$generar = new PreguntasGeneradas();
+			if(!$generar->eliminar(0 ,$whereDelete,$valuesDelete)){
+				return ['estado'=>0 , 'mensaje'=> 'No se pudieron eliminar las preguntas previas'];
+			}
+			//Generamos las preguntas de nuevo
+			if($generar->generaPreguntas($concurso['ID_CONCURSO'],$concurso['ID_CATEGORIA'],$concurso['ID_ETAPA'])['estado'] == 0){
+				$generar->eliminar(0,$whereDelete,$valuesDelete);
+				return ['estado'=>0,'mensaje'=>'NO se generaron las preguntas'];
+			}
+			return ['estado'=>1,'mensaje'=>'Se ha reseteado el concurso con exito'];
 		}
 	}
 
@@ -282,6 +356,9 @@
 				break;
 			case 'irDesempate':
 				echo json_encode($concurso->irDesempate($_POST['ID_CONCURSO'],$_POST['ID_TABLERO_MASTER']));
+				break;
+			case 'resetConcurso':
+				echo json_encode($concurso->resetConcurso($_POST['ID_CONCURSO']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSO:POST']);

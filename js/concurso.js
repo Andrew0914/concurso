@@ -46,6 +46,7 @@ function validaConcursantes(){
   });
   return validacion == 1;
 }
+
 /**
  * Realiza la peticion para la generacion del concurso y concursantes
  * @param  {[form]} formulario [objeto del formulario]
@@ -175,3 +176,4 @@ function irDesempate(concurso,tableroMaster){
     }
   }); 
 }
+

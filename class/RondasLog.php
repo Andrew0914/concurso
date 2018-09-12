@@ -249,6 +249,10 @@
 			$rs = $this->get($where,$valores); 
 			return $rs[0];
 		}
+
+		public function actualiza($id,$values,$whereClause,$whereValues){
+			return $this->update($id,$values,$whereClause,$whereValues);
+		}
 	}
 	/**
 	 * POST REQUESTS

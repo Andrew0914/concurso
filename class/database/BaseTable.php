@@ -165,6 +165,9 @@
 		 	if($this->connection->error != null){
 				die ($this->connection->error);
 			}
+			if($this->table == "tablero_puntajes"){
+				//echo $query;
+			}
 			$bolDelete = $statement->execute();
 			$this->connection->close();
 			return $bolDelete;
@@ -219,7 +222,7 @@
 		 	if($this->connection->error != null){
 				die ($this->connection->error);
 			}
-			
+		
 			$bolUpdate = $statement->execute();
 			$this->connection->close();
 			return $bolUpdate;

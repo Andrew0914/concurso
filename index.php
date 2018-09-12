@@ -22,5 +22,6 @@ require_once 'class/util/Route.php';
     $route->add('grupal2' , '../grupal_ronda2.php');
     $route->add('grupal_desempate','../grupal_desempate.php');
     $route->add('obtener_excel','../obtener-excel.php');
+    $route->add('restablecer','../reset-concurso.php');
 	$route->submit();
 ?>

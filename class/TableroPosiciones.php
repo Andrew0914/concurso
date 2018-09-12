@@ -221,6 +221,11 @@
 			$valores = ['ID_TABLERO_MASTER' => $last_master];
 			return $this->query($sentencia,$valores)[0]['TOTAL'];
 		}
+
+		public function eliminar($id=0,$where="",$whereValues = []){
+			return $this->delete($id,$where,$whereValues);
+		}
+
 	}	
 
 	/**

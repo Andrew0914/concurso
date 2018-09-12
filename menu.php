@@ -54,6 +54,7 @@
   <a href="obtener_excel">Obtener Excel De Resultados</a>
   <a href="crear">Crear Un Concurso Nuevo</a>
   <a href="inicio">Inicio Concursante</a>
+  <a href="restablecer">Restablecer Concurso</a>
 </div>
 
 <span class="btn btn-geo btn-menu" onclick="openNav()">&#9776;</span>

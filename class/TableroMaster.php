@@ -43,5 +43,9 @@
 			$valores = ['ID_CONCURSO'=> $concurso];
 			return $this->query($sentencia,$valores,true)[0];
 		}
+
+		public function eliminar($id=0,$where="",$whereValues = []){
+			return $this->delete($id,$where,$whereValues);
+		}
 	}	
 ?>

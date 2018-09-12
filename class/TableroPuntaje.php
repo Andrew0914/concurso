@@ -579,6 +579,12 @@
 			return ['estado'=>1 , 'mensaje'=>'Pregunta de paso obtenida', 'pregunta'=>$pregunta];
 		}
 
+		/**
+		 * Elimina los puntajes
+		 */
+		public function eliminar($id,$where,$whereValues){
+			return $this->delete($id,$where,$whereValues);
+		}
 	}
 	/**
 	 * POST REQUESTS
