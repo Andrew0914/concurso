@@ -133,14 +133,7 @@
 			return ['estado'=>1 , 'mensaje' => 'Tableros generados' , 'tablero_master'=>$id_master ];
 		}
 
-		public function escribirPrueba($txt){
-		  	$myfile = fopen("pruebas.txt", "rb") or die("Unable to open file!");
-		  	$txt = $txt . '\n\n' . fread($myfile,filesize("pruebas.txt"));
-		  	fclose($myfile);
-		    $myfile = fopen("pruebas.txt", "wb") or die("Unable to open file!");
-		    fwrite($myfile, $txt);
-		    fclose($myfile);
-		  }
+		
 
 		public function cambioMiposicion($concursante, $master){
 			$where = "ID_CONCURSANTE = ? AND ID_TABLERO_MASTER = ?";
@@ -236,7 +229,6 @@
 		$tablero = new TableroPosiciones();
 		switch ($function) {
 			case 'generaPosicionesx':
-				$tablero->escribirPrueba("Entrada a caso swithc");
 				$concurso = $_POST['ID_CONCURSO'];
 				$es_desempate = $_POST['IS_DESEMPATE'];
 				echo json_encode($tablero->generaPosiciones($concurso,$es_desempate));

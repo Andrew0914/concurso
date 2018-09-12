@@ -215,3 +215,7 @@ svg#animated-paso{
 	border-radius: 8px;
 	text-align: center;
 }
+
+#divmejores table,#divtablero table{
+	font-size: 24px;
+}

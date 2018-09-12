@@ -170,43 +170,48 @@
 											 ?>
 										</tbody>
 									</table>
-									<!--PUNTAJES DETALLE PRELIMINARES -->
-									<div id="divtablero" style="display: none;">
-										<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%;">
-											<thead>
-												<tr>
-													<th>Concursante</th>
-													<th>Ronda</th>
-													<th>Categoria</th>
-													<th> Pregunta </th>
-													<th>Respuesta</th>
-													<th>Puntaje</th>
-													<th>Roba Puntos</th>
-												</tr>
-											</thead>
-											<tbody>
-												<?php 
-													$puntajes = $tablero->getResultados($concurso['ID_CONCURSO'],$ronda['IS_DESEMPATE'],true)['tablero'];
-													foreach ($puntajes as $puntaje) {
-														echo "<tr>";
-														echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
-														echo "<td>" . $puntaje['RONDA'] . '</td>';
-														echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
-														echo "<td>".$puntaje['PREGUNTA'].'</td>';
-														echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
-														if($puntaje['ES_IMAGEN'] == 1){
-															echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
-														}else{	
-															echo $puntaje['RESPUESTA'].'</td>';
-														}
-														echo "<td>".$puntaje['PUNTAJE'].'</td>';
-														echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
-														echo "</tr>";	
+								</div>
+								<br>
+								<button class="btn btn-lg btn-geo" onclick="mostrarResumen()">
+									Ver detalle de puntos
+								</button>
+								<br>
+								<!--PUNTAJES DETALLE PRELIMINARES -->
+								<div id="divtablero" style="display: none;">
+									<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%;">
+										<thead>
+											<tr>
+												<th>Concursante</th>
+												<th>Ronda</th>
+												<th>Categoria</th>
+												<th> Pregunta </th>
+												<th>Respuesta</th>
+												<th>Puntaje</th>
+												<th>Roba Puntos</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php 
+												$puntajes = $tablero->getResultados($concurso['ID_CONCURSO'],$ronda['IS_DESEMPATE'],true)['tablero'];
+												foreach ($puntajes as $puntaje) {
+													echo "<tr>";
+													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
+													echo "<td>" . $puntaje['RONDA'] . '</td>';
+													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
+													echo "<td>".$puntaje['PREGUNTA'].'</td>';
+													echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
+													if($puntaje['ES_IMAGEN'] == 1){
+														echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
+													}else{	
+														echo $puntaje['RESPUESTA'].'</td>';
 													}
-												?>
-											</tbody>
-										</table>
-									</div>
+													echo "<td>".$puntaje['PUNTAJE'].'</td>';
+													echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
+													echo "</tr>";	
+												}
+											?>
+										</tbody>
+									</table>
 								</div>
 						    </div>
 					      	<!-- Modal footer -->
