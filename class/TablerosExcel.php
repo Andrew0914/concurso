@@ -106,14 +106,13 @@
 			$objSheet->getCell('D1')->setValue('RONDA EMPATE');
 			$indexCelda = 2;
 			foreach ($glosario as $g) {
-				$objSheet->getCell('A'.$indexCelda)->setValue($pu['numero']);
-				$objSheet->getCell('B'.$indexCelda)->setValue($pu['pregunta']);
-				$objSheet->getCell('C'.$indexCelda)->setValue($pu['ronda']);
-				$objSheet->getCell('D'.$indexCelda)->setValue($pu['empate']);
+				$objSheet->getCell('A'.$indexCelda)->setValue($g['numero']);
+				$objSheet->getCell('B'.$indexCelda)->setValue($g['pregunta']);
+				$objSheet->getCell('C'.$indexCelda)->setValue($g['ronda']);
 				if($pu['NIVEL_EMPATE'] == 0){
-					$objSheet->getCell('I'.$indexCelda)->setValue("No aplica");
+					$objSheet->getCell('D'.$indexCelda)->setValue("No aplica");
 				}else{
-					$objSheet->getCell('I'.$indexCelda)->setValue($pu['NIVEL_EMPATE']);
+					$objSheet->getCell('D'.$indexCelda)->setValue($g['NIVEL_EMPATE']);
 				}
 				$indexCelda++;
 			}
