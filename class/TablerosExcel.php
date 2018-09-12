@@ -6,7 +6,8 @@
 	require_once dirname(__FILE__) . '/TableroPaso.php';
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
 	require_once dirname(__FILE__) . '/Concursante.php';
- 	error_reporting(E_ALL);
+	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
+
 	class TablerosExcel{
 		
 		public function __construct(){
@@ -25,8 +26,9 @@
 			$masters = $tabMaster->getTablerosMasters($concurso);
 			$tabPos = new TableroPosiciones();
 			$concursante = new Concursante();
-			// obtenemos los tableros generales
+			// INICIO TABLEROS DE POSICIONES GENERALES
 			foreach ($masters as $m) {
+				// viene una hoja por defecto se obtiene si queremos mas se debe crear
 				if($indexHoja <= 0){
 					$objSheet = $objPHPExcel->getSheet($indexHoja);
 				}
@@ -56,7 +58,8 @@
 				
 				$indexHoja++;
 			}
-			//obtenemos lso tableros de puntaciones a dealle
+			// FIN TABLEROS DE POSICIONES GENERALES
+			// INICIO DE TABLERO DE PUNTAJES DETALLE
 			$tabPuntaje = new TableroPuntaje();
 			$puntajes = $tabPuntaje->getResultados($concurso)['tablero'];
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
@@ -76,7 +79,7 @@
 			foreach ($puntajes as $pu) {
 				$objSheet->getCell('A'.$indexCelda)->setValue($pu['RONDA']);
 				$objSheet->getCell('B'.$indexCelda)->setValue($pu['CONCURSANTE']);
-				$objSheet->getCell('C'.$indexCelda)->setValue($pu['PREGUNTA']);
+				$objSheet->getCell('C'.$indexCelda)->setValue($pu['PREGUNTA_POSICION']);
 				$objSheet->getCell('D'.$indexCelda)->setValue($pu['INCISO']);
 				$objSheet->getCell('E'.$indexCelda)->setValue($pu['RESPUESTA']);
 				$objSheet->getCell('F'.$indexCelda)->setValue($pu['CATEGORIA']);
@@ -89,6 +92,33 @@
 				}
 				$indexCelda++;
 			}
+			// FIN TABLERO DE PUNTAJES DETALLE
+			// INICIO GLOSARIO DE PREGUNTAS
+			$indexHoja += 1;
+			$generadas = new PreguntasGeneradas();
+			$glosario = $generadas->getGlosarioPreguntas($concurso);
+			$objSheet = $objPHPExcel->createSheet($indexHoja);
+			$objSheet->setTitle('Glosario de preguntas');
+			$objSheet->getStyle('A1:D1')->getFont()->setBold(true)->setSize(12);
+			$objSheet->getCell('A1')->setValue('NUMERO');
+			$objSheet->getCell('B1')->setValue('PREGUNTA');
+			$objSheet->getCell('C1')->setValue('RONDA');
+			$objSheet->getCell('D1')->setValue('RONDA EMPATE');
+			$indexCelda = 2;
+			foreach ($glosario as $g) {
+				$objSheet->getCell('A'.$indexCelda)->setValue($pu['numero']);
+				$objSheet->getCell('B'.$indexCelda)->setValue($pu['pregunta']);
+				$objSheet->getCell('C'.$indexCelda)->setValue($pu['ronda']);
+				$objSheet->getCell('D'.$indexCelda)->setValue($pu['empate']);
+				if($pu['NIVEL_EMPATE'] == 0){
+					$objSheet->getCell('I'.$indexCelda)->setValue("No aplica");
+				}else{
+					$objSheet->getCell('I'.$indexCelda)->setValue($pu['NIVEL_EMPATE']);
+				}
+				$indexCelda++;
+			}
+			//FIN GLOSARIO DE PREGUNTAS
+			
 
 			$nombre = "tableros_concurso_".$concurso.".xlsx";
 			$ruta = "../gen_excel/".$nombre;

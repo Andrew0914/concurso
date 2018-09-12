@@ -507,6 +507,21 @@
 			return count($rs) > 0;
 		}
 
+		/**
+		 * Obtiene el glosario de preguntas generadas de un concurso
+		 * @param integer $concurso
+		 */
+		public function getGlosarioPreguntas($concurso){
+			$queryGlosario = "SELECT pg.PREGUNTA_POSICION numero,p.PREGUNTA pregunta,r.RONDA ronda,pg.NIVEL_EMPATE empate FROM preguntas p INNER JOIN preguntas_generadas pg ON p.ID_PREGUNTA = pg.ID_PREGUNTA
+			INNER JOIN concursos c ON c.ID_CONCURSO = pg.ID_CONCURSO
+			INNER JOIN rondas r ON r.ID_RONDA = pg.ID_RONDA
+			WHERE c.ID_CONCURSO = ? ORDER BY r.ID_RONDA , pg.PREGUNTA_POSICION";
+
+			$valores = ['ID_CONCURSO'=>$concurso];
+
+			return $this->query($queryGlosario,$valores,true);
+		}
+
 	}
 
 	/**
