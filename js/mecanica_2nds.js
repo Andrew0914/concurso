@@ -29,37 +29,43 @@ function obtenerPregunta(boton){
 function showPregunta(response){
 	// segundo para cada pregunta
 	var segundos = $("#segundos_ronda").val();
-	//cambiamos la vista
-	$("body").removeClass('azul');
-	$("body").addClass('blanco');
-	$("#card-inicio").hide(300);
-	$("#btn-obtener-pr").hide(300);
-	$("#btn-obtener-pr-paso").hide(300);
-	$("#btn-paso").show(300);
-	$("#pregunta").show(300);
-	$("#resultado-mi-pregunta").html("");
-	// seteamos los valores de lap regunta a mostrar
-	$("#pregunta p").text(response.pregunta[0].PREGUNTA);
-	$("#ID_PREGUNTA").val(response.pregunta[0].ID_PREGUNTA);
-	$("#PREGUNTA_POSICION").val(response.pregunta[0].PREGUNTA_POSICION);
-	// mostramos las respuestas posibles para la pregunta
-	var respuestas = response.pregunta.respuestas;
-	var incisos =['a','b','c','d'];
-	var contenido = "<div class='row'>";
-	for(var x= 0; x < respuestas.length ; x++){
-		contenido += "<div class='col-md-3 centrado text-answer'>";
-		contenido += "<button type='button' class='btn-answer' onclick='eligeInciso(this)'>"+incisos[x]+"</button><br><br>";
-		contenido += "<input type='radio' name='mRespuesta-"+response.pregunta[0].ID_PREGUNTA+"' value='"+ respuestas[x].ID_RESPUESTA +"' style='display:none'/>";
-		if(respuestas[x].ES_IMAGEN == 1){
-			contenido += "<img src='image/respuestas/" + respuestas[x].RESPUESTA + "'/>";
-		}else{
-			contenido += respuestas[x].RESPUESTA;
+	var segundosReales = segundos - response.pregunta[0].TIEMPO_TRANSCURRIDO;
+	if(segundosReales <= 0){
+		alert("Vaya! parece que el tiempo para obtener tu pregunta a terminado :(");
+	}else{
+		//cambiamos la vista
+		$("body").removeClass('azul');
+		$("body").addClass('blanco');
+		$("#card-inicio").hide(300);
+		$("#btn-obtener-pr").hide(300);
+		$("#btn-obtener-pr-paso").hide(300);
+		$("#btn-paso").show(300);
+		$("#pregunta").show(300);
+		$("#resultado-mi-pregunta").html("");
+		// seteamos los valores de lap regunta a mostrar
+		$("#pregunta p").text(response.pregunta[0].PREGUNTA);
+		$("#ID_PREGUNTA").val(response.pregunta[0].ID_PREGUNTA);
+		$("#PREGUNTA_POSICION").val(response.pregunta[0].PREGUNTA_POSICION);
+		// mostramos las respuestas posibles para la pregunta
+		var respuestas = response.pregunta.respuestas;
+		var incisos =['a','b','c','d'];
+		var contenido = "<div class='row'>";
+		for(var x= 0; x < respuestas.length ; x++){
+			contenido += "<div class='col-md-3 centrado text-answer'>";
+			contenido += "<button type='button' class='btn-answer' onclick='eligeInciso(this)'>"+incisos[x]+"</button><br><br>";
+			contenido += "<input type='radio' name='mRespuesta-"+response.pregunta[0].ID_PREGUNTA+"' value='"+ respuestas[x].ID_RESPUESTA +"' style='display:none'/>";
+			if(respuestas[x].ES_IMAGEN == 1){
+				contenido += "<img src='image/respuestas/" + respuestas[x].RESPUESTA + "'/>";
+			}else{
+				contenido += respuestas[x].RESPUESTA;
+			}
+			contenido += "</div>";
 		}
 		contenido += "</div>";
-	  }
-	contenido += "</div>";
-	$("#content-respuestas").html(contenido);
-	cronometro(segundos,function(){},function(){paso();});
+		$("#content-respuestas").html(contenido);
+		cronometro(segundosReales,function(){},function(){paso();});
+	}
+	
 }
 
 function eligeInciso(boton){
@@ -77,6 +83,7 @@ function saveRespuesta(paso){
 	var pregunta = $("#ID_PREGUNTA").val();
 	var concursante = $("#ID_CONCURSANTE").val();
 	var respuestas = document.getElementsByName("mRespuesta-" + pregunta );
+	var nivelEmpate = $("#NIVEL_EMPATE").val();
 	var respuesta = 'null';
 	for (var i = 0, length = respuestas.length; i < length; i++){
 		if (respuestas[i].checked){
@@ -86,24 +93,25 @@ function saveRespuesta(paso){
 	}
 	// MANDAMOS LA RESPUESTA SELECCIONADA
 	$.ajax({
-		 url: 'class/TableroPuntaje.php',
-		 type: 'POST',
-		 dataType: 'json',
-		 data: {'functionTablero': 'saveDirect',
-			  'ID_CONCURSO':concurso,
-			  'ID_RONDA':ronda,
-			  'ID_CONCURSANTE':concursante,
-			  'ID_PREGUNTA': pregunta,
-			  'ID_RESPUESTA':respuesta,
-			  'PREGUNTA_POSICION': posicion,
-			  'PASO':paso
-		  },success:function(data){
-			 if(data.estado == 1){
-			 	notFinish = true;
+		url: 'class/TableroPuntaje.php',
+		type: 'POST',
+		dataType: 'json',
+		data: {'functionTablero': 'saveDirect',
+			'ID_CONCURSO':concurso,
+			'ID_RONDA':ronda,
+			'ID_CONCURSANTE':concursante,
+			'ID_PREGUNTA': pregunta,
+			'ID_RESPUESTA':respuesta,
+			'PREGUNTA_POSICION': posicion,
+			'PASO':paso,
+			'NIVEL_EMPATE':nivelEmpate}
+		,success:function(data){
+			if(data.estado == 1){
+				notFinish = true;
 				afterSend();
-			  }else{
+			}else{
 				console.log(data.mensaje)
-			  }
+			}
 		  },error:function(error){
 			 console.log(error)
 		  }
@@ -255,40 +263,47 @@ function afterSend(){
 }
 
 function showPreguntaPaso(response){
-	// preparo tambien mi pantalla para el preliminar
-	$("body").removeClass('azul');
-	$("body").addClass('blanco');
-	$("#card-inicio").hide(300);
-	$("#pregunta").show(300);
-	// ABRIMOS EL MODAL
-	$("#mdl-pr-paso").modal({backdrop: 'static', keyboard: false});
-	// segundo para cada pregunta
-	var segundos = $("#segundos_ronda").val();
-	//cambiamos la vista
-	$("#pregunta-paso").show(300);
-	$("#resultado-mi-pregunta-paso").html("");
-	// seteamos los valores de lap regunta a mostrar
-	$("#pregunta-paso p").text(response.pregunta[0].PREGUNTA);
-	$("#ID_PREGUNTA-paso").val(response.pregunta[0].ID_PREGUNTA);
-	$("#PREGUNTA_POSICION-paso").val(response.pregunta[0].PREGUNTA_POSICION);
-	// mostramos las respuestas posibles para la pregunta
-	var respuestas = response.pregunta.respuestas;
-	var incisos =['a','b','c','d'];
-	var contenido = "<div class='row'>";
-	for(var x= 0; x < respuestas.length ; x++){
-		contenido += "<div class='col-md-3 centrado text-answer'>";
-		contenido += "<button type='button' class='btn-answer' onclick='eligeIncisoPaso(this)'>"+incisos[x]+"</button><br><br>";
-		contenido += "<input type='radio' name='mRespuestaPaso-"+response.pregunta[0].ID_PREGUNTA+"' value='"+ respuestas[x].ID_RESPUESTA +"' style='display:none'/>";
-		if(respuestas[x].ES_IMAGEN == 1){
-			contenido += "<img src='image/respuestas/" + respuestas[x].RESPUESTA + "'/>";
-		}else{
-			contenido += respuestas[x].RESPUESTA;
+	var segundosParaPaso = $("#SEGUNDOS_PASO").val();
+	var segundosReales =  segundosParaPaso - response.pregunta[0].TIEMPO_TRANSCURRIDO_PASO;
+	if(segundosReales <= 0){
+		alert("Vaya! parece que se ha terminado el tiempo de roba puntos :(");
+	}else{
+		// preparo tambien mi pantalla para el preliminar
+		$("body").removeClass('azul');
+		$("body").addClass('blanco');
+		$("#card-inicio").hide(300);
+		$("#pregunta").show(300);
+		// ABRIMOS EL MODAL
+		$("#mdl-pr-paso").modal({backdrop: 'static', keyboard: false});
+		// segundo para cada pregunta
+		var segundos = $("#segundos_ronda").val();
+		//cambiamos la vista
+		$("#pregunta-paso").show(300);
+		$("#resultado-mi-pregunta-paso").html("");
+		// seteamos los valores de lap regunta a mostrar
+		$("#pregunta-paso p").text(response.pregunta[0].PREGUNTA);
+		$("#ID_PREGUNTA-paso").val(response.pregunta[0].ID_PREGUNTA);
+		$("#PREGUNTA_POSICION-paso").val(response.pregunta[0].PREGUNTA_POSICION);
+		// mostramos las respuestas posibles para la pregunta
+		var respuestas = response.pregunta.respuestas;
+		var incisos =['a','b','c','d'];
+		var contenido = "<div class='row'>";
+		for(var x= 0; x < respuestas.length ; x++){
+			contenido += "<div class='col-md-3 centrado text-answer'>";
+			contenido += "<button type='button' class='btn-answer' onclick='eligeIncisoPaso(this)'>"+incisos[x]+"</button><br><br>";
+			contenido += "<input type='radio' name='mRespuestaPaso-"+response.pregunta[0].ID_PREGUNTA+"' value='"+ respuestas[x].ID_RESPUESTA +"' style='display:none'/>";
+			if(respuestas[x].ES_IMAGEN == 1){
+				contenido += "<img src='image/respuestas/" + respuestas[x].RESPUESTA + "'/>";
+			}else{
+				contenido += respuestas[x].RESPUESTA;
+			}
+			contenido += "</div>";
 		}
 		contenido += "</div>";
-	  }
-	contenido += "</div>";
-	$("#content-respuestas-paso").html(contenido);
-	cronometroPaso(5,function(){},function(){saveRespuestaPaso();});
+		$("#content-respuestas-paso").html(contenido);
+		cronometroPaso(segundosReales,function(){},function(){saveRespuestaPaso();});
+	}
+	
 }
 
 function eligeIncisoPaso(boton){

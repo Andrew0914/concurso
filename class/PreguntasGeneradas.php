@@ -383,7 +383,11 @@
 		 */
 		public function miUltimaLanzada($concurso,$ronda,$categoria,$concursante){
 			$response = ['estado'=>0,'mensaje'=>'Sin aaccion'];
-			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND ID_CONCURSANTE = ?";
+
+			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA,pg.TIEMPO_TRANSCURRIDO 
+						FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
+						WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND ID_CONCURSANTE = ?";
+
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda , 'ID_CATEGORIA'=>$categoria, 'ID_CONCURSANTE'=>$concursante];
 			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
 			try{

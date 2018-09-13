@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
-    <body class="content content-sm blanco">
+    <body class="content content-mdx blanco">
         <?php include 'menu.php'; ?>
         <section class="centrado">
             <h1>

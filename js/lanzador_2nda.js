@@ -2,9 +2,9 @@ var timerContesto = null;
 var timerPaso = null;
 /**
  * Dispara el dialogo con la pregunta para lanzarla
- * @param  {[int]} pregunta   
- * @param  {[int]} idPregunta 
- * @param  {[int]} idGenerada 
+ * @param  {integer} pregunta   
+ * @param  {integer} idPregunta 
+ * @param  {integer} idGenerada 
  */
 function leer(pregunta,idPregunta,puntaje,concursante,idConcursante,idGenerada){
     $("#mdl-leer-pregunta").modal({backdrop: 'static', keyboard: false});
@@ -19,7 +19,7 @@ function leer(pregunta,idPregunta,puntaje,concursante,idConcursante,idGenerada){
 
 /**
  * Lanza la pregunta para que se le aparezca a los concursantes
- * @param  integer segundos 
+ * @param  {integer} segundos 
  */
 function lanzarPregunta(segundos,boton){
 	var generada = $("#ID_GENERADA").val();
@@ -58,7 +58,7 @@ function lanzarPregunta(segundos,boton){
                 }
                 contenido += "</tr>";
                 $("#content-respuestas tbody").html(contenido);
-                contestoOpaso();
+                cronometro(segundos,function(){contestoOpaso();}, function(){finCronometro();});
         	}else{
         		alert(response.mensaje);
         	}
@@ -69,11 +69,19 @@ function lanzarPregunta(segundos,boton){
 	});	
 }
 
+function ocultarCronometro(){
+    $("#reloj-cronometro").css("display","none");
+}
+
+function finCronometro(){
+    ocultarCronometro();
+    $("#btn-siguiente").show(300);
+}
+
 /**
  * Lanza la peticion para saber si todos los participantes contestaron
  */
 function contestoOpaso(){
-   timerContesto = setInterval(function(){
     $.ajax({
         url: 'class/TableroPuntaje.php',
         type: 'GET',
@@ -85,11 +93,13 @@ function contestoOpaso(){
                 'functionTablero':'contestoOpaso'},
         success:function(response){
             if(response.estado == 1){
-                clearInterval(timerContesto);
+                ocultarCronometro();
+                stopExecPerSecond = true;
                 $("#btn-siguiente").show(300);
                 $("#loading").hide(300);
             }else if(response.estado == 2){
-                clearInterval(timerContesto);
+                ocultarCronometro();
+                stopExecPerSecond = true;
                 if(confirm(response.mensaje + response.concursante['CONCURSANTE'] + "?")){
                     $("#loading").hide(300);
                     tomoPaso(response.concursante['ID_CONCURSANTE']);
@@ -102,7 +112,6 @@ function contestoOpaso(){
             console.log(error);
         }
     }); 
-   },1000);
 }
 
 function tomoPaso(concursante){
@@ -119,7 +128,9 @@ function tomoPaso(concursante){
             if(response.estado == 1){
                 $("#btn-siguiente").hide(300);
                 $("#loading").show(300);
-                contestoPaso(concursante);
+                cronometroPaso($("#SEGUNDOS_PASO").val() 
+                                ,function(){ contestoPaso(concursante); }
+                                ,function(){ finCronometroPaso(); } );
             }else{
                 alert(response.mensaje);
             }
@@ -131,8 +142,16 @@ function tomoPaso(concursante){
     });
 }
 
+function ocultarCronometroPaso(){
+    $("#reloj-paso").css("display","none");
+}
+
+function finCronometroPaso(){
+    ocultarCronometroPaso();
+    $("#btn-siguiente").show(300);
+}
+
 function contestoPaso(concursante){
-    timerPaso = setInterval(function(){
     $.ajax({
         url: 'class/TableroPaso.php',
         type: 'GET',
@@ -144,7 +163,8 @@ function contestoPaso(concursante){
                 'functionTableroPaso':'pasoContestado'},
         success:function(response){
             if(response.estado == 1){
-                clearInterval(timerPaso);
+                ocultarCronometroPaso();
+                stopExecPerSecond1 = true;
                 $("#btn-siguiente").show(300);
                 $("#loading").hide(300);
             }else{
@@ -154,7 +174,6 @@ function contestoPaso(concursante){
             console.log(error);
         }
     }); 
-   },1000);
 }
 
 /**
@@ -182,7 +201,7 @@ function siguienteRonda(){
         type: 'POST',
         dataType: 'json',
         data: {'ID_CONCURSO': concurso , 
-                'ID_CATEGORIA': categoria ,
+                'ID_CATEGORIA': categoria , 
                 'functionRondasLog':'siguienteRonda',
                 'rondaActual':rondaActual,
                 'IS_DESEMPATE':document.getElementById('IS_DESEMPATE').value,

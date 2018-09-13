@@ -131,11 +131,17 @@
 		 * @return array              
 		 */
 		public function contestoOpaso($concurso,$ronda,$pregunta,$concursante){
+			// obtenemos la inforamcion del tablero de pubtajes
 			$objConcursante = new Concursante();	
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
 			$rs = $this->get($where,$whereValues);
+			//agregamos un segundo pasado a la pregunta para que el concursante solo tengalos segundos resantes
+			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO = TIEMPO_TRANSCURRIDO + 1 
+			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$this->query($queryTiempo,$whereValues,false);
+			// verificamos si ya esta insertada la accion de contestado o paso
 			if(count($rs) > 0){
 				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO_PREGUNTA'] != 1){
 					if($rs[0]['RESPUESTA_CORRECTA'] == 1){
@@ -493,9 +499,14 @@
 			if($respuesta==''){
 				$respuesta = null;
 			}
-			$values = ['ID_CONCURSO'=>$concurso,'ID_CONCURSANTE'=>$concursante
-						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta , 'PREGUNTA_POSICION'=>$posicion];
 			try{
+				$values = ['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda 
+						, 'ID_CONCURSANTE'=>$concursante , 'PREGUNTA_POSICION'=>$posicion,'PREGUNTA'=>$pregunta];
+				// verificamos que no se almacene doble la pregunta para el puntaje
+				if($this->existeEnTablero($values)){
+					return ['estado'=>0 , 'mensaje'=> "La preguna ya existe en el tablero"];
+				}
+				$values['RESPUESTA'] = $respuesta; 
 				// generamos el valor para el campo de respuesta_correcta
 				$objRespuesta = new Respuestas();
 				if($objRespuesta->esCorrecta($pregunta, $respuesta)){
@@ -606,7 +617,7 @@
 						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE']));
 				break;
 			case 'saveDirect':
-				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO']));
+				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'paso':
 				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO']));

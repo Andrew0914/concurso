@@ -2,7 +2,9 @@ var stopExecPerSecond = false;
 var notFinish = false;
 /**
  * Funcion que inicia un cronometro a partir de un svg con los segundos indicados
- * @param  {int} segundos 
+ * @param  {integer} segundos 
+ * @param {callback} callbackPerSecond
+ * @param {callback} finishCallback
  */
 function cronometro(segundos, callbackPerSecond, finishCallback){
 	stopExecPerSecond= false;
@@ -21,8 +23,8 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 	  duration: ms,
 	  easing: 'linear',
 	  step: function (a,b) {
-	  	var real = Math.ceil(this.Counter);
-	  	var display = "00:"+real;
+	  	var real = segundos - Math.ceil(this.Counter);
+	  	var display = "00:"+ real;
 	  	if(real < 10){
 	  		display = "00:0"+real;
 	  	}
@@ -48,9 +50,9 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
 function initTimerPerSecond(segundos,functionPerSecond, finishFunction){
 	var contador = 1;
 	var timerPerSecond = setInterval(function(){
-		if((contador % 2) == 0){
+		//if((contador % 2) == 0){
 			functionPerSecond();
-		}
+		//}
 		if(contador == segundos && !notFinish){
 			finishFunction();
 		}

@@ -39,8 +39,12 @@ html,body{
 	width: 65%;
 }
 
+.content-mdx{
+	width: 80%;
+}
+
 .content-lg{
-	width: 97%;
+	width: 95%;
 }
 
 .centrado{
@@ -100,10 +104,10 @@ html,body{
 	display: block;
 	margin: 0 auto;
 	width: 75%;
-	font-size-adjust: 0.45;
+	font-size-adjust: 0.5;
 	font-size:100%;
 	padding: 8px;
-	padding-right: 25px;
+	padding-right: 40px;
 	font-family: 'monserrat';
 	border: 2px solid rgb(158,219,180);
 	border-radius: 10px;

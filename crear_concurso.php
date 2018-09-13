@@ -15,7 +15,7 @@
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
-<body class="content blanco centrado content-sm">
+<body class="content blanco centrado content-md">
 	<?php include 'menu.php'; ?>
 	<!-- CABECERA-->
 	<header>

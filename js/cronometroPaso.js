@@ -48,9 +48,9 @@ function cronometroPaso(segundos, callbackPerSecond, finishCallback){
 function initTimerPerSecond1(segundos,functionPerSecond, finishFunction){
 	var contador = 1;
 	var timerPerSecond = setInterval(function(){
-		if((contador % 2) == 0){
+		//if((contador % 2) == 0){
 			functionPerSecond();
-		}
+		//}
 
 		if(contador == segundos && !notFinish1){
 			finishFunction();

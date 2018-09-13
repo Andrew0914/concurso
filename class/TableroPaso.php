@@ -17,6 +17,12 @@
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
 			$rs = $this->get($where,$whereValues);
+
+			// contabilizamos los segundos
+			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO_PASO = TIEMPO_TRANSCURRIDO_PASO + 1 
+			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$this->query($queryTiempo,$whereValues,false);
+
 			if(count($rs) > 0){
 				return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
 			}
@@ -85,9 +91,14 @@
 			if($respuesta == ''){
 				$respuesta = null;
 			}
-			$values = ['ID_CONCURSO'=>$concurso,'ID_CONCURSANTE'=>$concursante
-						, 'ID_RONDA'=>$ronda ,'PREGUNTA'=>$pregunta , 'RESPUESTA'=>$respuesta , 'PREGUNTA_POSICION'=>$posicion];
 			try{
+				$values = ['ID_CONCURSO'=>$concurso, 'ID_RONDA'=>$ronda ,'ID_CONCURSANTE'=>$concursante
+						,'PREGUNTA'=>$pregunta];
+				if($this->existeEnTablero($values)){
+					return ['estado'=>0 , 'mensaje'=> "La preguna ya existe en el tablero"];
+				}
+				$values['RESPUESTA'] = $respuesta;
+				$values['PREGUNTA_POSICION'] = $posicion;
 				// generamos el valor para el campo de respuesta_correcta
 				$objRespuesta = new Respuestas();
 				$values['RESPUESTA'] = $respuesta;

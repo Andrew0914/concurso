@@ -37,6 +37,7 @@
 		<input type="hidden" name="NIVEL_EMPATE" id="NIVEL_EMPATE" value="<?php echo $concurso['NIVEL_EMPATE'] ?>">
 		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
+		<input type="hidden" name="SEGUNDOS_PASO" id="SEGUNDOS_PASO" value="<?php echo $ronda['SEGUNDOS_PASO'] ?>" />
 		<input type="hidden" name="TURNOS_PREGUNTA_CONCURSANTE" id="TURNOS_PREGUNTA_CONCURSANTE" value="<?php echo $ronda['TURNOS_PREGUNTA_CONCURSANTE'] ?>" />
 		<div class="card-lg centrado" id="card-inicio">
 			<h3><img src="image/logo_geollin.png" /></h3>
