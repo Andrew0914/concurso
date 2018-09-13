@@ -331,6 +331,11 @@
 				$generar->eliminar(0,$whereDelete,$valuesDelete);
 				return ['estado'=>0,'mensaje'=>'NO se generaron las preguntas'];
 			}
+			// volvemos a permitir a los concursantes entrar
+			$concursante = new Concursante();
+			if(!$concursante->actualiza(0, ['INICIO_SESION'=>0], $whereDelete , $valuesDelete)){
+				return ['estado'=>0 ,'mensaje'=> 'El concurso se reseteo, pero no se reinicio la sesion de los concursantes'];
+			}
 			return ['estado'=>1,'mensaje'=>'Se ha reseteado el concurso con exito'];
 		}
 	}

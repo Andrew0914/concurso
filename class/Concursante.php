@@ -215,6 +215,10 @@
 			}
 			return ['estado'=>1 , 'termino_ronda'=>$terminoRonda ];
 		}
+
+		public function actualiza($id,$valores,$where,$whereValues){
+			return $this->update($id,$valores,$where,$whereValues);
+		}
 	}
 
 	// POST REQUEST
