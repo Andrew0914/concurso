@@ -33,7 +33,6 @@
                         }
                     ?>
                 </select>
-                <select id="selectTagWidth"><option id="widthTempOption"></option></select>
                 <br>
                 <button class="btn btn-lg btn-geo" type="button" onclick="getExcel()">
                     Obtener Excel

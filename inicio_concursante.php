@@ -40,7 +40,6 @@
                         }
                     ?>
                 </select>
-                <select id="selectTagWidth"><option id="widthTempOption"></option></select>
                 <br>
                 <label for="CONCURSANTE"><b>Concursante</b></label>
                 <select name="CONCURSANTE" id="CONCURSANTE" class="select-geo">
