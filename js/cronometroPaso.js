@@ -22,12 +22,12 @@ function cronometroPaso(segundos, callbackPerSecond, finishCallback){
 	  duration: ms,
 	  easing: 'linear',
 	  step: function (a,b) {
-	  	var real = Math.ceil(this.Counter);
-	  	var display = "00:"+real;
-	  	if(real < 10){
-	  		display = "00:0"+real;
-	  	}
-	    count.text(display);
+		var real = segundos - Math.ceil(this.Counter);
+		var display = "00:"+ real;
+		if(real < 10){
+			display = "00:0"+real;
+		}
+	  count.text(display);
 	  }
 	});
 

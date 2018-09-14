@@ -140,7 +140,14 @@
 										echo $puntaje['RESPUESTA'].'</td>';
 									}
 									echo "<td>".$puntaje['PUNTAJE'].'</td>';
-									echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
+									echo "<td>".$puntaje['PASO_PREGUNTAS'];
+									if($puntaje['PASO'] == 1){
+										echo '<br><img src="image/por_paso.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+									}else if($puntaje['PASO'] == 2){
+										echo '<br><img src="image/por_error.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+									}else{
+										echo '</td>';
+									}
 									echo "</tr>";	
 								}
 							 ?>

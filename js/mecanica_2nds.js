@@ -108,7 +108,7 @@ function saveRespuesta(paso){
 		,success:function(data){
 			if(data.estado == 1){
 				notFinish = true;
-				afterSend();
+				afterSend(false);
 			}else{
 				console.log(data.mensaje)
 			}
@@ -145,7 +145,7 @@ function paso(porError){
 		  },success:function(data){
 			 if(data.estado == 1){
 			 	if(!porError){
-					afterSend();
+					afterSend(true);
 				}
 				notFinish = true;
 			  }else{
@@ -216,7 +216,7 @@ function saveRespuestaPaso(){
 	  });
 }
 
-function afterSend(){
+function afterSend(esPaso){
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
 	var concursante = $("#ID_CONCURSANTE").val();
@@ -234,7 +234,6 @@ function afterSend(){
 				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value,
 				'functionTablero':'miPuntajePregunta'},
 		success:function(response){
-			console.log(response);
 			if(response.estado == 1){
 				var mensaje  = "<h4>Tu respuesta fue:";
 				if(response.puntaje.RESPUESTA_CORRECTA == 1){
@@ -242,8 +241,10 @@ function afterSend(){
 					mensaje += "<img src='image/correcta.png'/>"
 				}else{
 					mensaje += " INCORRECTA </h4>";
-					mensaje += "<img src='image/incorrecta.png'/>"
-					paso(true);
+					mensaje += "<img src='image/incorrecta.png'/>";
+					if(!esPaso){
+						paso(true);
+					}
 				}
 				$("#resultado-mi-pregunta").html(mensaje);
 				$("#cronometro-content").css("display","none");

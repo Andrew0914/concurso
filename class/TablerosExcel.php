@@ -83,7 +83,12 @@
 				$objSheet->getCell('D'.$indexCelda)->setValue($pu['INCISO']);
 				$objSheet->getCell('E'.$indexCelda)->setValue($pu['RESPUESTA']);
 				$objSheet->getCell('F'.$indexCelda)->setValue($pu['CATEGORIA']);
-				$objSheet->getCell('G'.$indexCelda)->setValue($pu['PASO_PREGUNTAS']);
+				
+				$descripcion_paso = $pu['PASO_PREGUNTAS'] =='NO' 
+									? $pu['PASO_PREGUNTAS'] : 
+									$pu['PASO_PREGUNTAS'] . ' ' . $pu['CONCURSANTE_TOMO'];
+
+				$objSheet->getCell('G'.$indexCelda)->setValue($descripcion_paso);
 				$objSheet->getCell('H'.$indexCelda)->setValue($pu['PUNTAJE']);
 				if($pu['NIVEL_EMPATE'] == 0){
 					$objSheet->getCell('I'.$indexCelda)->setValue("No aplica");

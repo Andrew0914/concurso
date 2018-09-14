@@ -16,11 +16,13 @@
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
+
 			$rs = $this->get($where,$whereValues);
 
 			// contabilizamos los segundos
+			unset($whereValues['ID_CONCURSANTE']);
 			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO_PASO = TIEMPO_TRANSCURRIDO_PASO + 1 
-			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? ";
 			$this->query($queryTiempo,$whereValues,false);
 
 			if(count($rs) > 0){

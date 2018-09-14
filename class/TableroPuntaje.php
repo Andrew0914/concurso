@@ -153,7 +153,8 @@
 					}
 					
 				}
-				if($rs[0]['PASO_PREGUNTA'] == 1){
+				// SE GENERA UN PASO DE PREGUNTAS POR PASO DIRECTO = 1 Y POR ERROR = 2
+				if($rs[0]['PASO_PREGUNTA'] == 1 || $rs[0]['PASO_PREGUNTA'] == 2){
 					return ['estado'=>2 
 						, 'mensaje'=>'El equipo actual ha pasado la pregunta, la quiere tomar el equipo: '
 						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
@@ -280,11 +281,13 @@
 			$objConcurso = $objConcurso->getConcurso($concurso);
 			$rondas = new Rondas();
 			try{
-				$query = "SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,
-				IF(tp.PASO_PREGUNTA = 1 ,
-					CONCAT('Paso pregunta a ' , (SELECT CONCURSANTE FROM concursantes cp WHERE cp.ID_CONCURSANTE = tp.CONCURSANTE_PASO )),
-					'NO')  AS PASO_PREGUNTAS ,
-				tp.PUNTAJE,tp.NIVEL_EMPATE,tp.PREGUNTA_POSICION
+				$query = "SELECT * FROM (SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,
+				(CASE 
+					WHEN tp.PASO_PREGUNTA = 0 THEN 'NO'
+					WHEN tp.PASO_PREGUNTA = 1 THEN CONCAT('Paso pregunta a ' , (SELECT CONCURSANTE FROM concursantes cp WHERE cp.ID_CONCURSANTE = tp.CONCURSANTE_PASO ))
+					WHEN tp.PASO_PREGUNTA = 2 THEN CONCAT('Incorrecta y paso a ' , (SELECT CONCURSANTE FROM concursantes cp WHERE cp.ID_CONCURSANTE = tp.CONCURSANTE_PASO ))
+				END )  AS PASO_PREGUNTAS ,
+				tp.PUNTAJE,tp.NIVEL_EMPATE,tp.PREGUNTA_POSICION,tp.PASO_PREGUNTA as PASO, if(tp.CONCURSANTE_TOMO = 1,' y SI tomo la preguna','y NO tomo la pregunta') CONCURSANTE_TOMO
 				FROM tablero_puntajes tp 
 				LEFT JOIN rondas r ON tp.ID_RONDA = r.ID_RONDA
 				LEFT JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE
@@ -303,15 +306,16 @@
 				}
 				$values['ID_CONCURSO'] = $concurso;
 				$query.= " UNION ALL ";
-				$query.= " SELECT r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA
-								,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE,'0' as NIVEL_EMPATE,tps.PREGUNTA_POSICION
+				$query.= " SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA
+								,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE,'0' as NIVEL_EMPATE,tps.PREGUNTA_POSICION,'0' PASO,'' CONCURSANTE_TOMO
 					FROM tablero_pasos tps
 					LEFT JOIN rondas r ON tps.ID_RONDA = r.ID_RONDA
 					LEFT JOIN concursantes c ON tps.ID_CONCURSANTE = c.ID_CONCURSANTE
 					LEFT JOIN preguntas p ON tps.PREGUNTA = p.ID_PREGUNTA
 					LEFT JOIN respuestas w ON tps.RESPUESTA = w.ID_RESPUESTA
 					LEFT JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA
-					WHERE tps.ID_CONCURSO = ?";
+					WHERE tps.ID_CONCURSO = ? ) resultados ORDER BY resultados.ID_RONDA,resultados.PREGUNTA_POSICION";
+				//echo $query;
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;
 				$response['estado'] = 1;
@@ -543,7 +547,7 @@
 				$valoresPaso = ['PASO_PREGUNTA'=>$paso 
 						, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante,$concurso)['ID_CONCURSANTE']];
 				// paso directo si almacena pregunta primero
-				if(paso == 1){
+				if($paso == 1){
 					if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso,$nivel_empate)['estado'] == 1){
 						if($this->update(0,$valoresPaso ,$where , $whereValues)){
 							return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
@@ -551,7 +555,7 @@
 					}else{
 						return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta x'];
 					}
-				}else if(paso == 2){
+				}else if($paso == 2){
 					// ya almaceno cuando contesto incorrecto solo se actualiza el paso
 					if($this->update(0,$valoresPaso ,$where , $whereValues)){
 						return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
@@ -589,7 +593,8 @@
 				return ['estado'=>0 , 'mensaje'=>'No te han pasado ninguna pregunta'];
 			}
 
-			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ?  AND ID_CONCURSANTE = ? AND p.ID_PREGUNTA = ?";
+			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA,pg.TIEMPO_TRANSCURRIDO_PASO
+			 FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ?  AND ID_CONCURSANTE = ? AND p.ID_PREGUNTA = ?";
 			$valores = ['ID_CONCURSO'=>$concurso 
 						, 'ID_RONDA'=>$ronda
 						, 'ID_CONCURSANTE'=>$ultimaPreguntaPaso['ID_CONCURSANTE']
