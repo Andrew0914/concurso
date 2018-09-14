@@ -494,14 +494,15 @@
 		 * @param  integer $paso        
 		 * @return array              
 		 */
-		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso){
+		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso,$nivel_empate){
 			//validamos si no respondio
 			if($respuesta==''){
 				$respuesta = null;
 			}
 			try{
 				$values = ['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda 
-						, 'ID_CONCURSANTE'=>$concursante , 'PREGUNTA_POSICION'=>$posicion,'PREGUNTA'=>$pregunta];
+						, 'ID_CONCURSANTE'=>$concursante , 'PREGUNTA_POSICION'=>$posicion
+						,'PREGUNTA'=>$pregunta,'NIVEL_EMPATE'=>$nivel_empate];
 				// verificamos que no se almacene doble la pregunta para el puntaje
 				if($this->existeEnTablero($values)){
 					return ['estado'=>0 , 'mensaje'=> "La preguna ya existe en el tablero"];
@@ -533,7 +534,7 @@
 		 * @param   $paso 
 		 * @return  array 
 		 */
-		public function paso($concursante,$concurso,$ronda,$pregunta,$posicion,$paso =1){
+		public function paso($concursante,$concurso,$ronda,$pregunta,$posicion,$paso =1,$nivel_empate){
 			$objConcursante = new Concursante();
 			try{
 				if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso)['estado'] == 1){
@@ -617,10 +618,11 @@
 						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE']));
 				break;
 			case 'saveDirect':
-				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
+				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA']
+				,$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'paso':
-				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO']));
+				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);
