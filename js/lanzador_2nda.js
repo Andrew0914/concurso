@@ -93,11 +93,13 @@ function contestoOpaso(){
                 'functionTablero':'contestoOpaso'},
         success:function(response){
             if(response.estado == 1){
+                clearInterval(timerCronometro);
                 ocultarCronometro();
                 stopExecPerSecond = true;
                 $("#btn-siguiente").show(300);
                 $("#loading").hide(300);
             }else if(response.estado == 2){
+                clearInterval(timerCronometro);
                 ocultarCronometro();
                 stopExecPerSecond = true;
                 if(confirm(response.mensaje + response.concursante['CONCURSANTE'] + "?")){
@@ -163,6 +165,7 @@ function contestoPaso(concursante){
                 'functionTableroPaso':'pasoContestado'},
         success:function(response){
             if(response.estado == 1){
+                clearInterval(timerCronometroPaso);
                 ocultarCronometroPaso();
                 stopExecPerSecond1 = true;
                 $("#btn-siguiente").show(300);

@@ -135,7 +135,8 @@ function paso(porError){
 			  'ID_CONCURSANTE':concursante,
 			  'ID_PREGUNTA': pregunta,
 			  'PREGUNTA_POSICION': posicion,
-			  'PASO':1
+			  'PASO':1,
+			  'NIVEL_EMPATE':$("#NIVEL_EMPATE").val()
 		  },success:function(data){
 			 if(data.estado == 1){
 			 	if(!porError){

@@ -1,5 +1,6 @@
 var stopExecPerSecond = false;
 var notFinish = false;
+var timerCronometro = null;
 /**
  * Funcion que inicia un cronometro a partir de un svg con los segundos indicados
  * @param  {integer} segundos 
@@ -49,7 +50,7 @@ function cronometro(segundos, callbackPerSecond, finishCallback){
  */
 function initTimerPerSecond(segundos,functionPerSecond, finishFunction){
 	var contador = 1;
-	var timerPerSecond = setInterval(function(){
+	timerCronometro = setInterval(function(){
 		//if((contador % 2) == 0){
 			functionPerSecond();
 		//}
