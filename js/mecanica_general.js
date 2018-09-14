@@ -52,9 +52,9 @@ var Comet = Class.create();
 	 	if(!lastLanzada){
 	 		showPregunta(response);
 	 	}else{
-	 		console.log('Baia baia quiciste ponerme de nuevo la ultima');
+	 		//console.log('Baia baia quiciste ponerme de nuevo la ultima');
 	 	}
-	 	if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value){
+	 	if(this.lanzada >=  document.getElementById('PREGUNTAS_POR_CATEGORIA').value && !lastLanzada){
  			finalizaRonda(response.concurso);
  			lastLanzada = true;
 	 	}	 	
@@ -69,7 +69,7 @@ comet.connect();
  * @param  {json} response [description]
  */
 function showPregunta(response){
-	console.log("Mostrando pregunta");
+	//console.log("Mostrando pregunta");
 	// segundo para cada pregunta
 	var segundos = $jq("#segundos_ronda").val();
 	//cambiamos la vista
