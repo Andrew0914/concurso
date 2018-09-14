@@ -494,7 +494,7 @@
 		 * @param  integer $paso        
 		 * @return array              
 		 */
-		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso,$nivel_empate){
+		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso=0,$nivel_empate){
 			//validamos si no respondio
 			if($respuesta==''){
 				$respuesta = null;
@@ -537,18 +537,27 @@
 		public function paso($concursante,$concurso,$ronda,$pregunta,$posicion,$paso =1,$nivel_empate){
 			$objConcursante = new Concursante();
 			try{
-				if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso)['estado'] == 1){
-					$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_CONCURSANTE'=>$concursante 
-									, 'ID_RONDA'=>$ronda , 'PREGUNTA'=>$pregunta];
-					$where = "ID_CONCURSO = ? AND ID_CONCURSANTE = ? AND ID_RONDA = ? AND PREGUNTA = ?";
-					$valoresPaso = ['PASO_PREGUNTA'=>$paso 
-					, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante,$concurso)['ID_CONCURSANTE']];
+				$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_CONCURSANTE'=>$concursante 
+										, 'ID_RONDA'=>$ronda , 'PREGUNTA'=>$pregunta];
+				$where = "ID_CONCURSO = ? AND ID_CONCURSANTE = ? AND ID_RONDA = ? AND PREGUNTA = ?";
+				$valoresPaso = ['PASO_PREGUNTA'=>$paso 
+						, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante,$concurso)['ID_CONCURSANTE']];
+				// paso directo si almacena pregunta primero
+				if(paso == 1){
+					if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso,$nivel_empate)['estado'] == 1){
+						if($this->update(0,$valoresPaso ,$where , $whereValues)){
+							return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
+						}
+					}else{
+						return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta x'];
+					}
+				}else if(paso == 2){
+					// ya almaceno cuando contesto incorrecto solo se actualiza el paso
 					if($this->update(0,$valoresPaso ,$where , $whereValues)){
 						return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
-					} 
-				}else{
-					return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta x'];
+					}
 				}
+				
 			}catch(Exception $ex){
 				return ['estado'=>0 , 'mensaje'=>'Ocurrio un error al pasar:'.$ex->getMessage()];
 			}
@@ -563,7 +572,7 @@
 		 * @return [type]              [description]
 		 */
 		public function obtenerPreguntaPaso($concurso,$concursante,$ronda){
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND CONCURSANTE_PASO = ?  ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1;";
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND CONCURSANTE_PASO = ?  ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'CONCURSANTE_PASO'=> $concursante];
 			$result = $this->get($where,$whereValues);
 			if(count($result) <= 0){
@@ -622,7 +631,8 @@
 				,$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'paso':
-				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
+				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA']
+				,$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);

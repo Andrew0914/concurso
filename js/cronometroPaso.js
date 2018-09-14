@@ -58,7 +58,7 @@ function initTimerPerSecond1(segundos,functionPerSecond, finishFunction){
 		}
 
 		if(contador == segundos || stopExecPerSecond1){
-			clearInterval(timerPerSecond);
+			clearInterval(timerCronometroPaso);
 		}
 
 		contador ++;

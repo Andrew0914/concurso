@@ -63,7 +63,7 @@ function showPregunta(response){
 		}
 		contenido += "</div>";
 		$("#content-respuestas").html(contenido);
-		cronometro(segundosReales,function(){},function(){paso();});
+		cronometro(segundosReales,function(){},function(){paso(true);});
 	}
 	
 }
@@ -124,6 +124,11 @@ function paso(porError){
 	var ronda = $("#ID_RONDA").val();
 	var pregunta = $("#ID_PREGUNTA").val();
 	var concursante = $("#ID_CONCURSANTE").val();
+	var tipoPaso = 1;
+	// SI SE PASO LA PREGUNTA PRO ERROR ENVIAMOS 2 EN EL VALOR DE PASO PARA VALIDAR EL GUARDADO
+	if(porError){
+		tipoPaso += 1;
+	}
 	// MANDAMOS LA RESPUESTA SELECCIONADA
 	$.ajax({
 		 url: 'class/TableroPuntaje.php',
@@ -135,7 +140,7 @@ function paso(porError){
 			  'ID_CONCURSANTE':concursante,
 			  'ID_PREGUNTA': pregunta,
 			  'PREGUNTA_POSICION': posicion,
-			  'PASO':1,
+			  'PASO':tipoPaso,
 			  'NIVEL_EMPATE':$("#NIVEL_EMPATE").val()
 		  },success:function(data){
 			 if(data.estado == 1){
