@@ -28,8 +28,8 @@
 		
 		/**
 		 * Metodo para realizar un insert en la tabla de implementacion
-		 * @param  [assoc_array] $values [arreglo con los nombres de las columnas como llave y los valores a insertar]
-		 * @return [boolean]         [insercion realizada]
+		 * @param  array $values arreglo con los nombres de las columnas como llave y los valores a insertar
+		 * @return boolean
 		 */
 		protected function save($values){
 			$this->connection = new Connection();
@@ -84,9 +84,9 @@
 
 		/**
 		 * Obtiene la lista de resultados de la tabla de implementacion
-		 * @param  [string] $whereClause [clausula where sin la paralabra WHERE]
-		 * @param  [assoc_Array] $values      [valores para la clausula where]
-		 * @return [assoc_array]              [resultados]
+		 * @param  string $whereClause clausula where sin la paralabra WHERE
+		 * @param  array $values      valores para la clausula where
+		 * @return array              resultados
 		 */
 		protected function get($whereClause = null, $values = null){
 			$this->connection = new Connection();
@@ -116,9 +116,9 @@
 		}
 
 		/**
-		 * Devuelve un objeto de la tabla de implementacion
-		 * @param  integer $id [id de elemento]
-		 * @return [object]      
+		 * Devuelve un objeto de la tabla o clase del id indicado
+		 * @param  integer $id identificador del elemento
+		 * @return array      
 		 */
 		protected function find($id = 0){
 			$this->connection = new Connection();
@@ -175,10 +175,10 @@
 		
 		/**
 		 * Actualiza uno o mas registros basado en el id o condicion
-		 * @param  integer $id          [description]
-		 * @param  [assoc_array]  $values      [description]
-		 * @param  [string]  $whereClause [description]
-		 * @param  [assoc_array]  $whereValues [description]
+		 * @param  integer $id          
+		 * @param  array  $values      
+		 * @param  string  $whereClause 
+		 * @param  array  $whereValues 
 		 * @return boolean
 		 */
 		protected function update($id = 0, $values=null, $whereClause = null , $whereValues = null){

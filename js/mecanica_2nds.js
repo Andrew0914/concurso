@@ -73,10 +73,10 @@ function eligeInciso(boton){
 	 $(boton).parent().parent().children('div').children('button').removeClass('btn-checked');
 	 $(boton).addClass('btn-checked');
 	 $($(boton).siblings('input[type=radio]')[0]).prop('checked',true);
-	 saveRespuesta(0);
+	 guardaRespuestaAsignada(0);
 }
 
-function saveRespuesta(paso){
+function guardaRespuestaAsignada(paso){
 	var posicion = $("#PREGUNTA_POSICION").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
@@ -96,7 +96,7 @@ function saveRespuesta(paso){
 		url: 'class/TableroPuntaje.php',
 		type: 'POST',
 		dataType: 'json',
-		data: {'functionTablero': 'saveDirect',
+		data: {'functionTablero': 'guardaRespuestaAsignada',
 			'ID_CONCURSO':concurso,
 			'ID_RONDA':ronda,
 			'ID_CONCURSANTE':concursante,
@@ -178,7 +178,7 @@ function obtenerPreguntaPaso(){
 	});
 }
 
-function saveRespuestaPaso(){
+function guardarRespuestaPaso(){
 	var posicion = $("#PREGUNTA_POSICION-paso").val();
 	var concurso = $("#ID_CONCURSO").val();
 	var ronda = $("#ID_RONDA").val();
@@ -196,7 +196,7 @@ function saveRespuestaPaso(){
 		 url: 'class/TableroPaso.php',
 		 type: 'POST',
 		 dataType: 'json',
-		 data: {'functionTableroPaso': 'saveDirect',
+		 data: {'functionTableroPaso': 'guardarRespuestaPaso',
 			  'ID_CONCURSO':concurso,
 			  'ID_RONDA':ronda,
 			  'ID_CONCURSANTE':concursante,
@@ -308,7 +308,7 @@ function showPreguntaPaso(response){
 		}
 		contenido += "</div>";
 		$("#content-respuestas-paso").html(contenido);
-		cronometroPaso(segundosReales,function(){},function(){saveRespuestaPaso();});
+		cronometroPaso(segundosReales,function(){},function(){guardarRespuestaPaso();});
 	}
 	
 }
@@ -317,7 +317,7 @@ function eligeIncisoPaso(boton){
 	$(boton).parent().parent().children('div').children('button').removeClass('btn-checked');
 	$(boton).addClass('btn-checked');
 	$($(boton).siblings('input[type=radio]')[0]).prop('checked',true);
-	saveRespuestaPaso(0);
+	guardarRespuestaPaso(0);
 	notFinish1 = true;
 }
 

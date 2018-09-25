@@ -11,6 +11,13 @@
 			parent::__construct();
 		}
 
+		/**
+		 * Notifica si ya ha sido contestada la pregunta de paso y genera la contabilidad de tiempo trasncurrido
+		 * @param integer $concurso
+		 * @param integer $ronda
+		 * @param integer $pregunta
+		 * @param integer $concursante
+		 */
 		public function pasoContestado($concurso,$ronda,$pregunta,$concursante){
 			$objConcursante = new Concursante();	
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
@@ -18,7 +25,6 @@
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
 
 			$rs = $this->get($where,$whereValues);
-
 			// contabilizamos los segundos
 			unset($whereValues['ID_CONCURSANTE']);
 			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO_PASO = TIEMPO_TRANSCURRIDO_PASO + 1 
@@ -38,6 +44,10 @@
 		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
 		}
 
+		/**
+		 * Obtiene las mejores puntuaiciones y acumulados de las preguntas de paso
+		 * @param integer $concurso
+		 */
 		public function getMejores($concurso){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			$objConcurso = new Concurso();
@@ -64,6 +74,10 @@
 			return $response;
 		}
 
+		/**
+		 * Obtiene el tablero de las preguntas de paso
+		 * @param integer $concurso
+		 */
 		public function getResultados($concurso){
 			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			$objConcurso = new Concurso();
@@ -83,33 +97,51 @@
 			return $response;
 		}
 
+		/**
+		 * Verifica si ya exite en tablero la pregunta de paso
+		 * @param array $valores
+		 */
 		public function existeEnTablero($valores){
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ?  AND PREGUNTA = ?";
 			return count($this->get($where, $valores)) > 0;
 		}
 
-		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion){
+		/**
+		 * Almacena la respuesta de la pregunta de paso
+		 * @param integer $concursante
+		 * @param integer $concurso
+		 * @param integer $ronda
+		 * @param integer $pregunta
+		 * @param integer $respuesta
+		 * @param integer $posicion
+		 */
+		public function guardarRespuestaPaso($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion){
 			//validamos si no respondio
 			if($respuesta == ''){
 				$respuesta = null;
 			}
 			try{
-				$values = ['ID_CONCURSO'=>$concurso, 'ID_RONDA'=>$ronda ,'ID_CONCURSANTE'=>$concursante
+				// verificamos que este registrado ya en tablero
+				$whereValues = ['ID_CONCURSO'=>$concurso, 'ID_RONDA'=>$ronda ,'ID_CONCURSANTE'=>$concursante
 						,'PREGUNTA'=>$pregunta];
-				if($this->existeEnTablero($values)){
-					return ['estado'=>0 , 'mensaje'=> "La preguna ya existe en el tablero"];
+				$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA = ?";
+				$registroPaso = $this->get($where , $whereValues);
+
+				if(count($registroPaso) <= 0){
+					return ['estado'=> 0 , 'mensaje'=> 'Parece que no se te ha pasado la pregunta correctamente :('];
 				}
-				$values['RESPUESTA'] = $respuesta;
-				$values['PREGUNTA_POSICION'] = $posicion;
+				$registroPaso = $registroPaso[0];
+				$values = ['RESPUESTA' => $respuesta, 'PREGUNTA_POSICION' => $posicion ,'CONTESTADA'=>1]  ;
 				// generamos el valor para el campo de respuesta_correcta
 				$objRespuesta = new Respuestas();
-				$values['RESPUESTA'] = $respuesta;
 				if($objRespuesta->esCorrecta($pregunta, $respuesta)){
 					$values['RESPUESTA_CORRECTA'] = 1;
 				}else{
 					$values['RESPUESTA_CORRECTA'] = 0;
 				}
-				if($this->save($values)){
+				// actualizamos la respuesta
+				if($this->update($registroPaso['ID_TABLERO_PASO'],$values)){
+					// generamos el puntaje
 					if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$values['RESPUESTA_CORRECTA'])){
 						return ['estado'=>1, 'mensaje'=>'Respuesta almacenada con exito'];
 					}
@@ -121,6 +153,16 @@
 			return ['estado'=>0 , 'mensaje'=>'No se almaceno tu respuesta'];
 		}
 
+		/**
+		 * Genera el puntaje para la pregunta de paso
+		 * @param integer $concursante
+		 * @param integer $concurso
+		 * @param integer $ronda
+		 * @param integer $pregunta
+		 * @param integer $respuesta
+		 * @param integer $correcta
+		 * @param integer $paso
+		 */
 		public function generaPuntaje($concursante,$concurso,$ronda,$pregunta,$respuesta,$correcta,$paso = 0){
 			$v_puntaje = ['PUNTAJE'=>0];
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
@@ -138,6 +180,13 @@
 			return $this->update(0, $v_puntaje, $where, $whereValues);
 		}
 
+		/**
+		 * Obtiene el puntaje de la pregunta para el concursante
+		 * @param integer $concurso
+		 * @param integer $ronda
+		 * @param integer $concursante
+		 * @param integer $pregunta
+		 */
 		public function miPuntajePregunta($concurso,$ronda,$concursante,$pregunta){
 			$respone = ['estado'=>0 , 'mensaje'=>'No se pudo obtener el puntaje de tu pregunta'];
 			$where = "ID_CONCURSO = ?  AND ID_RONDA= ? AND ID_CONCURSANTE = ? AND PREGUNTA = ?  ";
@@ -159,6 +208,18 @@
 
 		public function eliminar($id=0,$where="",$whereValues = []){
 			return $this->delete($id,$where,$whereValues);
+		}
+
+		/**
+		 * Almacena la respuesta previa de la pregunta tomada por paso
+		 * @param array $valores
+		 */
+		public function preRespuestaPaso($valores){
+			return $this->save($valores);
+		}
+
+		public function generaPuntajeTiempoFinalizado($data){
+			return $this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],0,1);
 		}
 	}
 
@@ -190,9 +251,12 @@
 		$function = $_POST['functionTableroPaso'];
 		$tablero = new TableroPaso();
 		switch ($function) {
-			case 'saveDirect':
- 				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION']));
+			case 'guardarRespuestaPaso':
+ 				echo json_encode($tablero->guardarRespuestaPaso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION']));
 				break;
+			case 'generaPuntajeTiempoFinalizado':
+				echo json_encode($tablero->generaPuntajeTiempoFinalizado($_POST));
+			break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO_PASO:POST']);
 		}

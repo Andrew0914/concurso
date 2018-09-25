@@ -123,69 +123,6 @@
 		}
 
 		/**
-		 * Informa si el concursante paso o contesto la pregunta
-		 * @param  integer $concurso    
-		 * @param  integer $ronda       
-		 * @param  integer $pregunta    
-		 * @param  integer $concursante 
-		 * @return array              
-		 */
-		public function contestoOpaso($concurso,$ronda,$pregunta,$concursante){
-			// obtenemos la inforamcion del tablero de pubtajes
-			$objConcursante = new Concursante();	
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
-			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
-							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
-			$rs = $this->get($where,$whereValues);
-			//agregamos un segundo pasado a la pregunta para que el concursante solo tengalos segundos resantes
-			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO = TIEMPO_TRANSCURRIDO + 1 
-			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
-			$this->query($queryTiempo,$whereValues,false);
-			// verificamos si ya esta insertada la accion de contestado o paso
-			if(count($rs) > 0){
-				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO_PREGUNTA'] != 1){
-					if($rs[0]['RESPUESTA_CORRECTA'] == 1){
-						return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
-					}else{
-						return ['estado'=>2 
-						, 'mensaje'=>'El equipo actual ha contestado mal, puede robar el siguiente equipo: '
-						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
-					}
-					
-				}
-				// SE GENERA UN PASO DE PREGUNTAS POR PASO DIRECTO = 1 Y POR ERROR = 2
-				if($rs[0]['PASO_PREGUNTA'] == 1 || $rs[0]['PASO_PREGUNTA'] == 2){
-					return ['estado'=>2 
-						, 'mensaje'=>'El equipo actual ha pasado la pregunta, la quiere tomar el equipo: '
-						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
-				}
-			}
-
-			return ['estado'=> 0 , 'mensaje'=>'Aun no realiza accion el concursante'];
-		}
-
-		/**
-		 * Actualiza el registro para indicar que el concursante tomo el paso
-		 * @param  integer $concurso    
-		 * @param  integer $ronda       
-		 * @param  integer $pregunta    
-		 * @param  integer $concursante 
-		 * @return array              
-		 */
-		public function tomoPaso($concurso,$ronda,$pregunta,$concursante){
-			$response = ['estado'=>0 , 'mensaje'=>'No se pudo dar por tomada la pregunta'];
-			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
-			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
-							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
-			if($this->update(0,['CONCURSANTE_TOMO'=>1] , $where , $whereValues)){
-				$response['estado'] = 1;
-				$response['mensaje'] = 'Pregunta tomada para el siguiente concursante';
-			}
-
-			return $response;
-		}
-
-		/**
 		 * Guarda la respuesta una vez que se genero la pre respuestas
 		 * @param  integer  $concursante 
 		 * @param  integer  $concurso    
@@ -498,32 +435,41 @@
 		 * @param  integer $paso        
 		 * @return array              
 		 */
-		public function saveDirect($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso=0,$nivel_empate){
-			//validamos si no respondio
+		public function guardaRespuestaAsignada($concursante,$concurso,$ronda,$pregunta,$respuesta,$posicion,$paso=0,$nivel_empate){
+			//Validamos la variable de la respuesta
 			if($respuesta==''){
 				$respuesta = null;
 			}
 			try{
-				$values = ['ID_CONCURSO'=>$concurso,'ID_RONDA'=>$ronda 
-						, 'ID_CONCURSANTE'=>$concursante , 'PREGUNTA_POSICION'=>$posicion
-						,'PREGUNTA'=>$pregunta,'NIVEL_EMPATE'=>$nivel_empate];
-				// verificamos que no se almacene doble la pregunta para el puntaje
-				if($this->existeEnTablero($values)){
-					return ['estado'=>0 , 'mensaje'=> "La preguna ya existe en el tablero"];
-				}
-				$values['RESPUESTA'] = $respuesta; 
-				// generamos el valor para el campo de respuesta_correcta
+				// buscamos la pregunta preguardada
+				$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA= ? AND NIVEL_EMPATE = ?";
+				$whereValues = ['ID_CONCURSO'=>$concurso
+						,'ID_RONDA'=>$ronda 
+						,'ID_CONCURSANTE'=>$concursante
+						,'PREGUNTA_POSICION'=>$posicion
+						,'PREGUNTA'=>$pregunta
+						,'NIVEL_EMPATE'=>$nivel_empate];
+				$registroTablero = $this->get($where,$whereValues);
+				if(count($registroTablero) <= 0){
+					return['estado'=> 0 , 'mensaje'=> 'Vaya parece que no se gere tu asignacion de pregunta correctamente'];
+				}				
+				$registroTablero = $registroTablero[0];
+
+				// Verificamos si la respuesta indicada es la correcta
 				$objRespuesta = new Respuestas();
+				$values = ["RESPUESTA"=>$respuesta , "CONTESTADA" => 1];
 				if($objRespuesta->esCorrecta($pregunta, $respuesta)){
 					$values['RESPUESTA_CORRECTA'] = 1;
 				}else{
 					$values['RESPUESTA_CORRECTA'] = 0;
 				}
-				if($this->save($values)){
+				if($this->update($registroTablero['ID_TABLERO_PUNTAJE'] , $values )){
 					if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$values['RESPUESTA_CORRECTA'],$paso)){
 						return ['estado'=>1, 'mensaje'=>'Respuesta almacenada con exito'];
 					}
+					return ['estado'=> 0 ,'mensaje'=> 'No se genero el puntaje para la respuesta correctamente'];
 				}
+				return ['estado'=> 0 ,'mensaje'=> 'No se genero la respuesta'];
 			}catch(Exception $ex){
 				return ['estado'=>0 , 'mensaje'=>'No se almaceno tu respuesta:'.$ex->getMessage()];
 			}
@@ -548,7 +494,7 @@
 						, 'CONCURSANTE_PASO'=> $objConcursante->siguiente($concursante,$concurso)['ID_CONCURSANTE']];
 				// paso directo si almacena pregunta primero
 				if($paso == 1){
-					if($this->saveDirect($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso,$nivel_empate)['estado'] == 1){
+					if($this->guardaRespuestaAsignada($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso,$nivel_empate)['estado'] == 1){
 						if($this->update(0,$valoresPaso ,$where , $whereValues)){
 							return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
 						}
@@ -569,11 +515,11 @@
 		}
 
 		/**
-		 * Obtiene 
-		 * @param  [type] $concurso    [description]
-		 * @param  [type] $concursante [description]
-		 * @param  [type] $ronda       [description]
-		 * @return [type]              [description]
+		 * Obtiene la pregunta de que le pasaron al concursane en cuestion
+		 * @param  integer $concurso    
+		 * @param  integer $concursante 
+		 * @param  integer $ronda       
+		 * @return array              
 		 */
 		public function obtenerPreguntaPaso($concurso,$concursante,$ronda){
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND CONCURSANTE_PASO = ?  ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1";
@@ -588,9 +534,19 @@
 				return ['estado'=>0 , 'mensaje'=>'No has tomado ninguna pregunta'];
 			}
 
+			// verificamos si su ultima ya la tiene contestada
 			$tabPaso= new TableroPaso();
-			if($tabPaso->existeEnTablero(['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'ID_CONCURSANTE'=>$concursante,'PREGUNTA'=>$ultimaPreguntaPaso['PREGUNTA']])){
-				return ['estado'=>0 , 'mensaje'=>'No te han pasado ninguna pregunta'];
+			$valoresContestada = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'ID_CONCURSANTE'=>$concursante
+								,'PREGUNTA'=>$ultimaPreguntaPaso['PREGUNTA']];
+			$wheresContestada = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA = ?";
+			$registroPaso = $tabPaso->get($wheresContestada , $valoresContestada);
+
+			if(count($registroPaso) <= 0){
+				return ['estado'=>0 , 'mensaje'=>'No se genero el registro de tu pregunta de roba puntos :('];
+			}
+
+			if($registroPaso[0]['CONTESTADA'] == 1){
+				return ['estado'=>0 , 'mensaje'=>'Tu ultima pregunta de roba puntos ya la contestaste'];
 			}
 
 			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA,pg.TIEMPO_TRANSCURRIDO_PASO
@@ -607,10 +563,115 @@
 		}
 
 		/**
+		 * Informa si el concursante paso o contesto la pregunta
+		 * @param  integer $concurso    
+		 * @param  integer $ronda       
+		 * @param  integer $pregunta    
+		 * @param  integer $concursante 
+		 * @return array              
+		 */
+		public function contestoOpaso($concurso,$ronda,$pregunta,$concursante){
+			// obtenemos la inforamcion del tablero de pubtajes
+			$objConcursante = new Concursante();	
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
+							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
+			$rs = $this->get($where,$whereValues);
+			//agregamos un segundo pasado a la pregunta para que el concursante solo tengalos segundos resantes
+			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO = TIEMPO_TRANSCURRIDO + 1 
+			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$this->query($queryTiempo,$whereValues,false);
+			// verificamos si ya esta insertada la accion de contestado o paso
+			if(count($rs) > 0){
+				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO_PREGUNTA'] != 1){
+					if($rs[0]['RESPUESTA_CORRECTA'] == 1){
+						return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
+					}else{
+						return ['estado'=>2 
+						, 'mensaje'=>'El equipo actual ha contestado mal, puede robar el siguiente equipo: '
+						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
+					}
+					
+				}
+				// SE GENERA UN PASO DE PREGUNTAS POR PASO DIRECTO = 1 Y POR ERROR = 2
+				if($rs[0]['PASO_PREGUNTA'] == 1 || $rs[0]['PASO_PREGUNTA'] == 2){
+					return ['estado'=>2 
+						, 'mensaje'=>'El equipo actual ha pasado la pregunta, la quiere tomar el equipo: '
+						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
+				}
+			}
+
+			return ['estado'=> 0 , 'mensaje'=>'Aun no realiza accion el concursante'];
+		}
+
+		/**
+		 * Actualiza el registro para indicar que el concursante tomo el paso
+		 * @param  integer $concurso    
+		 * @param  integer $ronda       
+		 * @param  integer $pregunta    
+		 * @param  integer $concursante 
+		 * @return array              
+		 */
+		public function tomoPaso($concurso,$ronda,$pregunta,$concursante){
+			$response = ['estado'=>0 , 'mensaje'=>'No se pudo dar por tomada la pregunta'];
+
+			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
+			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
+							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
+			$tabPaso = new TableroPaso();
+			// primero generamos la pre respuesta para que este contabilizada
+			if(!$tabPaso->preRespuestaPaso($whereValues)){
+				return ['estado'=> 0 , 'mensaje' => 'No pudo ser establecida la pregunta de paso :('];
+			}
+			if($this->update(0,['CONCURSANTE_TOMO'=>1] , $where , $whereValues)){
+				$response['estado'] = 1;
+				$response['mensaje'] = 'Pregunta tomada para el siguiente concursante';
+			}
+
+			return $response;
+		}
+
+		/**
 		 * Elimina los puntajes
 		 */
 		public function eliminar($id,$where,$whereValues){
 			return $this->delete($id,$where,$whereValues);
+		}
+
+		/**
+		 * Genera el registro previo en el tablero de la pregunta asignada para el concursante en la 2da ronda grupal
+		 * @param integer $concurso
+		 * @param integer $ronda
+		 * @param integer $concursante
+		 * @param integer $pregunta
+		 * @param integer $posicion
+		 * @param integer $nivel_empate
+		 */
+		public function preRespuestaPorAsignacion($concurso,$ronda,$concursante,$pregunta,$posicion,$nivel_empate){
+			try{
+				// Valores de la pre respuesta del concursante
+				$values = [	'ID_CONCURSO'=>$concurso,
+							'ID_RONDA'=>$ronda,
+							'ID_CONCURSANTE'=>$concursante,
+							'PREGUNTA_POSICION'=>$posicion,
+							'PREGUNTA'=>$pregunta,
+							'NIVEL_EMPATE'=>$nivel_empate ];
+				// verificamos si no existe en tablero ya para evitar duplicados
+				if($this->existeEnTablero($values)){
+					return ['estado'=>2 , 'mensaje'=> "La preguna ya existe en el tablero"];
+				}
+				// almacenamos la respuesta previa
+				if($this->save($values)){
+					return ['estado'=>1 , 'mensaje'=> "Se almaceno con exito el tablero de la pregunta asignada"];
+				}
+				return ['estado' => 0, 'mensaje'=>'No se pudo establercer el tablero asignado'];
+			}catch(Exception $ex){
+				return ['estado'=>0 , 'mensaje'=>'No se almaceno tu respuesta:'.$ex->getMessage()];
+			}
+		}
+
+		public function generaPuntajeTiempoFinalizado($data){
+			return $this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],0,0);
 		}
 	}
 	/**
@@ -631,13 +692,16 @@
 					echo json_encode($tablero->tomoPaso($_POST['ID_CONCURSO'],$_POST['ID_RONDA'],
 						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE']));
 				break;
-			case 'saveDirect':
-				echo json_encode($tablero->saveDirect($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA']
+			case 'guardaRespuestaAsignada':
+				echo json_encode($tablero->guardaRespuestaAsignada($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA']
 				,$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'paso':
 				echo json_encode($tablero->paso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA']
 				,$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
+				break;
+			case 'generaPuntajeTiempoFinalizado':
+				echo json_encode($tablero->generaPuntajeTiempoFinalizado($_POST));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);

@@ -6,6 +6,8 @@
 	require_once dirname(__FILE__) . '/Categorias.php';
 	require_once dirname(__FILE__) . '/Preguntas.php';
 	require_once dirname(__FILE__) . '/Respuestas.php';
+	require_once dirname(__FILE__) . '/TableroPuntaje.php';
+
 
 	class PreguntasGeneradas extends BaseTable{
 
@@ -393,6 +395,15 @@
 			try{
 				$result = $this->query($sentencia, $valores);
 				if(count($result) > 0){
+					$whereContestada = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA = ? AND ID_CONCURSANTE = ?";
+					$tabPuntaje = new TableroPuntaje();
+					$registroPuntaje = $tabPuntaje->get($whereContestada , $valores);
+					if(count($registroPuntaje) <= 0){
+						return ['estado'=> 0, 'mensaje'=>'Vaya parece que tu ultima lanzada no esta asignada en tablero'];
+					}
+					if($registroPuntaje[0]['CONTESTADA'] == 1){
+						return ['estado'=> 0, 'mensaje'=>'Vaya ya has contestado tu ultima pregunta lanzada'];
+					}
 					$objRespuesta = new Respuestas();
 					$respuestas = $objRespuesta->getRespuestasByPregunta($result[0]['ID_PREGUNTA']);
 					$response['estado'] = 1;
@@ -434,18 +445,27 @@
 		}
 
 		/**
-		 * Hace el lanzamineto especial para preguntas de 2nda
-		 * @param  integwe $idGenerada    
-		 * @param  integwe $concurso      
-		 * @param  integwe $idRonda       
-		 * @param  integwe $idCategoria   
-		 * @param  integwe $idConcursante 
+		 * Genera la informacion de lanzamiento de la pregunta para que este dispotible para ser obtenida, tambien genera el registro
+		 * previo en el tablero, para evitar que el concursante no tome por desicion o a tiempo su pregunta y le contbilice su pregunta
+		 * asignada
+		 * @param  integer $idGenerada    
+		 * @param  integer $concurso      
+		 * @param  integer $idRonda       
+		 * @param  integer $idCategoria   
+		 * @param  integer $idConcursante 
 		 * @return array   
 		 */
 		public function lanzarPregunta2nda($idGenerada,$concurso,$idRonda,$idCategoria,$idConcursante){
-			//objeto del a ronda 
+			// obtenemos la informacion de la pregunta asignada
+			$pAsignada = $this->find($idGenerada);
 			$ronda = new Rondas();
 			$ronda = $ronda->getRonda($idRonda);
+			// PRIMERO GENERAMOS EL REGISTRO EN EL TABLERO PARA EL CONCURSANTE
+			$tabPuntaje = new TableroPuntaje();
+			if($tabPuntaje->preRespuestaPorAsignacion($concurso,$idRonda,$idConcursante,$pAsignada['ID_PREGUNTA']
+														,$pAsignada['PREGUNTA_POSICION'],0)['estado'] == 0){
+				return ['estado'=> 0 , 'mensaje'=> 'No se pudo generar el tablero de asignacion de pregunta'];
+			}
 			// la marcamos como hecha
 			$values = ['HECHA' => 1];
 			if(!$this->update($idGenerada , $values))
@@ -458,21 +478,23 @@
 			if(count($result) <= 0){
 				$values = ['LANZADA' => 1];
 				if(!$this->update($idGenerada , $values))
-					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+					return ['estado'=>0
+							,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
 			}else{
 				// si ya se lanzaron previamente otras
-				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND ID_CONCURSANTE = ? ";
-
+				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
+								WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND ID_CONCURSANTE = ? ";
 				$rs = $this->query($otraSentencia, $valores);
 				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
 				if(!$this->update($idGenerada , $values))
-					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
+					return ['estado'=>0
+							,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
 			}
 			$objRespuesta = new Respuestas();
 			$respuestas = $objRespuesta->getRespuestasByPregunta($this->find($idGenerada)['ID_PREGUNTA']);
 			return ['estado'=> 1 , 
-				'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'
-				,'respuestas'=>$respuestas];
+					'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder',
+					'respuestas'=>$respuestas];
 		}
 
 		/**
