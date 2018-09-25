@@ -55,7 +55,7 @@
         <script type="text/javascript" >
             function getExcel(){
                 $.ajax({
-                    url: '/class/TablerosExcel.php',
+                    url: 'class/TablerosExcel.php',
                     type: 'GET',
                     dataType: 'html',
                     data: {'functionExcel': 'generarExcel' , 'ID_CONCURSO' : $("#ID_CONCURSO").val()},
