@@ -2,6 +2,7 @@
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/Concurso.php';
 	require_once dirname(__FILE__) . '/Rondas.php';
+	require_once dirname(__FILE__) . '/Concursante.php';
 
 	class TableroPaso extends BaseTable{
 
@@ -215,11 +216,16 @@
 		 * @param array $valores
 		 */
 		public function preRespuestaPaso($valores){
+			$concursante = new Concursante();
+			$siguienteConcursante = $concursante->siguiente($valores['ID_CONCURSANTE'],$valores['ID_CONCURSO']);
+			$valores['ID_CONCURSANTE'] = $siguienteConcursante['ID_CONCURSANTE'];
 			return $this->save($valores);
 		}
 
 		public function generaPuntajeTiempoFinalizado($data){
-			return $this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],0,1);
+			$concursante = new Concursante();
+			$siguienteConcursante = $concursante->siguiente($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO']);
+			return $this->generaPuntaje($siguienteConcursante['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],'',0,1);
 		}
 	}
 
@@ -250,12 +256,16 @@
 	if(isset($_POST['functionTableroPaso'])){
 		$function = $_POST['functionTableroPaso'];
 		$tablero = new TableroPaso();
-		switch ($function) {
+		switch ($function) { 
 			case 'guardarRespuestaPaso':
  				echo json_encode($tablero->guardarRespuestaPaso($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['PREGUNTA_POSICION']));
 				break;
 			case 'generaPuntajeTiempoFinalizado':
-				echo json_encode($tablero->generaPuntajeTiempoFinalizado($_POST));
+				if($tablero->generaPuntajeTiempoFinalizado($_POST)){
+					echo json_encode(['estado'=>1,'mensaje'=>'Se genero el puntaje para la pregunta de paso']);
+				}else{
+					echo json_encode(['estado'=>0,'mensaje'=>'No se genero el puntaje final de paso,vuelve a intentar']);
+				}
 			break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO_PASO:POST']);

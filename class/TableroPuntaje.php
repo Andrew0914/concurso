@@ -705,7 +705,7 @@
 		}
 
 		public function generaPuntajeTiempoFinalizado($data){
-			return $this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],0,0);
+			return $this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],'',0,0);
 		}
 	}
 	/**
@@ -735,7 +735,11 @@
 				,$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'generaPuntajeTiempoFinalizado':
-				echo json_encode($tablero->generaPuntajeTiempoFinalizado($_POST));
+				if($tablero->generaPuntajeTiempoFinalizado($_POST)){
+					echo json_encode(['estado'=>1,'mensaje'=>'Se genero el puntaje para la pregunta']);
+				}else{
+					echo json_encode(['estado'=>0,'mensaje'=>'No se genero el puntaje final,vuelve a intentar']);
+				}
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);

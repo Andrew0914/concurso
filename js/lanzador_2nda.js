@@ -75,7 +75,30 @@ function ocultarCronometro(){
 
 function finCronometro(){
     ocultarCronometro();
-    $("#btn-siguiente").show(300);
+    var concurso = $("#ID_CONCURSO").val();
+	var ronda = $("#ID_RONDA").val();
+    var pregunta = $("#ID_PREGUNTA").val();
+    var idConcursante =  $("#ID_CONCURSANTE").val();
+    $.ajax({
+        type: "POST",
+        url: "class/TableroPuntaje.php",
+        data :{'functionTablero':'generaPuntajeTiempoFinalizado',
+    			'ID_CONCURSO':concurso,
+                'ID_RONDA':ronda,
+                'ID_PREGUNTA':pregunta,
+                'ID_CONCURSANTE': idConcursante},
+        dataType: "json",
+        success: function (response) {
+            if(response.estado == 1){
+               $("#btn-siguiente").show(300); 
+            }else{
+                alert(response.mensaje);
+                finCronometro();
+            }
+        },error:function(error){
+            console.log(error);
+        }
+    });
 }
 
 /**
@@ -150,7 +173,30 @@ function ocultarCronometroPaso(){
 
 function finCronometroPaso(){
     ocultarCronometroPaso();
-    $("#btn-siguiente").show(300);
+    var concurso = $("#ID_CONCURSO").val();
+	var ronda = $("#ID_RONDA").val();
+    var pregunta = $("#ID_PREGUNTA").val();
+    var idConcursante =  $("#ID_CONCURSANTE").val();
+    $.ajax({
+        type: "POST",
+        url: "class/TableroPaso.php",
+        data :{'functionTableroPaso':'generaPuntajeTiempoFinalizado',
+    			'ID_CONCURSO':concurso,
+                'ID_RONDA':ronda,
+                'ID_PREGUNTA':pregunta,
+                'ID_CONCURSANTE': idConcursante},
+        dataType: "json",
+        success: function (response) {
+            if(response.estado == 1){
+               $("#btn-siguiente").show(300); 
+            }else{
+                alert(response.mensaje);
+                finCronometroPaso();
+            }
+        },error:function(error){
+            console.log(error);
+        }
+    });
 }
 
 function contestoPaso(concursante){
