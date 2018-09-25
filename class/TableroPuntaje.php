@@ -280,7 +280,7 @@
 		/**
 		 * Genera la informacion para el tablero de marcadores generales
 		 * @param  integer $concurso 
-		 * @param  integer $ronda    
+		 * @param  boolean $es_empate    
 		 * @return array           
 		 */
 		public function getMejoresPuntajes($concurso, $es_empate = false){
@@ -293,11 +293,13 @@
 						FROM tablero_puntajes as t INNER JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
 						WHERE t.ID_CONCURSO = ? ";
 				$values = [':ID_CONCURSO'=>$concurso];
+
 				if($es_empate){
 					$query.= " AND t.ID_RONDA = ? AND NIVEL_EMPATE = ? ";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
 					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
 				}
+
 				$query .= " GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC ";
 				$mejores = $this->query($query,$values,true);
 				usort($mejores,array($this,"cmp"));
@@ -314,6 +316,38 @@
 			return $response;
 		}
 
+		/**
+		 * Genera la informacion para el tablero de marcadores generales de uan ronda especifica para mostrar
+		 * @param  integer $concurso 
+		 * @param  integer $ronda  
+		 * @param  integer $nivelEmpate    
+		 * @return array           
+		 */
+		public function getMejoresRonda($concurso, $ronda, $nivelEmpate){
+			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
+			$objConcurso = new Concurso();
+			$objConcurso = $objConcurso->getConcurso($concurso);
+			$rondas = new Rondas();
+			try{
+				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos 
+						FROM tablero_puntajes as t INNER JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
+						WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ? AND NIVEL_EMPATE = ?
+						GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC";
+				$values = [':ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'NIVEL_EMPATE'=> $nivelEmpate];
+				$mejores = $this->query($query,$values,true);
+				usort($mejores,array($this,"cmp"));
+				for($i =0 ; $i < count($mejores) ; $i++) {
+					$mejores[$i]['lugar'] = $i+1;
+				}
+				$response['mejores'] = $mejores;
+				$response['estado'] = 1;
+				$response['mensaje'] = "Se obtuvo el puntaje total";
+			}catch(Exception $ex){
+				$response['estado'] = 0;
+				$response['mensaje'] = "No se obtuvo el puntaje total:" . $ex->getMessage();
+			}
+			return $response;
+		}
 		
 		/**
 		 * Obtiene la actividad sobre la pregunta si ya fue contestada o no y por cuantos

@@ -136,7 +136,7 @@
 										</thead>
 										<tbody>
 											<?php 
-												$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO),$ronda['IS_DESEMPATE'] );
+												$response = $tablero->getMejoresRonda($concurso['ID_CONCURSO'],$concurso['ID_RONDA'],$concurso['NIVEL_EMPATE']);
 												$mejores = $response['mejores'];
 												foreach ($mejores as $mejor) {
 													echo "<tr>";

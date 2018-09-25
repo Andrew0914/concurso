@@ -148,7 +148,7 @@
 										</thead>
 										<tbody>
 											<?php
-												$response = $tablero->getMejoresPuntajes($sesion->getOne(SessionKey::ID_CONCURSO),$ronda['IS_DESEMPATE'] );
+												$response = $tablero->getMejoresRonda($concurso['ID_CONCURSO'],$concurso['ID_RONDA'],$concurso['NIVEL_EMPATE']);
 												$mejores = $response['mejores'];
 												// obtengo los puntajes de paso tambien
 												$pasos = new TableroPaso();
