@@ -36,7 +36,7 @@
 					if($concurso['FECHA_CIERRE'] != '' && $concurso['FECHA_CIERRE'] != null){
 						echo "<h4 style='color:#545454'>Concurso cerrado</h4>";
 						echo "<br>";
-						echo "<a href='panel' target='_self'>Volver al panel</a>";
+						echo "<a href='panel' target='_self'><u>Volver al panel</u></a>";
 					}else{
 						switch ($empate['estado']) {
 							case 0:
