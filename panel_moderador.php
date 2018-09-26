@@ -67,10 +67,10 @@
 					if($concurso['FECHA_CIERRE'] != '' && $concurso['FECHA_CIERRE'] != null){
 						$master = new TableroMaster();
 						$tablerosFinales = $master->getTablerosMasters($concurso['ID_CONCURSO']);
-						echo "<ul>";
+						echo "<ul style='list-style:none'>";
 						foreach ($tablerosFinales as $tabM) {
 							echo "<li>";
-							echo "<a href='tablero?id_master=".$tabM['ID_TABLERO_MASTER'] . "'>Tablero " . $tabM['ID_TABLERO_MASTER'] . "</a>";
+							echo "<a style='text-decoration:underline' href='tablero?id_master=".$tabM['ID_TABLERO_MASTER'] . "'>Tablero " . $tabM['ID_TABLERO_MASTER'] . "</a>";
 							echo "</li>";
 						}
 						echo "</ul>";
