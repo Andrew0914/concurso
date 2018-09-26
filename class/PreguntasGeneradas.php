@@ -388,14 +388,15 @@
 
 			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA,pg.TIEMPO_TRANSCURRIDO 
 						FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
-						WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND ID_CONCURSANTE = ?";
+						WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND pg.ID_CONCURSANTE = ?";
 
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $ronda , 'ID_CATEGORIA'=>$categoria, 'ID_CONCURSANTE'=>$concursante];
 			$sentencia .= " AND pg.LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1 ";
 			try{
 				$result = $this->query($sentencia, $valores);
 				if(count($result) > 0){
-					$whereContestada = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CATEGORIA = ? AND ID_CONCURSANTE = ?";
+					unset($valores['ID_CATEGORIA']);
+					$whereContestada = "ID_CONCURSO = ? AND ID_RONDA = ?  AND ID_CONCURSANTE = ? ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1";
 					$tabPuntaje = new TableroPuntaje();
 					$registroPuntaje = $tabPuntaje->get($whereContestada , $valores);
 					if(count($registroPuntaje) <= 0){

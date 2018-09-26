@@ -622,7 +622,7 @@
 						return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
 					}else{
 						return ['estado'=>2 
-						, 'mensaje'=>'El equipo actual ha contestado mal, puede robar el siguiente equipo: '
+						, 'mensaje'=>'El equipo actual ha contestado mal, quiere robar el siguiente equipo: '
 						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
 					}
 					
@@ -646,17 +646,18 @@
 		 * @param  integer $concursante 
 		 * @return array              
 		 */
-		public function tomoPaso($concurso,$ronda,$pregunta,$concursante){
+		public function tomoPaso($concurso,$ronda,$pregunta,$concursante,$posicion){
 			$response = ['estado'=>0 , 'mensaje'=>'No se pudo dar por tomada la pregunta'];
 
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
-							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
+							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante,'PREGUNTA_POSICION'=>$posicion];
 			$tabPaso = new TableroPaso();
 			// primero generamos la pre respuesta para que este contabilizada
 			if(!$tabPaso->preRespuestaPaso($whereValues)){
 				return ['estado'=> 0 , 'mensaje' => 'No pudo ser establecida la pregunta de paso :('];
 			}
+			unset($whereValues['PREGUNTA_POSICION']);
 			if($this->update(0,['CONCURSANTE_TOMO'=>1] , $where , $whereValues)){
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Pregunta tomada para el siguiente concursante';
@@ -724,7 +725,7 @@
 				break;
 			case 'tomoPaso':
 					echo json_encode($tablero->tomoPaso($_POST['ID_CONCURSO'],$_POST['ID_RONDA'],
-						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE']));
+						$_POST['PREGUNTA'],$_POST['ID_CONCURSANTE'],$_POST['PREGUNTA_POSICION']));
 				break;
 			case 'guardaRespuestaAsignada':
 				echo json_encode($tablero->guardaRespuestaAsignada($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA']

@@ -99,6 +99,7 @@
 									$onclick .= $pregunta['PUNTAJE']. ",";
 									$onclick .= "\"".$pregunta['CONCURSANTE']. "\",";
 									$onclick .= $pregunta['ID_CONCURSANTE']. ",";
+									$onclick .= $pregunta['PREGUNTA_POSICION']. ",";
 									$onclick .= $pregunta['ID_GENERADA'].")'"; 
 									$button = "<td class='centrado'><button class='btn-geo'".$onclick.">Leer</button></td>";
 									if($pregunta['HECHA'] == 1){
@@ -305,6 +306,7 @@
 			        		<input type="hidden" id="ID_PREGUNTA" name="ID_PREGUNTA">
 			        		<input type="hidden" id="ID_GENERADA" name="ID_GENERADA">
 			        		<input type="hidden" id="ID_CONCURSANTE" name="ID_CONCURSANTE">
+							<input type="hidden" id="PREGUNTA_POSICION" name="PREGUNTA_POSICION">
 			        		<button type="button" class="btn btn-lg btn-geo" onclick="lanzarPregunta(<?php echo $segundosPorPregunta; ?>,this)" id='btn-lanzar'>
 			        			Lanzar pregunta
 		        			</button>

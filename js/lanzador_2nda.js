@@ -2,11 +2,14 @@ var timerContesto = null;
 var timerPaso = null;
 /**
  * Dispara el dialogo con la pregunta para lanzarla
- * @param  {integer} pregunta   
+ * @param  {string} pregunta   
  * @param  {integer} idPregunta 
+ * @param  {string} concursante
+ * @param  {integer} idConcursante
+ * @param  {integer} posicion
  * @param  {integer} idGenerada 
  */
-function leer(pregunta,idPregunta,puntaje,concursante,idConcursante,idGenerada){
+function leer(pregunta,idPregunta,puntaje,concursante,idConcursante,posicion,idGenerada){
     $("#mdl-leer-pregunta").modal({backdrop: 'static', keyboard: false});
     $("#mdl-leer-pregunta").css("padding","1px");
     $("#p-pregunta").text(pregunta);
@@ -14,6 +17,7 @@ function leer(pregunta,idPregunta,puntaje,concursante,idConcursante,idGenerada){
     $("#ID_PREGUNTA").val(idPregunta);
     $("#ID_GENERADA").val(idGenerada);
     $("#ID_CONCURSANTE").val(idConcursante);
+    $("#PREGUNTA_POSICION").val(posicion);
     $("#concursante").html("Equipo en turno: " + concursante);
 }
 
@@ -148,6 +152,7 @@ function tomoPaso(concursante){
                 'ID_RONDA':$("#ID_RONDA").val(),
                 'PREGUNTA':$("#ID_PREGUNTA").val(),
                 'ID_CONCURSANTE':$("#ID_CONCURSANTE").val(),
+                'PREGUNTA_POSICION':$("#PREGUNTA_POSICION").val(),
                 'functionTablero':'tomoPaso'},
         success:function(response){
             if(response.estado == 1){

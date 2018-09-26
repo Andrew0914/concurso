@@ -32,7 +32,7 @@
 			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? ";
 			$this->query($queryTiempo,$whereValues,false);
 
-			if(count($rs) > 0){
+			if(count($rs) > 0 AND $rs[0]['CONTESTADA'] == 1){
 				return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
 			}
 			return ['estado'=> 0 , 'mensaje'=>'Aun no realiza accion el concursante'];
@@ -225,7 +225,7 @@
 		public function generaPuntajeTiempoFinalizado($data){
 			$concursante = new Concursante();
 			$siguienteConcursante = $concursante->siguiente($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO']);
-			return $this->generaPuntaje($siguienteConcursante['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],'',0,1);
+			return $this->generaPuntaje($siguienteConcursante['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],'',0,1);
 		}
 	}
 
