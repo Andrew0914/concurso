@@ -187,7 +187,7 @@
 												<th>Concursante</th>
 												<th>Ronda</th>
 												<th>Categoria</th>
-												<th> Pregunta </th>
+												<th>Pregunta</th>
 												<th>Respuesta</th>
 												<th>Puntaje</th>
 												<th>Roba Puntos</th>
@@ -201,13 +201,22 @@
 													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
 													echo "<td>" . $puntaje['RONDA'] . '</td>';
 													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
-													echo "<td>".$puntaje['PREGUNTA'].'</td>';
-													echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
-													if($puntaje['ES_IMAGEN'] == 1){
-														echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
-													}else{	
-														echo $puntaje['RESPUESTA'].'</td>';
+													echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
+													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'>";
+													echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
+													
+													if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){
+														echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
+														if($puntaje['ES_IMAGEN'] == 1){
+															echo '<img src="image/respuestas/'.$puntaje['RESPUESTA'].'"></td>';;
+														}else{	
+															echo $puntaje['RESPUESTA'].'</td>';
+														}
+													}else{
+														echo "<td>Sin respuesta</td>";
 													}
+													
+
 													echo "<td>".$puntaje['PUNTAJE'].'</td>';
 													echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
 													echo "</tr>";	
@@ -335,15 +344,30 @@
 			.modal-big .modal-content {
 			    min-height: 100vh;
 			}
+			.tooltip-inner,.tooltip {
+				max-width: 500px;
+				width: 500px;
+				max-height: 150px;
+				height: auto;
+				font-size: 18px;
+				text-align: justify;
+			}
 		</style>
 		<!-- SCRIPt-->
 		<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="js/libs/popper.min.js"></script>
 		<script type="text/javascript" src="js/libs/bootstrap.js"></script>
 		<script type="text/javascript" src="js/snap.svg-min.js"></script>
 		<script type="text/javascript" src="js/cronometro.js"></script>
 		<script type="text/javascript" src="js/cronometroPaso.js"></script>
 		<script type="text/javascript" src="js/ronda.js"></script>
 		<script type="text/javascript" src="js/lanzador_2nda.js"></script>
+		<script type="text/javascript">
+			function verPregunta(pregunta,boton){
+				$(boton).attr("title",pregunta);
+				$(boton).tooltip('show');
+			}
+		</script>
 		<?php 
 			if ($todasHechas) {
 		 ?>

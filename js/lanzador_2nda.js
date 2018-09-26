@@ -94,7 +94,11 @@ function finCronometro(){
         dataType: "json",
         success: function (response) {
             if(response.estado == 1){
-               $("#btn-siguiente").show(300); 
+                if(confirm(response.mensaje )){
+                    tomoPaso(response.ID_CONCURSANTE);
+                }else{
+                    $("#btn-siguiente").show(300);
+                }
             }else{
                 alert(response.mensaje);
                 finCronometro();

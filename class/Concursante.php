@@ -117,6 +117,11 @@
 			return $this->find($id);
 		}
 
+		/**
+		 * Devuelve el concursante que se encuetre en la siguiente posicion al concursante dado si es el ultimo regra al primero
+		 * @param integer $concursanteActual
+		 * @param integer $concurso
+		 */
 		public function siguiente($concursanteActual,$concurso){
 			$concursantes = $this->getConcursantes($concurso)['concursantes'];
 			$actual = $this->find($concursanteActual);

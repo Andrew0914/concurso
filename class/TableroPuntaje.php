@@ -705,8 +705,28 @@
 			}
 		}
 
+		/**
+		 * Genera el puntaje para la pregunta cuando el tiempo se termino
+		 * @param array $data
+		 */
 		public function generaPuntajeTiempoFinalizado($data){
-			return $this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POS['ID_PREGUNTA'],'',0,0);
+			if($this->generaPuntaje($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'] , $_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],'',0,0)){
+				// una vez generado el puntaje por fin de tiempo, generamos la informacion de paso por error
+				$concursante = new Concursante();
+				$siguienteConcursante = $concursante->siguiente($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO']);
+				$where = "ID_CONCURSO = ? AND ID_CONCURSANTE = ? AND ID_RONDA = ? AND PREGUNTA = ?";
+				$whereValues = ['ID_CONCURSO' => $_POST['ID_CONCURSO'] , 'ID_CONCURSANTE'=>$_POST['ID_CONCURSANTE'] 
+								, 'ID_RONDA'=>$_POST['ID_RONDA'] ,'PREGUNTA'=>$_POST['ID_PREGUNTA'] ];
+				$updateValues = ['PASO_PREGUNTA' => 2, 'CONCURSANTE_PASO' => $siguienteConcursante['ID_CONCURSANTE']];
+				if($this->update(0, $updateValues , $where, $whereValues)){
+					return ['estado'=> 1 
+					, 'mensaje'=> 'Se termino el tiempo, quiere robar la pregunta el concursante:'. $siguienteConcursante['CONCURSANTE']
+					,'ID_CONCURSANTE' => $siguienteConcursante['ID_CONCURSANTE']];
+				}
+				return ['estado'=> 0 , 'mensaje'=> 'No se pudo generar el paso por tiempo terminado'];
+			}
+
+			return ['estado'=> 0 , 'mensaje'=> 'No se pudo generar el puntaje por tiempo terminado'];
 		}
 	}
 	/**
@@ -736,11 +756,7 @@
 				,$_POST['ID_PREGUNTA'],$_POST['PREGUNTA_POSICION'],$_POST['PASO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'generaPuntajeTiempoFinalizado':
-				if($tablero->generaPuntajeTiempoFinalizado($_POST)){
-					echo json_encode(['estado'=>1,'mensaje'=>'Se genero el puntaje para la pregunta']);
-				}else{
-					echo json_encode(['estado'=>0,'mensaje'=>'No se genero el puntaje final,vuelve a intentar']);
-				}
+					echo json_encode($tablero->generaPuntajeTiempoFinalizado($_POST));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TABLERO:POST']);
