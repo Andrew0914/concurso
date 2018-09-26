@@ -204,7 +204,7 @@
 													echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
 													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'>";
 													echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
-													
+													// respuesta
 													if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){
 														echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
 														if($puntaje['ES_IMAGEN'] == 1){
@@ -215,10 +215,17 @@
 													}else{
 														echo "<td>Sin respuesta</td>";
 													}
-													
-
 													echo "<td>".$puntaje['PUNTAJE'].'</td>';
-													echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
+													// roba puntos
+													//roba puntos
+													echo "<td>".$puntaje['PASO_PREGUNTAS'];
+													if($puntaje['PASO'] == 1){
+														echo '<br><img src="image/por_paso.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+													}else if($puntaje['PASO'] == 2){
+														echo '<br><img src="image/por_error.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+													}else{
+														echo '</td>';
+													}
 													echo "</tr>";	
 												}
 											?>

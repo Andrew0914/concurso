@@ -146,9 +146,8 @@
 									}else{
 										echo "<td>Sin respuesta</td>";
 									}
-													
-
 									echo "<td>".$puntaje['PUNTAJE'].'</td>';
+									//roba puntos
 									echo "<td>".$puntaje['PASO_PREGUNTAS'];
 									if($puntaje['PASO'] == 1){
 										echo '<br><img src="image/por_paso.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
