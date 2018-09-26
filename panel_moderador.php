@@ -10,6 +10,7 @@
 	require_once 'class/util/Sesion.php';
 	require_once 'class/util/SessionKey.php';
 	require_once 'class/Concurso.php';
+	require_once 'class/TableroMaster.php';
 	$sesion = new Sesion();
 	$etapa = new Etapas();
 	$etapa = $etapa->getEtapa($sesion->getOne(SessionKey::ID_ETAPA));
@@ -61,11 +62,26 @@
 		<br>
 		<div class="row">
 			<div class="col-md-12 centrado">
+				<?php 
+					// NO CERRADOS
+					if($concurso['FECHA_CIERRE'] != '' && $concurso['FECHA_CIERRE'] != null){
+						$master = new TableroMaster();
+						$tablerosFinales = $master->getTablerosMasters($concurso['ID_CONCURSO']);
+						echo "<ul>";
+						foreach ($tablerosFinales as $tabM) {
+							echo "<li>";
+							echo "<a href='tablero?id_master=".$tabM['ID_TABLERO_MASTER'] . "'>Tablero " . $tabM['ID_TABLERO_MASTER'] . "</a>";
+							echo "</li>";
+						}
+						echo "</ul>";
+					}else {
+				?>
 				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
 					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>
 				</button>
 				<br><br>
-				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
+				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" />
+				<?php } ?>
 			</div>
 		</div>
 		<br>

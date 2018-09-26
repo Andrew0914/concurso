@@ -33,19 +33,23 @@
 		<div class="row">
 			<div class="col-md-4 offset-md-8">
 				<?php 
-					switch ($empate['estado']) {
-						case 0:
-							echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
-							break;
-						case 1:
-							echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).",".$tablero_master_id. ")'>Ir a desempate</button>";
-							break;
-						case 2:
-							echo "<button class='btn btn-geo' onclick='cerrarConcurso(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Finalizar Concurso</button>";
-							break;
-						default:
-							echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
-							break;
+					if($concurso['FECHA_CIERRE'] != '' && $concurso['FECHA_CIERRE'] != null){
+						echo "<h4 style='color:#545454'>Concurso cerrado</h4>";
+					}else{
+						switch ($empate['estado']) {
+							case 0:
+								echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
+								break;
+							case 1:
+								echo "<button class='btn btn-geo' onclick='irDesempate(".$sesion->getOne(SessionKey::ID_CONCURSO).",".$tablero_master_id. ")'>Ir a desempate</button>";
+								break;
+							case 2:
+								echo "<button class='btn btn-geo' onclick='cerrarConcurso(".$sesion->getOne(SessionKey::ID_CONCURSO).")'>Finalizar Concurso</button>";
+								break;
+							default:
+								echo "<button class='btn btn-link'>Hubo un error , refresca la pagina</button>";
+								break;
+						}
 					}
 				?>
 				<br>
