@@ -162,6 +162,11 @@
 														}
 													}
 												}
+												usort($mejores,array("TableroPuntaje","cmp"));
+												for($i =0 ; $i < count($mejores) ; $i++) {
+													$mejores[$i]['lugar'] = $i+1;
+												}
+
 												// muestro puntuaciones totales en una tabla
 												foreach ($mejores as $mejor) {
 													echo "<tr>";

@@ -39,6 +39,9 @@
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
 		<input type="hidden" name="SEGUNDOS_PASO" id="SEGUNDOS_PASO" value="<?php echo $ronda['SEGUNDOS_PASO'] ?>" />
 		<input type="hidden" name="TURNOS_PREGUNTA_CONCURSANTE" id="TURNOS_PREGUNTA_CONCURSANTE" value="<?php echo $ronda['TURNOS_PREGUNTA_CONCURSANTE'] ?>" />
+		<div class="centrado card-sm">
+			<b>Equipo: <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></b>
+		</div>
 		<div class="card-lg centrado" id="card-inicio">
 			<h3><img src="image/logo_geollin.png" /></h3>
 			<h2 ><b>Gracias</b></h2>

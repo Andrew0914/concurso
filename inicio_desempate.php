@@ -22,7 +22,8 @@
 		<div class="card-lg centrado" id="card-inicio">
 			<h1 style="color: #545454" class="monserrat-bold"><b>Gracias</b></h1>
 			<h4 id="mensaje_concurso">
-				<?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?>
+				<span style="color: #545454" class="monserrat-bold"><?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></span>
+				<br><br>
 				<br>
 				El concurso ha terminado, los puntajes se estan calculando para determinar las posiciones y si ocurrió un empate
 				por favor espera a que el moderador indique que puedes dar click en <b>Continuar</b>

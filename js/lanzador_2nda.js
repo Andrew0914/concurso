@@ -94,7 +94,7 @@ function finCronometro(){
         dataType: "json",
         success: function (response) {
             if(response.estado == 1){
-                if(confirm(response.mensaje )){
+                if(confirm(response.mensaje)){
                     tomoPaso(response.ID_CONCURSANTE);
                 }else{
                     $("#btn-siguiente").show(300);
@@ -133,7 +133,7 @@ function contestoOpaso(){
                 clearInterval(timerCronometro);
                 ocultarCronometro();
                 stopExecPerSecond = true;
-                if(confirm(response.mensaje + response.concursante['CONCURSANTE'] + "?")){
+                if(confirm(response.mensaje + response.concursante['CONCURSANTE'] + " ?")){
                     $("#loading").hide(300);
                     tomoPaso(response.concursante['ID_CONCURSANTE']);
                 }else{

@@ -35,6 +35,9 @@
 		<input type="hidden" name="IS_DESEMPATE" id="IS_DESEMPATE" value="0">
 		<input type="hidden" name="NIVEL_EMPATE" id="NIVEL_EMPATE" value="<?php echo $concurso['NIVEL_EMPATE'] ?>">
 		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
+		<div class="centrado card-sm">
+			<b>Equipo: <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></b>
+		</div>
 		<div class="card-md centrado" id="card-inicio">
 			<h2><img src="image/logo_geollin.png" /></h2>
 			<h3><b>Gracias</b></h3>
