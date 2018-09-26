@@ -69,9 +69,9 @@ CREATE TABLE IF NOT EXISTS `concursantes` (
   PRIMARY KEY (`ID_CONCURSANTE`),
   KEY `FK_concursoConcursante` (`ID_CONCURSO`),
   CONSTRAINT `FK_concursoConcursante` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.concursantes: ~15 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.concursantes: ~8 rows (aproximadamente)
 /*!40000 ALTER TABLE `concursantes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `concursantes` ENABLE KEYS */;
 
@@ -93,9 +93,9 @@ CREATE TABLE IF NOT EXISTS `concursos` (
   CONSTRAINT `FK_etapaConcurso` FOREIGN KEY (`ID_ETAPA`) REFERENCES `etapas_tipo_concurso` (`ID_ETAPA`),
   CONSTRAINT `concursos_ibfk_1` FOREIGN KEY (`ID_RONDA`) REFERENCES `rondas` (`ID_RONDA`),
   CONSTRAINT `fkConcursoCategoria` FOREIGN KEY (`ID_CATEGORIA`) REFERENCES `categorias` (`ID_CATEGORIA`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.concursos: ~9 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.concursos: ~4 rows (aproximadamente)
 /*!40000 ALTER TABLE `concursos` DISABLE KEYS */;
 /*!40000 ALTER TABLE `concursos` ENABLE KEYS */;
 
@@ -1464,7 +1464,7 @@ CREATE TABLE IF NOT EXISTS `tablero_master` (
   PRIMARY KEY (`ID_TABLERO_MASTER`),
   KEY `fkTpConcurso` (`ID_CONCURSO`),
   CONSTRAINT `fkTpConcurso` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Volcando datos para la tabla geollin_concurso_db.tablero_master: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `tablero_master` DISABLE KEYS */;
@@ -1482,6 +1482,7 @@ CREATE TABLE IF NOT EXISTS `tablero_pasos` (
   `RESPUESTA` int(6) DEFAULT NULL,
   `RESPUESTA_CORRECTA` tinyint(1) DEFAULT '0',
   `PUNTAJE` int(6) DEFAULT '0',
+  `CONTESTADA` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID_TABLERO_PASO`),
   KEY `FK_concursoPaso` (`ID_CONCURSO`),
   KEY `FK_rondaPaso` (`ID_RONDA`),
@@ -1536,6 +1537,7 @@ CREATE TABLE IF NOT EXISTS `tablero_puntajes` (
   `NIVEL_EMPATE` int(3) DEFAULT '0',
   `CONCURSANTE_PASO` int(11) DEFAULT NULL,
   `CONCURSANTE_TOMO` smallint(2) DEFAULT '0',
+  `CONTESTADA` smallint(2) DEFAULT '0',
   PRIMARY KEY (`ID_TABLERO_PUNTAJE`),
   KEY `FK_concursoTablero` (`ID_CONCURSO`),
   KEY `FK_rondaTablero` (`ID_RONDA`),
