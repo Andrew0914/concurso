@@ -39,7 +39,18 @@
 					'termino'=>$termino,
 					'categoria'=>$concurso['ID_CATEGORIA']];
 		echo json_encode($cambio);
+		// liberamos memoria
+		unset($rondaActual);
+		unset($categoriaActual);
+		unset($objConcurso);
+		unset($concurso);
+		unset($log);
+		unset($termino);
+		unset($tiempo_muerto);
+		unset($bol_tiempo_muerto);
+		unset($cambio);
 	}else{
 		echo json_encode(array('estado'=>0,'mensaje'=>'Fallo la sesion'));
 	}
+	
 ?>

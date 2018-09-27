@@ -43,7 +43,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 	} catch(e) {
 		console.log(e);
 	}
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/listeners/lst_cambio_ronda.php',
 		type: 'GET',
 		dataType: 'json',
@@ -51,7 +51,6 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		success:function(response){
 			if(response.estado == 1){
 				if(response.tiempo_muerto == 1){
-					console.log("Cayo en tiempo muerto");
 					setTimeout(function(){initListenerCambioRonda(rondaActual, categoriaActual)},1500);
 				}else{
 					if(response.termino == 1){
@@ -66,6 +65,9 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 		},
 		error:function(error){
 			console.log(error);
+		},complete:function(){
+			// LIBERAMOS VARIABLES AJAX
+			ajaxTask = null;
 		}
 	});
 }

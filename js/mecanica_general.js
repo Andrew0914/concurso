@@ -9,7 +9,6 @@ var Comet = Class.create();
 	 initialize: function() { },
 	 connect: function(){
 	 	var categoria = document.getElementById('ID_CATEGORIA').value;
-	 	var esDesempate = document.getElementById('IS_DESEMPATE').value;
 		this.ajax = new Ajax.Request(this.url, {
 		  method: 'get',
 		  parameters: { 'lanzada' : this.lanzada , 
@@ -19,30 +18,38 @@ var Comet = Class.create();
 						'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value,
 						'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value},
 		  onSuccess: function(transport) {
-			 var response = transport.responseText.evalJSON();
-			 if(response.tiempo_muerto != 1 ){
-			 	this.comet.lanzada = response['lanzada'];
-			 	this.comet.handleResponse(response);
-			 	this.comet.noerror = true;
-			 }
+				var response = transport.responseText.evalJSON();
+				if(response.tiempo_muerto != 1 ){
+				this.comet.lanzada = response['lanzada'];
+				this.comet.handleResponse(response);
+				this.comet.noerror = true;
+				}
+				// libereamos variables
+				response = null;
 		  },
 		  onComplete: function(transport) {
-		  	var response = transport.responseText.evalJSON();
-		  	if(response.tiempo_muerto != 1){
-		  		if(response.todas_lanzadas != 1){
-			  		if (!this.comet.noerror){
-						setTimeout(function(){ comet.connect() }, 1000); 
+				var response = transport.responseText.evalJSON();
+				if(response.tiempo_muerto != 1){
+					if(response.todas_lanzadas != 1){
+						if (!this.comet.noerror){
+							setTimeout(function(){ comet.connect() }, 1000); 
+						}
+						else{
+							this.comet.connect();
+							this.comet.noerror = false;
+						}
 					}
-					else{
-						this.comet.connect();
-						this.comet.noerror = false;
-				  	}
-			  	}
-		  	}else{
-		  		setTimeout(function(){ comet.connect() }, 1500); 
-		  	}
-		  }
+				}else{
+					setTimeout(function(){ comet.connect() }, 1500); 
+				}
+
+				// lmpiamos variables
+				response = null;
+				categoria = null;
+				this.ajax = null;
+			}
 		});
+
 		this.ajax.comet = this;
 	 },
 	 disconnect: function(){
@@ -107,6 +114,11 @@ function showPregunta(response){
 		sendRespuesta();
 	};
 	cronometro(segundos,fnSegundo,fnTermino);
+
+	// limpiamos variables
+	segundos = null;
+	incisos = null;
+	contenido = null;
 }
 
 /**
@@ -136,24 +148,38 @@ function sendPreRespuestas(final){
 	var ronda = $jq("#ID_RONDA").val();
 	var concursante = $jq("#ID_CONCURSANTE").val();
 	var pregunta = $jq("#ID_PREGUNTA").val();
-	$jq.post('class/TableroPuntaje.php', 
-		{'functionTablero': 'preRespuesta',
-			'ID_CONCURSO':concurso,
-			'ID_RONDA':ronda,
-			'ID_CONCURSANTE':concursante,
-			'PREGUNTA_POSICION':posicion,
-			'PREGUNTA': pregunta,
-			'final':final,
-			'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
+	var ajaxTask = $jq.ajax({
+		type: "POST",
+		url: "class/TableroPuntaje.php",
+		data: {'functionTablero': 'preRespuesta',
+				'ID_CONCURSO':concurso,
+				'ID_RONDA':ronda,
+				'ID_CONCURSANTE':concursante,
+				'PREGUNTA_POSICION':posicion,
+				'PREGUNTA': pregunta,
+				'final':final,
+				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
 		},
-		function(data, textStatus, xhr) {
-			if(data.estado == 0){
-				console.log("ejecucion al recibir estado 0 pre");
+		dataType: "json",
+		success: function (response) {
+			if(response.estado == 0){
 				sendPreRespuestas(final);
 			}else{
-				//console.log('Se mando pre respuesta');
+				console.log(response);
 			}
-	},'json');
+		},error : function(error){
+			console.log(error);
+		},complete:function(){
+			// limpiamos variables
+			posicion = null;
+			concurso = null;
+			ronda = null;
+			concursante = null;
+			pregunta = null;
+			ajaxTask = null;
+		}
+	});
+	
 }
 
 /**
@@ -163,15 +189,33 @@ function todosContestaron(){
 	var concurso = $jq("#ID_CONCURSO").val();
 	var ronda = $jq("#ID_RONDA").val();
 	var pregunta = $jq("#ID_PREGUNTA").val();
-	$jq.get('class/TableroPuntaje.php?functionTablero=todosContestaron&ID_CONCURSO='
-			+concurso+'&ID_RONDA='+ronda+'&ID_PREGUNTA='+pregunta+'&NIVEL_EMPATE=' + document.getElementById('NIVEL_EMPATE').value, 
-		function(data) {
-			if(data.estado == 1){
+	var ajaxTask = $.ajax({
+		type: "GET",
+		url: "class/TableroPuntaje.php",
+		data: {
+			'functionTablero':'todosContestaron',
+			'ID_CONCURSO': concurso,
+			'ID_RONDA':ronda,
+			'ID_PREGUNTA':pregunta,
+			'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
+		},
+		dataType: "json",
+		success: function (response) {
+			if(response.estado == 1){
 				stopExecPerSecond= true;
 				notFinish = true;
 				sendRespuesta();
 			}
-	},'json');
+		},error:function(error){
+			console.log(error);
+		},complete:function(){
+			// limpiamos variables
+			concurso = null;
+			ronda = null;
+			pregunta = null;
+			ajaxTask = null;
+		}
+	});
 }
 
 /**
@@ -188,6 +232,7 @@ function sendRespuesta(){
 	for (var i = 0, length = respuestas.length; i < length; i++){
 		if (respuestas[i].checked){
 		  respuesta = respuestas[i].value;
+		  i = null;
 		  break;
 		}
 	}
@@ -198,30 +243,38 @@ function sendRespuesta(){
 		afterSend();
 	}else{
 		// MANDAMOS LA RESPUESTA SELECCIONADA
-	  $jq.ajax({
-		 url: 'class/TableroPuntaje.php',
-		 type: 'POST',
-		 dataType: 'json',
-		 data: {'functionTablero': 'saveRespuesta',
-			  'ID_CONCURSO':concurso,
-			  'ID_RONDA':ronda,
-			  'ID_CONCURSANTE':concursante,
-			  'ID_PREGUNTA': pregunta,
-			  'ID_RESPUESTA':respuesta,
-			  'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
-		  },success:function(data){
-			 if(data.estado == 1){
-				afterSend();
-				stopExecPerSecond= true;
-				notFinish = true;
-			  }else{
-				console.log(data.mensaje)
-			  }
-		  },error:function(a,b,c){
-			 console.log(a);
-			 console.log(b);
-			 console.log(c);
-		  }
+	  var ajaxTask = $jq.ajax({
+			url: 'class/TableroPuntaje.php',
+			type: 'POST',
+			dataType: 'json',
+			data: {'functionTablero': 'saveRespuesta',
+				'ID_CONCURSO':concurso,
+				'ID_RONDA':ronda,
+				'ID_CONCURSANTE':concursante,
+				'ID_PREGUNTA': pregunta,
+				'ID_RESPUESTA':respuesta,
+				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value
+			},success:function(data){
+				if(data.estado == 1){
+					afterSend();
+					stopExecPerSecond= true;
+					notFinish = true;
+				}else{
+					console.log(data.mensaje)
+				}
+			},error:function(a,b,c){
+				console.log(a);
+				console.log(b);
+				console.log(c);
+			},complete:function(){
+				concurso = null;
+				ronda = null;
+				pregunta = null;
+				concursante = null;
+				respuestas = null;
+				respuesta = null;
+				ajaxTask = null;
+			}
 	  });
 
 	}
@@ -236,7 +289,7 @@ function afterSend(){
 	var concursante = $jq("#ID_CONCURSANTE").val();
 	var pregunta = $jq("#ID_PREGUNTA").val();
 	var categoria = $jq("#ID_CATEGORIA").val();
-	$jq.ajax({
+	var ajaxTask = $jq.ajax({
 		url: 'class/TableroPuntaje.php',
 		type: 'GET',
 		dataType: 'json',
@@ -250,6 +303,7 @@ function afterSend(){
 		success:function(response){
 			if(response.estado == 1){
 				var mensaje  = "<h4>Tu respuesta fue:";
+
 				if(response.puntaje.RESPUESTA_CORRECTA == 1){
 					mensaje += " CORRECTA </h4>";
 					mensaje += "<img src='image/correcta.png'/>"
@@ -269,6 +323,8 @@ function afterSend(){
 				$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
 				$jq("#content-respuestas").html("");
 			}
+
+			mensaje = null;
 		},
 		error: function(error){
 			$jq("#resultado-mi-pregunta").html("No pudimos mostrarte el marcador de tu pregunta :( ");
@@ -278,11 +334,16 @@ function afterSend(){
 			$jq("#content-respuestas").html("");
 			console.log("error mi marcador");
 			console.log(error);
+		},complete: function(){
+			concurso = null;
+			ronda = null;
+			concursante = null;
+			pregunta = null;
+			categoria = null;
+			ajaxTask = null;
 		}
 	});
 }
-
-
 
 /**
  * Finaliza la ronda inicializando el listener de cambio de ronda
