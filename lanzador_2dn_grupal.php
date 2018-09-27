@@ -162,7 +162,7 @@
 														}
 													}
 												}
-												usort($mejores,array("TableroPuntaje","cmp"));
+												usort($mejores,array($tablero,"cmp"));
 												for($i =0 ; $i < count($mejores) ; $i++) {
 													$mejores[$i]['lugar'] = $i+1;
 												}

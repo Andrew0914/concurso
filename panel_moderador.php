@@ -64,17 +64,7 @@
 			<div class="col-md-12 centrado">
 				<?php 
 					// NO CERRADOS
-					if($concurso['FECHA_CIERRE'] != '' && $concurso['FECHA_CIERRE'] != null){
-						$master = new TableroMaster();
-						$tablerosFinales = $master->getTablerosMasters($concurso['ID_CONCURSO']);
-						echo "<ul style='list-style:none'>";
-						foreach ($tablerosFinales as $tabM) {
-							echo "<li>";
-							echo "<a style='text-decoration:underline' href='tablero?id_master=".$tabM['ID_TABLERO_MASTER'] . "'>Tablero " . $tabM['ID_TABLERO_MASTER'] . "</a>";
-							echo "</li>";
-						}
-						echo "</ul>";
-					}else {
+					if($concurso['FECHA_CIERRE'] == '' || $concurso['FECHA_CIERRE'] == null){
 				?>
 				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
 					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>

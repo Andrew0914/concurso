@@ -232,16 +232,18 @@
 				LEFT JOIN respuestas w ON tp.RESPUESTA = w.ID_RESPUESTA
 				LEFT JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA
 				WHERE tp.ID_CONCURSO = ?";
-				$values = [':ID_CONCURSO'=>$concurso];
+				$values = ['ID_CONCURSO'=>$concurso];
 				if($es_empate){
 					$query.= " AND tp.ID_RONDA = ? AND tp.NIVEL_EMPATE = ?";
 					$values['ID_RONDA'] = $rondas->getRondaDesempate($objConcurso['ID_ETAPA'])['ID_RONDA'];
 					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
 				}else if($preliminar){
-					$query.= " AND tp.ID_RONDA = ?";
+					$query.= " AND tp.ID_RONDA = ? AND tp.NIVEL_EMPATE = ?";
 					$values['ID_RONDA'] = $objConcurso['ID_RONDA'];
+					$values['NIVEL_EMPATE'] = $objConcurso['NIVEL_EMPATE'];
 				}
-				$values['ID_CONCURSO'] = $concurso;
+				$values[':ID_CONCURSO'] = $concurso;
+				$values[':ID_RONDA'] = $objConcurso['ID_RONDA'];
 				$query.= " UNION ALL ";
 				$query.= " SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA
 								,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE,'0' as NIVEL_EMPATE,tps.PREGUNTA_POSICION,'0' PASO,'' CONCURSANTE_TOMO
@@ -251,8 +253,8 @@
 					LEFT JOIN preguntas p ON tps.PREGUNTA = p.ID_PREGUNTA
 					LEFT JOIN respuestas w ON tps.RESPUESTA = w.ID_RESPUESTA
 					LEFT JOIN categorias ca ON p.ID_CATEGORIA = ca.ID_CATEGORIA
-					WHERE tps.ID_CONCURSO = ? ) resultados ORDER BY resultados.ID_RONDA,resultados.PREGUNTA_POSICION";
-				//echo $query;
+					WHERE tps.ID_CONCURSO = ? AND tps.ID_RONDA = ?) resultados ORDER BY resultados.ID_RONDA,resultados.PREGUNTA_POSICION";
+				//echo json_encode($values);
 				$tablero = $this->query($query,$values,true);
 				$response['tablero'] = $tablero;
 				$response['estado'] = 1;

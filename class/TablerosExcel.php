@@ -117,7 +117,7 @@
 				if($pu['NIVEL_EMPATE'] == 0){
 					$objSheet->getCell('D'.$indexCelda)->setValue("No aplica");
 				}else{
-					$objSheet->getCell('D'.$indexCelda)->setValue($g['NIVEL_EMPATE']);
+					$objSheet->getCell('D'.$indexCelda)->setValue($g['empate']);
 				}
 				$indexCelda++;
 			}
