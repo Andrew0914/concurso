@@ -69,9 +69,9 @@ CREATE TABLE IF NOT EXISTS `concursantes` (
   PRIMARY KEY (`ID_CONCURSANTE`),
   KEY `FK_concursoConcursante` (`ID_CONCURSO`),
   CONSTRAINT `FK_concursoConcursante` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.concursantes: ~8 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.concursantes: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `concursantes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `concursantes` ENABLE KEYS */;
 
@@ -93,9 +93,9 @@ CREATE TABLE IF NOT EXISTS `concursos` (
   CONSTRAINT `FK_etapaConcurso` FOREIGN KEY (`ID_ETAPA`) REFERENCES `etapas_tipo_concurso` (`ID_ETAPA`),
   CONSTRAINT `concursos_ibfk_1` FOREIGN KEY (`ID_RONDA`) REFERENCES `rondas` (`ID_RONDA`),
   CONSTRAINT `fkConcursoCategoria` FOREIGN KEY (`ID_CATEGORIA`) REFERENCES `categorias` (`ID_CATEGORIA`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.concursos: ~4 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.concursos: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `concursos` DISABLE KEYS */;
 /*!40000 ALTER TABLE `concursos` ENABLE KEYS */;
 
@@ -453,7 +453,7 @@ INSERT INTO `reglas` (`ID_REGLA`, `ID_RONDA`, `TIENE_PASO`, `TIENE_TURNOS`, `RES
 	(3, 3, 0, 0, 0, 1, '2,2,2,3'),
 	(4, 4, 0, 0, 0, 0, '1,1,2,3'),
 	(5, 5, 1, 1, 1, 1, '1,1,2,3'),
-	(6, 6, 0, 0, 0, 0, '1,1,2,3');
+	(6, 6, 0, 0, 0, 1, '1,1,2,3');
 /*!40000 ALTER TABLE `reglas` ENABLE KEYS */;
 
 -- Volcando estructura para tabla geollin_concurso_db.respuestas
@@ -1464,7 +1464,7 @@ CREATE TABLE IF NOT EXISTS `tablero_master` (
   PRIMARY KEY (`ID_TABLERO_MASTER`),
   KEY `fkTpConcurso` (`ID_CONCURSO`),
   CONSTRAINT `fkTpConcurso` FOREIGN KEY (`ID_CONCURSO`) REFERENCES `concursos` (`ID_CONCURSO`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 
 -- Volcando datos para la tabla geollin_concurso_db.tablero_master: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `tablero_master` DISABLE KEYS */;
@@ -1515,7 +1515,7 @@ CREATE TABLE IF NOT EXISTS `tablero_posiciones` (
   KEY `ID_TABLERO_MASTER` (`ID_TABLERO_MASTER`),
   CONSTRAINT `fkTpConcursante` FOREIGN KEY (`ID_CONCURSANTE`) REFERENCES `concursantes` (`ID_CONCURSANTE`),
   CONSTRAINT `tablero_posiciones_ibfk_1` FOREIGN KEY (`ID_TABLERO_MASTER`) REFERENCES `tablero_master` (`ID_TABLERO_MASTER`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 
 -- Volcando datos para la tabla geollin_concurso_db.tablero_posiciones: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `tablero_posiciones` DISABLE KEYS */;
