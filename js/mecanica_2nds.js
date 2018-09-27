@@ -1,6 +1,6 @@
 var lanzada = 0;
 function obtenerPregunta(boton){
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/PreguntasGeneradas.php',
 		type: 'GET',
 		dataType: 'json',
@@ -22,6 +22,8 @@ function obtenerPregunta(boton){
 			}
 		},error:function(error){
 			console.log(error);
+		},complete:function(){
+			ajaxTask = null;
 		}
 	});
 }
@@ -64,6 +66,12 @@ function showPregunta(response){
 		contenido += "</div>";
 		$("#content-respuestas").html(contenido);
 		cronometro(segundosReales,function(){},function(){paso(true);});
+		// free memory
+		segundos = null;
+		segundosReales = null;
+		respuestas = null;
+		incisos = null;
+		contenido = null;
 	}
 	
 }
@@ -88,11 +96,12 @@ function guardaRespuestaAsignada(paso){
 	for (var i = 0, length = respuestas.length; i < length; i++){
 		if (respuestas[i].checked){
 		  respuesta = respuestas[i].value;
+		  i = null;
 		  break;
 		}
 	}
 	// MANDAMOS LA RESPUESTA SELECCIONADA
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/TableroPuntaje.php',
 		type: 'POST',
 		dataType: 'json',
@@ -114,6 +123,16 @@ function guardaRespuestaAsignada(paso){
 			}
 		  },error:function(error){
 			 console.log(error)
+		  },complete:function(){
+			ajaxTask = null;
+			posicion = null;
+			concurso = null;
+			ronda = null;
+			pregunta = null;
+			concursante = null;
+			respuestas = null;
+			nivelEmpate = null;
+			respuesta = null;
 		  }
 	  });
 }
@@ -130,7 +149,7 @@ function paso(porError){
 		tipoPaso += 1;
 	}
 	// MANDAMOS LA RESPUESTA SELECCIONADA
-	$.ajax({
+	var ajaxTask = $.ajax({
 		 url: 'class/TableroPuntaje.php',
 		 type: 'POST',
 		 dataType: 'json',
@@ -153,12 +172,20 @@ function paso(porError){
 			  }
 		  },error:function(error){
 			 console.log(error)
+		  },complete:function(){
+			ajaxTask = null;
+			posicion = null;
+			concurso = null;
+			ronda = null;
+			pregunta = null;
+			concursante = null;
+			tipoPaso = null;
 		  }
 	  });
 }
 
 function obtenerPreguntaPaso(){
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/TableroPuntaje.php',
 		type: 'GET',
 		dataType: 'json',
@@ -174,6 +201,8 @@ function obtenerPreguntaPaso(){
 			}
 		},error:function(error){
 			console.log(error);
+		},complete:function(){
+			ajaxTask = null;
 		}
 	});
 }
@@ -189,10 +218,11 @@ function guardarRespuestaPaso(){
 	for (var i = 0, length = respuestas.length; i < length; i++){
 		if (respuestas[i].checked){
 		  respuesta = respuestas[i].value;
+		  i = null;
 		  break;
 		}
 	}
-	$.ajax({
+	var ajaxTask = $.ajax({
 		 url: 'class/TableroPaso.php',
 		 type: 'POST',
 		 dataType: 'json',
@@ -212,6 +242,15 @@ function guardarRespuestaPaso(){
 			  }
 		  },error:function(error){
 			 console.log(error)
+		  },complete:function(){
+			ajaxTask = null;
+			posicion = null;
+			concurso = null;
+			ronda = null;
+			pregunta = null;
+			concursante = null;
+			respuestas = null;
+			respuesta = null;
 		  }
 	  });
 }
@@ -222,7 +261,7 @@ function afterSend(esPaso){
 	var concursante = $("#ID_CONCURSANTE").val();
 	var pregunta = $("#ID_PREGUNTA").val();
 	var categoria = $("#ID_CATEGORIA").val();
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/TableroPuntaje.php',
 		type: 'GET',
 		dataType: 'json',
@@ -261,10 +300,19 @@ function afterSend(esPaso){
 				$("#btn-obtener-pr").hide(300);
 				$("#btn-terminar").show(300);
 			}
+
+			mensaje = null;
 		},
 		error: function(error){
 			alert("No pudimos mostrarte el resultado de tu pregunta");
 			console.log(error);
+		},complete:function(){
+			ajaxTask = null;
+			concurso = null;
+			ronda = null;
+			concursante = null;
+			pregunta = null;
+			categoria = null;
 		}
 	});
 }
@@ -282,8 +330,6 @@ function showPreguntaPaso(response){
 		$("#pregunta").show(300);
 		// ABRIMOS EL MODAL
 		$("#mdl-pr-paso").modal({backdrop: 'static', keyboard: false});
-		// segundo para cada pregunta
-		var segundos = $("#segundos_ronda").val();
 		//cambiamos la vista
 		$("#pregunta-paso").show(300);
 		$("#resultado-mi-pregunta-paso").html("");
@@ -309,6 +355,12 @@ function showPreguntaPaso(response){
 		contenido += "</div>";
 		$("#content-respuestas-paso").html(contenido);
 		cronometroPaso(segundosReales,function(){},function(){guardarRespuestaPaso();});
+		// free memory 
+		segundosParaPaso = null;
+		segundosReales = null;
+		respuestas = null;
+		incisos = null;
+		contenido = null;
 	}
 	
 }
@@ -328,7 +380,7 @@ function afterSendPaso(){
 	var concursante = $("#ID_CONCURSANTE").val();
 	var pregunta = $("#ID_PREGUNTA-paso").val();
 	var categoria = $("#ID_CATEGORIA").val();
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/TableroPaso.php',
 		type: 'GET',
 		dataType: 'json',
@@ -367,16 +419,25 @@ function afterSendPaso(){
 				$("#btn-obtener-pr").hide(300);
 				$("#btn-terminar").show(300);
 			}
+
+			mensaje = null;
 		},
 		error: function(error){
 			alert("No pudimos mostrate el resultado de tu pregunta");
 			console.log(error);
+		},complete:function(){
+			ajaxTask = null;
+			concurso = null;
+			ronda = null;
+			concursante = null;
+			pregunta = null;
+			categoria = null;
 		}
 	});
 }
 
 function terminarParticipacion(){
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/Concursante.php',
 		type: 'GET',
 		dataType: 'json',
@@ -396,6 +457,8 @@ function terminarParticipacion(){
 		error:function(error){
 			alert("Vuelve a intentar :( ");
 			console.log(error);
+		},complete:function(){
+			ajaxTask = null;
 		}
 	});
 }

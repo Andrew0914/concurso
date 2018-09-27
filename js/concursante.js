@@ -3,7 +3,7 @@
  * @param  {form} formulario 
  */
 function accederConcurso(formulario){
-	$.ajax({
+	var ajaxTask = $.ajax({
 		type : 'POST',
 		url  : 'class/Concursante.php',
 		data :$(formulario).serialize()+"&functionConcursante=accederConcurso",
@@ -18,6 +18,8 @@ function accederConcurso(formulario){
 		error : function(error){
 			alert("Oops! ocurrio un error inesperado, actualiza la pagina e intenta de nuevo");
 			console.log(error);
+		},complete: function(){
+			ajaxTask = null;
 		}
 	});
 }
@@ -28,21 +30,36 @@ function accederConcurso(formulario){
  */
 function setConcursantes(concurso){
   var idConcurso = $(concurso).val();
-  $.get('class/Concursante.php?concurso='+idConcurso+"&functionConcursante=getConcursantes",
-	 function(data) {
-		var concursantes = data.concursantes;
-		var content = "<option value=''>Elige un concursante</option>";
-		for(var d=0; d<concursantes.length; d++){
-		  content += "<option value='" + concursantes[d].CONCURSANTE;
-		  content += "'>" + concursantes[d].CONCURSANTE + "</option>";
+  var ajaxTask = $.ajax({
+		type: "GET",
+		url: "class/Concursante.php",
+		data: {
+			"concurso":idConcurso,
+			"functionConcursante": "getConcursantes"
+		},
+		dataType: "json",
+		success: function (data) {
+			var concursantes = data.concursantes;
+			var content = "<option value=''>Elige un concursante</option>";
+			for(var d=0; d<concursantes.length; d++){
+			content += "<option value='" + concursantes[d].CONCURSANTE;
+			content += "'>" + concursantes[d].CONCURSANTE + "</option>";
+			}
+			$("#CONCURSANTE").css("width","75%");
+			$("#CONCURSANTE").html(content);
+			content = null;
+			concursantes = null;
+		},error:function(error){
+			console.log(error);
+		},complete: function(){
+			ajaxTask = null;
+			idConcurso = null;
 		}
-		$("#CONCURSANTE").css("width","75%");
-		$("#CONCURSANTE").html(content);
-  },'json');
+  });
 }
 
 function accederDesempate(idConcurso,concursante){
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/Concursante.php',
 		type: 'GET',
 		dataType: 'json',
@@ -60,6 +77,8 @@ function accederDesempate(idConcurso,concursante){
 		},error:function(error){
 			alert("Vuelve a intentar :( ");
 			console.log(error);
+		},complete:function(){
+			ajaxTask = null;
 		}
 	});
 }

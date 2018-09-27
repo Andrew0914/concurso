@@ -1,8 +1,8 @@
 /**
  * Dispara el dialogo con la pregunta para lanzarla
- * @param  {[int]} pregunta   
- * @param  {[int]} idPregunta 
- * @param  {[int]} idGenerada 
+ * @param  {int} pregunta   
+ * @param  {int} idPregunta 
+ * @param  {int} idGenerada 
  */
 function leer(pregunta,idPregunta,puntaje, idGenerada){
     $("#mdl-leer-pregunta").modal({backdrop: 'static', keyboard: false});
@@ -25,7 +25,7 @@ function lanzarPregunta(segundos,boton){
     if(categoria == null || categoria == undefined){
         categoria = 'desempate';
     }
-	$.ajax({
+	var ajaxTask = $.ajax({
 		type : 'POST',
         url  : 'class/PreguntasGeneradas.php',
         data :{'functionGeneradas':'lanzarPregunta',
@@ -59,12 +59,20 @@ function lanzarPregunta(segundos,boton){
                 }
                 contenido += "</tr>";
                 $("#content-respuestas tbody").html(contenido);
+                contenido = null;
+                respuestas = null;
         	}else{
         		alert(response.mensaje);
         	}
         },
         error: function(error){
         	alert("ocurrio un error, por favor vuelve a intentar");
+        },complete:function(){
+            ajaxTask = null;
+            generada = null;
+            concurso = null;
+            ronda = null;
+            categoria = null;
         }
 	});	
 }
@@ -77,7 +85,7 @@ function todosContestaron(){
    var ronda = $("#ID_RONDA").val();
    var pregunta = $("#ID_PREGUNTA").val();
    var nivelEmpate = $("#NIVEL_EMPATE").val();
-   $.ajax({
+   var ajaxTask = $.ajax({
        url: 'class/TableroPuntaje.php',
        type: 'GET',
        dataType: 'json',
@@ -92,6 +100,12 @@ function todosContestaron(){
        },
        error:function(error){
         console.log(error);
+       },complete:function(){
+            ajaxTask = null;   
+            concurso = null;
+            ronda = null;
+            pregunta = null;
+            nivelEmpate = null;
        }
    });
 }
@@ -119,13 +133,12 @@ function closeModal(){
 
 /**
  * Obtiene los numeros para el histograma de la pregunta correctas/incorrectas al final de la pregunta
- * @return {[type]} [description]
  */
 function getMarcadorPregunta(){
     var concurso = $("#ID_CONCURSO").val();
     var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
@@ -149,6 +162,11 @@ function getMarcadorPregunta(){
         },
         error:function(error){
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
+            concurso = null;
+            ronda = null;
+            pregunta = null;
         }
     });
 }
@@ -160,7 +178,7 @@ function getActividadPregunta(){
     var concurso = $("#ID_CONCURSO").val();
     var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
@@ -181,6 +199,11 @@ function getActividadPregunta(){
         },
         error:function(error){
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
+            concurso = null;
+            ronda = null;
+            pregunta = null;
         }
     });
 }
@@ -189,7 +212,7 @@ function siguienteRonda(){
     var concurso = $("#ID_CONCURSO").val();
     var categoria = $("#ID_CATEGORIA").val();
     var rondaActual = $("#ID_RONDA").val();
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/RondasLog.php',
         type: 'POST',
         dataType: 'json',
@@ -214,6 +237,11 @@ function siguienteRonda(){
         error:function(error){
             alert("ERROR");
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
+            concurso = null;
+            categoria = null;
+            rondaActual = null;
         }
     })
 }

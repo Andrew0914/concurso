@@ -1,12 +1,12 @@
 /**
  * Dispara la peticion que genera lasp reguntas y setea los contadores en la tabla
- * @param  {[int]} concurso 
- * @param  {[int]} ronda    
+ * @param  {int} concurso 
+ * @param  {int} ronda    
  */
 function generaPreguntas(concurso,etapa){
 	var categoria = $("#ID_CATEGORIA").val();
 	if(categoria != ""){
-		$.ajax({
+		var ajaxTask = $.ajax({
 			url: 'class/PreguntasGeneradas.php',
 			type: 'POST',
 			dataType: 'json',
@@ -28,12 +28,17 @@ function generaPreguntas(concurso,etapa){
 						contenido += "</tr>";
 					}
 					$("#tbl-generadas tbody").html(contenido);
+					contadores = null;
+					contenido = null;
 				}
 				alert(response.mensaje);
 			},
 			error:function(error){
 				alert("Ocurrio un error inesperado");
 				console.log(error);
+			},complete:function(){
+				ajaxTask = null;
+				categoria = null;
 			}
 		});
 	}else{
@@ -55,8 +60,8 @@ function esNull(valor){
 
 /**
  * Cambiar y finaliza la ronda actual
- * @param  {[int]} concurso    
- * @param  {[int]} rondaActual 
+ * @param  {int} concurso    
+ * @param  {int} rondaActual 
  */
 function cambiarFinalizarRonda(concurso,rondaActual){
 	var rondaNueva = $("#RONDA_NUEVA").val();
@@ -84,7 +89,7 @@ function cambiarFinalizarRonda(concurso,rondaActual){
  * @param  integer etapa     
  */
 function iniciarCategoria(categoria,concurso){
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/Concurso.php',
 		type: 'POST',
 		dataType: 'json',
@@ -99,14 +104,15 @@ function iniciarCategoria(categoria,concurso){
 		error: function(xhr , text , error){
 			console.log(error);
 			alert("Ocurrio error inesperado: " + text);
+		},complete:function(){
+			ajaxTask = null;
 		}
 	});
 }
 
 function generaTableros(concurso){
-	console.log("Ejecuion js tabs");
 	var isDesempate = document.getElementById("IS_DESEMPATE").value;
-	$.ajax({
+	var ajaxTask = $.ajax({
 		url: 'class/TableroPosiciones.php',
 		type: 'POST',
 		dataType: 'json',
@@ -126,6 +132,9 @@ function generaTableros(concurso){
 		error:function(error){
 			alert("No se pudieron generar los tableros de puntajes, porfavor intentalo de nuevo");
 			console.log(error);
+		},complete:function () {
+			isDesempate = null;
+			ajaxTask = null;
 		}
 	});	
 }

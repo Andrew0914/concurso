@@ -34,7 +34,7 @@ function lanzarPregunta(segundos,boton){
     if(categoria == null || categoria == undefined){
         categoria = 'desempate';
     }
-	$.ajax({
+	var ajaxTask = $.ajax({
 		type : 'POST',
         url  : 'class/PreguntasGeneradas.php',
         data :{'functionGeneradas':'lanzarPregunta2nda',
@@ -63,12 +63,21 @@ function lanzarPregunta(segundos,boton){
                 contenido += "</tr>";
                 $("#content-respuestas tbody").html(contenido);
                 cronometro(segundos,function(){contestoOpaso();}, function(){finCronometro();});
+                respuestas = null;
+                contenido = null;
         	}else{
         		alert(response.mensaje);
         	}
         },
         error: function(error){
         	alert("ocurrio un error, por favor vuelve a intentar");
+        },complete:function(){
+            ajaxTask = null;
+            generada = null;
+            concurso = null;
+            ronda = null;
+            categoria = null;
+            idConcursante = null;
         }
 	});	
 }
@@ -83,7 +92,7 @@ function finCronometro(){
 	var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
     var idConcursante =  $("#ID_CONCURSANTE").val();
-    $.ajax({
+    var ajaxTask = $.ajax({
         type: "POST",
         url: "class/TableroPuntaje.php",
         data :{'functionTablero':'generaPuntajeTiempoFinalizado',
@@ -105,6 +114,12 @@ function finCronometro(){
             }
         },error:function(error){
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
+            concurso = null;
+            ronda = null;
+            pregunta = null;
+            idConcursante = null;
         }
     });
 }
@@ -113,7 +128,7 @@ function finCronometro(){
  * Lanza la peticion para saber si todos los participantes contestaron
  */
 function contestoOpaso(){
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
@@ -143,12 +158,14 @@ function contestoOpaso(){
             }
         },error:function(error){
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
         }
     }); 
 }
 
 function tomoPaso(concursante){
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/TableroPuntaje.php',
         type: 'POST',
         dataType: 'json',
@@ -172,6 +189,8 @@ function tomoPaso(concursante){
         error:function(error){
             alert("Ocurrio un error");
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
         }
     });
 }
@@ -186,7 +205,7 @@ function finCronometroPaso(){
 	var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
     var idConcursante =  $("#ID_CONCURSANTE").val();
-    $.ajax({
+    var ajaxTask = $.ajax({
         type: "POST",
         url: "class/TableroPaso.php",
         data :{'functionTableroPaso':'generaPuntajeTiempoFinalizado',
@@ -204,12 +223,18 @@ function finCronometroPaso(){
             }
         },error:function(error){
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
+            concurso = null;
+            ronda = null;
+            pregunta = null;
+            idConcursante = null;
         }
     });
 }
 
 function contestoPaso(concursante){
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/TableroPaso.php',
         type: 'GET',
         dataType: 'json',
@@ -230,6 +255,8 @@ function contestoPaso(concursante){
             }
         },error:function(error){
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
         }
     }); 
 }
@@ -254,7 +281,7 @@ function siguienteRonda(){
     var concurso = $("#ID_CONCURSO").val();
     var categoria = $("#ID_CATEGORIA").val();
     var rondaActual = $("#ID_RONDA").val();
-    $.ajax({
+    var ajaxTask = $.ajax({
         url: 'class/RondasLog.php',
         type: 'POST',
         dataType: 'json',
@@ -280,6 +307,11 @@ function siguienteRonda(){
         error:function(error){
             alert("ERROR");
             console.log(error);
+        },complete:function(){
+            ajaxTask = null;
+            concurso = null;
+            categoria = null;
+            rondaActual = null;
         }
     })
 }

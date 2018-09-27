@@ -18,7 +18,9 @@ function generaConcursantes(){
     $("#btn-deshacer").show(300);
   }else{
     alert("Por favor pon una cantidad real de concursantes");
-  }	
+  }
+  cantidad = null;
+  concursantesData = null;
 }
 
 /**
@@ -49,14 +51,14 @@ function validaConcursantes(){
 
 /**
  * Realiza la peticion para la generacion del concurso y concursantes
- * @param  {[form]} formulario [objeto del formulario]
+ * @param  {form} formulario [objeto del formulario]
  */
 function generarConcurso(formulario){
   if($("#CONCURSO").val() == "" || $("#ID_ETAPA").val() == "" || $("#ID_CATEGORIA").val() == "" || !validaConcursantes()){
     validaConcursantes();
     alert("Es necesario que ingreses todos los datos del concurso: Nombre,Etapa,Categoria y Concursantes(nombre y password)");
   }else{
-    $.ajax({
+    var ajaxTask = $.ajax({
       type : 'POST',
       url  : 'class/Concurso.php',
       data :$(formulario).serialize()+"&functionConcurso=generaConcurso",
@@ -75,6 +77,8 @@ function generarConcurso(formulario){
       error : function(error){
         alert("Oops! ocurrio un error inesperado, actualiza la pagina e intenta de nuevo");
         console.log(error);
+      },complete:function(){
+        ajaxTask = null;
       }
     });
   }
@@ -87,26 +91,45 @@ function generarConcurso(formulario){
 function irConcurso(){
   var concurso = $("#ID_CONCURSO").val();
   if(concurso != ""){
-    $.get('class/Concurso.php?functionConcurso=irConcurso&concurso='+concurso,
-      function(data, textStatus, xhr) {
+    var ajaxTask = $.ajax({
+      type: "GET",
+      url: "class/Concurso.php",
+      data: {
+        'functionConcurso':'irConcurso',
+        'concurso':concurso
+      },
+      dataType: "json",
+      success: function (data) {
         if(data.estado == 1){
           window.location.replace("panel");
         }
-    },'json');
+      },error:function(error){
+        console.log(error);
+      },complete:function(){
+        ajaxTask = null;
+        concurso = null;
+      }
+    });
   }else{
     alert("Debes seleccionar un concurso");
   }
-  
 }
 
 /**
  * Setea las rondas en el select por etapa
- * @param {[select]} etapa 
+ * @param {select} etapa 
  */
 function setRondas(etapa){
   var idEtapa = $(etapa).val();
-  $.get('class/Rondas.php?etapa='+idEtapa+"&functionRonda=getRondas",
-    function(data) {
+  var ajaxTask = $.ajax({
+    type: "method",
+    url: "class/Rondas.php",
+    data: {
+      'etapa':idEtapa,
+      'functionRonda':'getRondas'
+    },
+    dataType: "json",
+    success: function (data) {
       var rondas = data.rondas;
       var content = "<option value=''>Selecciona una ronda</option>";
       for(var d=0; d<rondas.length; d++){
@@ -114,25 +137,48 @@ function setRondas(etapa){
         content += "'>" + rondas[d].RONDA + "</option>";
       }
       $("#ID_RONDA").html(content);
-  },'json');
+      rondas = null;
+      content = null;
+    },error:function(error){
+      console.log(error);
+    },complete:function(){
+      ajaxTask = null;
+      idEtapa = null;
+    }
+  });
 }
 
 function setCategorias(etapa){
     var idEtapa = etapa.value;
-    $.get('class/Categorias.php?ID_ETAPA='+idEtapa+"&functionCategorias=getCategoriasPermitidas",
-    function(data) {
-      var categorias = data.categorias;
-      var content = "<option value=''>Selecciona una Categoria para iniciar</option>";
-      for(var d=0; d<categorias.length; d++){
-        content += "<option value='" + categorias[d].ID_CATEGORIA;
-        content += "'>" + categorias[d].CATEGORIA + "</option>";
+    var ajaxTask = $.ajax({
+      type: "GET",
+      url: "class/Categorias.php",
+      data: {
+        'ID_ETAPA':idEtapa,
+        'functionCategorias':'getCategoriasPermitidas'
+      },
+      dataType: "json",
+      success: function (data) {
+        var categorias = data.categorias;
+        var content = "<option value=''>Selecciona una Categoria para iniciar</option>";
+        for(var d=0; d<categorias.length; d++){
+          content += "<option value='" + categorias[d].ID_CATEGORIA;
+          content += "'>" + categorias[d].CATEGORIA + "</option>";
+        }
+        $("#ID_CATEGORIA").html(content);
+        categorias = null;
+        content = null;
+      },error:function(error){
+        console.log(error);
+      },complete:function(){
+        ajaxTask = null;
+        idEtapa = null;
       }
-      $("#ID_CATEGORIA").html(content);
-  },'json');
+    });
 }
 
 function cerrarConcurso(concurso){
-  $.ajax({
+  var ajaxTask = $.ajax({
     url: 'class/Concurso.php',
     type: 'POST',
     dataType: 'json',
@@ -148,12 +194,14 @@ function cerrarConcurso(concurso){
     error:function(error){
       console.log(error);
       alert("No se pudo finalizar el concurso");
+    },complete:function(){
+      ajaxTask = null;
     }
   });  
 }
 
 function irDesempate(concurso,tableroMaster){
-  $.ajax({
+  var ajaxTask = $.ajax({
     url: 'class/Concurso.php',
     type: 'POST',
     dataType: 'json',
@@ -173,7 +221,8 @@ function irDesempate(concurso,tableroMaster){
     error:function(error){
       console.log(error);
       alert("No se pudo acceder al desempate");
+    },complete:function(){
+      ajaxTask = null;
     }
   }); 
 }
-

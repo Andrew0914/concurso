@@ -103,7 +103,7 @@ function showPregunta(response){
 			contenido += respuestas[x].RESPUESTA;
 		}
 		contenido += "</div>";
-	  }
+	}
 	contenido += "</div>";
 
 	$jq("#content-respuestas").html(contenido);
