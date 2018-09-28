@@ -31,7 +31,7 @@
    while ($currentLanzada <= $lastLanzada) // check if the data file has been modified
    {
       sleep(1); // sleep 10ms to unload the CPU
-      if($tiempo_muerto >= 60){
+      if($tiempo_muerto >= 30){
          $bol_tiempo_muerto = 1;
          break;
       }

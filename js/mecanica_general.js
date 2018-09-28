@@ -46,7 +46,7 @@ var Comet = Class.create();
 				// lmpiamos variables
 				response = null;
 				categoria = null;
-				this.ajax = null;
+				comet.ajax = null;
 			}
 		});
 
@@ -165,10 +165,10 @@ function sendPreRespuestas(final){
 			if(response.estado == 0){
 				sendPreRespuestas(final);
 			}else{
-				console.log(response);
+				//console.log(response);
 			}
 		},error : function(error){
-			console.log(error);
+			//console.log(error);
 		},complete:function(){
 			// limpiamos variables
 			posicion = null;
@@ -207,13 +207,13 @@ function todosContestaron(){
 				sendRespuesta();
 			}
 		},error:function(error){
-			console.log(error);
+			//console.log(error);
 		},complete:function(){
 			// limpiamos variables
 			concurso = null;
 			ronda = null;
 			pregunta = null;
-			ajaxTask = null;
+			ajaxTask = undefined;
 		}
 	});
 }
@@ -263,9 +263,9 @@ function sendRespuesta(){
 					console.log(data.mensaje)
 				}
 			},error:function(a,b,c){
-				console.log(a);
+				/*console.log(a);
 				console.log(b);
-				console.log(c);
+				console.log(c);*/
 			},complete:function(){
 				concurso = null;
 				ronda = null;
@@ -273,7 +273,7 @@ function sendRespuesta(){
 				concursante = null;
 				respuestas = null;
 				respuesta = null;
-				ajaxTask = null;
+				ajaxTask = undefined;
 			}
 	  });
 
@@ -332,15 +332,13 @@ function afterSend(){
 			$jq("#animated text").text(0);
 			$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
 			$jq("#content-respuestas").html("");
-			console.log("error mi marcador");
-			console.log(error);
 		},complete: function(){
 			concurso = null;
 			ronda = null;
 			concursante = null;
 			pregunta = null;
 			categoria = null;
-			ajaxTask = null;
+			ajaxTask = undefined;
 		}
 	});
 }

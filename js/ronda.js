@@ -67,7 +67,7 @@ function initListenerCambioRonda(rondaActual,categoriaActual){
 			console.log(error);
 		},complete:function(){
 			// LIBERAMOS VARIABLES AJAX
-			ajaxTask = null;
+			ajaxTask = undefined;
 		}
 	});
 }
