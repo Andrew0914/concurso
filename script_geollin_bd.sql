@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `categorias` (
   PRIMARY KEY (`ID_CATEGORIA`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
--- Volcando datos para la tabla geollin_concurso_db.categorias: ~4 rows (aproximadamente)
+-- Volcando datos para la tabla geollin_concurso_db.categorias: ~5 rows (aproximadamente)
 /*!40000 ALTER TABLE `categorias` DISABLE KEYS */;
 INSERT INTO `categorias` (`ID_CATEGORIA`, `CATEGORIA`) VALUES
 	(1, 'GEOFÍSICA'),
