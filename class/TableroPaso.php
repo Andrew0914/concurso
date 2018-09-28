@@ -57,8 +57,8 @@
 			try{
 				$sentencia = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos 
 						FROM tablero_pasos as t INNER JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
-						WHERE t.ID_CONCURSO = ? ";
-				$values = ['ID_CONCURSO'=>$concurso];
+						WHERE t.ID_CONCURSO = ? AND t.ID_RONDA = ?";
+				$values = ['ID_CONCURSO'=>$concurso, 'ID_RONDA'=> $objConcurso['ID_RONDA'] ];
 				$sentencia .= " GROUP BY c.ID_CONCURSANTE,c.CONCURSANTE ORDER BY totalPuntos DESC ";
 				$mejores = $this->query($sentencia,$values,true);
 				usort($mejores,array($this,"cmp"));
