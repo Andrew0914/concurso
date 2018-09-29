@@ -54,7 +54,8 @@ function initTimerPerSecond(segundos,functionPerSecond, finishFunction){
 		//if((contador % 2) == 0){
 			functionPerSecond();
 		//}
-		if(contador == segundos && !notFinish){
+		if(contador >= segundos && !notFinish){
+			console.log("Contador: " + contador + " Segundos" + segundos);
 			finishFunction();
 		}
 		if(contador == segundos || stopExecPerSecond){
