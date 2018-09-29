@@ -301,9 +301,14 @@ function afterSend(){
 				'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value,
 				'functionTablero':'miPuntajePregunta'},
 		success:function(response){
-			if(response.estado == 1){
+			if(response.puntaje == undefined || response.puntaje == null ){
+				$jq("#resultado-mi-pregunta").html("Hemos registrado tu puntaje exitosamente, pero no hemos podido mostrartelo :(");
+				$jq("#cronometro-content").css("display","none");
+				$jq("#animated text").text(0);
+				$jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
+				$jq("#content-respuestas").html("");
+			}else if(response.estado == 1){
 				var mensaje  = "<h4>Tu respuesta fue:";
-
 				if(response.puntaje.RESPUESTA_CORRECTA == 1){
 					mensaje += " CORRECTA </h4>";
 					mensaje += "<img src='image/correcta.png'/>"
