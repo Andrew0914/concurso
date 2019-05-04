@@ -1,26 +1,28 @@
 <?php 
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
+	require_once dirname(_FILE_).'/utils/Response.php';
 
 	class Categorias extends BaseTable{
 
 		protected $table = 'categorias';
+		private $response = null;
 
 		public function __construct(){
 			parent::__construct();
+			$this->response = new Response();
 		}
 
-
+		/**
+		 * Devuelve todas las categorias
+		 */
 		public function getCategorias(){
-			$response = ['estado'=>0 , 'mensaje'=> 'No se obtuvieron las categorias'];
 			try {
-				$response['categorias'] = $this->get();
-				$response['estado']=1;
-				$response['mensaje']= 'Se obtuvieron las categorias';
-			} catch (Exception $e) {
-				$response['estado'] = 0;
-				$response['mensaje'] = 'No se obtuvieron las categorias: '. $ex->getMessage();
+				return $this->response->success('categorias' , 
+					$this->get() , 
+					'Se obtuvieron todas las categorias');
+			} catch (Exception $ex) {
+				return $this->response->fail('No se obtuvieron las categorias: '. $ex->getMessage());
 			}
-			return $response;
 		}
 
 		/**
@@ -29,18 +31,17 @@
 		 * @return array
 		 */
 		public function getCategoriasPermitidas($etapa){
-			$rs = ['estado'=>0 , 'mensaje'=>'No se obtuvieron las categorias'];
 			try {
-				$sentencia = "SELECT c.* FROM categorias c INNER JOIN categorias_etapa ce ON c.ID_CATEGORIA = ce.ID_CATEGORIA WHERE ce.ID_ETAPA = ?";
+				$sqlSatement = "SELECT c.* FROM categorias c INNER JOIN categorias_etapa ce ON c.ID_CATEGORIA = ce.ID_CATEGORIA WHERE ce.ID_ETAPA = ?";
 				$valores = ['ID_ETAPA'=>$etapa];
-				$rs['categorias'] =  $this->query($sentencia,$valores);
-				$rs['estado']=1;
-				$rs['mensaje']= 'Categorias obtenidas exitosamente'; 
+
+				return $this->response->success('categorias' ,
+					$this->query($sqlSatement,$valores),
+					'Categorias obtenidas' );
+
 			} catch (Exception $e) {
-				$rs = ['estado'=>0 , 'mensaje'=>$e->getMessage()];
+				return $this->response->fail($e->getMessage());
 			}
-			
-			return $rs;
 		}
 
 		public function getCategoria($id){
