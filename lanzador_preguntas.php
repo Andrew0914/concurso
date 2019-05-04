@@ -337,8 +337,8 @@
 		<!-- SCRIPt-->
 		<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="js/libs/popper.min.js"></script>
-		<script type="text/javascript" src="js/libs/bootstrap.js"></script>
-		<script type="text/javascript" src="js/snap.svg-min.js"></script>
+		<script type="text/javascript" src="js/libs/bootstrap/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/libs/snap.svg-min.js"></script>
 		<script type="text/javascript" src="js/cronometro.js"></script>
 		<script type="text/javascript" src="js/ronda.js"></script>
 		<script type="text/javascript" src="js/lanzador_preguntas.js"></script>

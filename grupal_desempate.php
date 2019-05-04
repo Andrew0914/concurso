@@ -80,7 +80,7 @@
 	<script>
 		var $jq = jQuery.noConflict();
 	</script>
-	<script type="text/javascript" src="js/snap.svg-min.js"></script>
+	<script type="text/javascript" src="js/libs/snap.svg-min.js"></script>
 	<script type="text/javascript" src="js/cronometro.js"></script>
 	<script type="text/javascript" src="js/ronda.js"></script>
 	<script type="text/javascript" src="js/mecanica_general.js"></script>
