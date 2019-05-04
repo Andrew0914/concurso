@@ -1,6 +1,6 @@
 <?php 
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
-	require_once dirname(_FILE_).'/utils/Response.php';
+	require_once dirname(__FILE__).'/util/Response.php';
 
 	class Categorias extends BaseTable{
 
@@ -34,7 +34,6 @@
 			try {
 				$sqlSatement = "SELECT c.* FROM categorias c INNER JOIN categorias_etapa ce ON c.ID_CATEGORIA = ce.ID_CATEGORIA WHERE ce.ID_ETAPA = ?";
 				$valores = ['ID_ETAPA'=>$etapa];
-
 				return $this->response->success('categorias' ,
 					$this->query($sqlSatement,$valores),
 					'Categorias obtenidas' );

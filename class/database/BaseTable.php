@@ -105,10 +105,11 @@
 			}else{
 				$statement = $this->connection->prepare($query);
 			}
-			
+
 			if($this->connection->error != null){
-					die ($this->connection->error);
+				die ($this->connection->error);
 			}
+
 			$statement->execute();
 			$results = $statement->get_result()->fetch_all(MYSQLI_ASSOC);
 			$this->connection->close();
@@ -256,6 +257,7 @@
 			$this->connection->close();
 			return $results;
 		}
+	
 	}
 	/*$bt = new BaseTable();
 	$query = "SELECT * FROM concursantes INNER JOIN concursos ON concursantes.ID_CONCURSO = concursos.ID_CONCURSO WHERE concursos.ID_CONCURSO = ?";

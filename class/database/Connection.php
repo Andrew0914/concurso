@@ -24,10 +24,10 @@
                 $database = $settings['database']['schema'];
                 //creamos el objeto
                 parent::__construct($host, $usuario, $password, $database);
-
+                $this->set_charset("utf8");
                 // si sucedio un error
                 if ($this->connect_errno) {
-                    echo "Fallo al conectar a MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+                    echo "Fallo al conectar a MySQL: (" . $this->connect_errno . ") " . $this->connect_error;
                 }
             }catch(Exception $ex){
                 die($ex->getMessage());
