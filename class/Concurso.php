@@ -2,6 +2,7 @@
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/util/Sesion.php';
 	require_once dirname(__FILE__) . '/util/SessionKey.php';
+	require_once dirname(__FILE__) . '/util/Response.php';
 	require_once dirname(__FILE__) . '/Concursante.php';
 	require_once dirname(__FILE__) . '/Rondas.php';
 	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
@@ -16,9 +17,45 @@
 	class Concurso extends BaseTable{
 
 		protected $table = 'concursos';
-
+		private $response;
 		public function __construct(){
 			parent::__construct();
+			$this->response = new Response();
+		}
+
+		private function build($values){
+			// fecha por defecto
+			$datosConcurso = ['FECHA_INICIO' => date('Y-m-d H:i:s') ];
+			$objRonda = new Rondas();
+			$primerRonda = $objRonda->getPrimeraRonda($values['ID_ETAPA']);
+			//valores del nuevo concurso
+			$datosConcurso['ID_ETAPA'] = $values['ID_ETAPA'];
+			$datosConcurso['CONCURSO'] = $values['CONCURSO'];
+			$datosConcurso['ID_CATEGORIA'] = $values['ID_CATEGORIA'];
+			$datosConcurso['ID_RONDA']=$primerRonda['ID_RONDA'];
+
+			return $datosConcurso;
+		}
+
+		/**
+		 * Guarda los datos del concurso en la sesion
+		 * @param int $idConcurso
+		 * @param array $datosConcurso
+		 */
+		private function setConcursoSesion($idConcurso , $datosConcurso){
+			$sesion = new Sesion();
+			$objEtapa = new Etapas();
+			$objRonda = new Rondas();
+			
+			$sessionValues = [SessionKey::ID_CONCURSO => $idConcurso ,
+						SessionKey::CONCURSO => $datosConcurso['CONCURSO'],
+						SessionKey::ID_ETAPA => $datosConcurso['ID_ETAPA'],
+						SessionKey::ETAPA => $objEtapa->getEtapa($datosConcurso['ID_ETAPA']),
+						SessionKey::ID_CATEGORIA => $datosConcurso['ID_CATEGORIA'],
+						SessionKey::ID_RONDA => $datosConcurso['ID_RONDA'],
+						SessionKey::RONDA => $objRonda->getRonda($datosConcurso['ID_RONDA'])];
+
+			$sesion->setMany($sessionValues);
 		}
 
 		/**
@@ -27,60 +64,41 @@
 		 * @return [assoc_array]         [arreglo asociativo con data]
 		 */
 		public function generaConcurso($values){
-			$valida = 1;
-			// obtenemos la primer ronda de la etapa elegida para el concurso
-			$objRonda = new Rondas();
-			$primerRonda = $objRonda->getPrimeraRonda($values['ID_ETAPA']);
-			// fecha por defecto
-			$concurso = ['FECHA_INICIO' => date('Y-m-d H:i:s') ]; 
-			//valores del formulario
-			$concurso['ID_ETAPA'] = $values['ID_ETAPA'];
-			$concurso['CONCURSO'] = $values['CONCURSO'];
-			$concurso['ID_CATEGORIA'] = $values['ID_CATEGORIA'];
-			$concurso['ID_RONDA']=$primerRonda['ID_RONDA'];
-			$concurso_insertado = $this->save($concurso);
+			$datosConcurso = $this->build($values);
+			$idConcursoGuardado = $this->save($datosConcurso);
 			$concursante = new Concursante();
-			if($concurso_insertado == 0 ){
-				return ['estado'=>0,'mensaje'=>'No se genero el concurso de manera correcta'];
+			if($idConcursoGuardado == 0 ){
+				return $this->response->fail('No se genero el concurso');
 			}
 			// se crean los concursantes
-			for($p=0 ; $p < count($values['CONCURSANTE_POSICION']); $p++) {
-				$concursante_insertable = ['CONCURSANTE'=>$values['CONCURSANTE'][$p],
-										'PASSWORD'=>$values['PASSWORD'][$p],
-										'ID_CONCURSO'=>$concurso_insertado,
-										'CONCURSANTE_POSICION'=>$values['CONCURSANTE_POSICION'][$p]];
-				$inserto = $concursante->save($concursante_insertable);
-				if($inserto == 0){
-					$valida *= 0;
+			for($p=0 ; $p < count($values['CONCURSANTE_POSICION']); $p++) {;
+				if($concursante->save(['CONCURSANTE'=>$values['CONCURSANTE'][$p],
+					'PASSWORD'=>$values['PASSWORD'][$p],
+					'ID_CONCURSO'=>$idConcursoGuardado,
+					'CONCURSANTE_POSICION'=>$values['CONCURSANTE_POSICION'][$p]]) == 0){
+
+					$whereDelete = 'ID_CONCURSO = ?';
+					$valuesDelete = ['ID_CONCURSO'=>$idConcursoGuardado];
+					$concursante->eliminar(0,$whereDelete,$valuesDelete);
+					$this->delete(0,$whereDelete,$valuesDelete);
+					return $this->fail('NO se generaron los concursantes de manera correcta');
 				}
 			}
 
-			if($valida == 0){
-				$whereDelete = 'ID_CONCURSO = ?';
-				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
-				$concursante->eliminar(0,$whereDelete,$valuesDelete);
-				$this->delete(0,$whereDelete,$valuesDelete);
-				return ['estado'=>0,'mensaje'=>'NO se generaron los concursantes de manera correcta'];
-			}
 			// genereamos las preguntas para la categoria con la que abren
-			$generar = new PreguntasGeneradas();
-			if($generar->generaPreguntas($concurso_insertado,$concurso['ID_CATEGORIA'],$concurso['ID_ETAPA'])['estado'] == 0){
+			$preguntasGeneradas = new PreguntasGeneradas();
+
+			if($preguntasGeneradas->generaPreguntas($idConcursoGuardado,$datosConcurso['ID_CATEGORIA'],$datosConcurso['ID_ETAPA'])['estado'] == 0){
 				$whereDelete = 'ID_CONCURSO = ?';
-				$valuesDelete = ['ID_CONCURSO'=>$concurso_insertado];
-				$generar->eliminar(0,$whereDelete,$valuesDelete);
+				$valuesDelete = ['ID_CONCURSO'=>$idConcursoGuardado];
+				$preguntasGeneradas->eliminar(0,$whereDelete,$valuesDelete);
 				$concursante->eliminar(0,$whereDelete,$valuesDelete);
 				$this->delete(0,$whereDelete,$valuesDelete);
-				return ['estado'=>0,'mensaje'=>'NO se generaron las preguntas iniciales'];
+				return $this->fail('NO se generaron las preguntas iniciales');
 			}
-			// seteamos los valores del courso creado a la sesion
-			$sesion = new Sesion();
-			$sessionValues = [SessionKey::ID_CONCURSO => $concurso_insertado ,
-							SessionKey::CONCURSO => $concurso['CONCURSO'],
-							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
-							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'],
-							SessionKey::ID_RONDA=>$primerRonda['ID_RONDA'] ];
-			$sesion->setMany($sessionValues);
 
+			// seteamos los valores del courso creado a la sesion
+			$this->setConcursoSesion($idConcursoGuardado , $datosConcurso);
 			return ['estado'=>1,'mensaje'=>'CONCURSO CREADO CON EXITO'];
 		}
 
@@ -119,16 +137,7 @@
 			$response = ['estado'=>0,'mensaje'=>'No se pudo acceder al concurso'];
 			try{
 				$concurso = $this->find($id);
-				$objEtapa = new Etapas();
-				$etapa = $objEtapa->getEtapa($concurso['ID_ETAPA']);
-				$sesion = new Sesion();
-				$sessionValues = [SessionKey::ID_CONCURSO => $id ,
-							SessionKey::CONCURSO => $concurso['CONCURSO'],
-							SessionKey::ID_ETAPA => $concurso['ID_ETAPA'],
-							SessionKey::ETAPA => $etapa['ETAPA'],
-							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA'],
-							SessionKey::ID_RONDA => $concurso['ID_RONDA']];
-				$sesion->setMany($sessionValues);
+				$this->setConcursoSesion($id , $concurso);
 				$response['estado'] = 1;
 				$response['mensaje'] = 'Acceso al concurso exitoso';
 			}catch(Exception $ex){
@@ -279,7 +288,7 @@
 		}
 
 		/**
-		 * Resetea el concurso, remueve el log de rondas , tableros y genera nuecas preguntas
+		 * Resetea el concurso, remueve el log de rondas , tableros y genera nuevas preguntas
 		 * @param integer $idConcurso
 		 */
 		public function resetConcurso($idConcurso){
