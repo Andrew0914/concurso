@@ -17,9 +17,7 @@
 		 */
 		public function getCategorias(){
 			try {
-				return $this->response->success('categorias' , 
-					$this->get() , 
-					'Se obtuvieron todas las categorias');
+				return $this->response->success(['categorias' =>$this->get()] , 'Se obtuvieron todas las categorias');
 			} catch (Exception $ex) {
 				return $this->response->fail('No se obtuvieron las categorias: '. $ex->getMessage());
 			}
@@ -34,10 +32,7 @@
 			try {
 				$sqlSatement = "SELECT c.* FROM categorias c INNER JOIN categorias_etapa ce ON c.ID_CATEGORIA = ce.ID_CATEGORIA WHERE ce.ID_ETAPA = ?";
 				$valores = ['ID_ETAPA'=>$etapa];
-				return $this->response->success('categorias' ,
-					$this->query($sqlSatement,$valores),
-					'Categorias obtenidas' );
-
+				return $this->response->success(['categorias' => $this->query($sqlSatement,$valores)],'Categorias obtenidas' );
 			} catch (Exception $e) {
 				return $this->response->fail($e->getMessage());
 			}

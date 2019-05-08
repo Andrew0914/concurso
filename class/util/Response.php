@@ -3,12 +3,14 @@
 
         function __construct(){}
         
-        public function success($key , $object , $message){
-            return [
-                $key => $object,
-                "mensaje"=>$message,
-                "estado" => 1
-            ];
+        public function success($data, $message){
+            $responseArray = [];
+            foreach($data as $key => $value ){
+                $responseArray[$key] = $value;
+            }
+            $responseArray['mensaje'] = $message;
+            $responseArray['estado'] = 1;
+            return $responseArray;
         }
 
         public function fail($message){

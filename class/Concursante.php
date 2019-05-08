@@ -3,6 +3,7 @@
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
 	require_once dirname(__FILE__) . '/util/Sesion.php';
 	require_once dirname(__FILE__) . '/util/SessionKey.php';
+	require_once dirname(__FILE__) . '/util/Response.php';
 	require_once dirname(__FILE__) . '/Concurso.php';
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
 	require_once dirname(__FILE__) . '/Rondas.php';
@@ -13,9 +14,11 @@
 	class Concursante extends BaseTable{
 
 		protected $table= 'concursantes';
+		private $response;
 		
 		public function __construct(){
 			parent::__construct();
+			$this->response = new Response();
 		}
 
 		/**
@@ -26,6 +29,37 @@
 		public function saveConcursantes($concursante){
 			return $this->save($concursante);
 		}
+
+		/**
+		 * Devuelve un concursante si existe para el concurso dado
+		 * @param int $idConcurso
+		 * @param int $idConcursante
+		 * @param string $password
+		 */
+		private function existeConcursanteEnConcurso($idConcurso,$idConcursante,$password){
+			$whereClause = ' ID_CONCURSO = ?  AND CONCURSANTE= ? AND PASSWORD= ?';
+			$values = ['ID_CONCURSO'=>$idConcurso,'CONCURSANTE'=>$idConcursante,'PASSWORD'=>$password];
+			$objConcursante = $this->get($whereClause,$values);
+			return count($objConcursante) <= 0 ? null : $objConcursante;
+		}
+
+		/**
+		 * Almacena los datos para la sesion
+		 * @param object $concurso
+		 * @param object $concursante
+		 */
+		private function establecerSesion($concurso , $concursante){
+			$sesion = new Sesion();
+			$valuesSesion = [SessionKey::ID_CONCURSANTE => $concursante[0]['ID_CONCURSANTE'] ,
+							SessionKey::CONCURSANTE => $concursante[0]['CONCURSANTE'],
+							SessionKey::ID_CONCURSO => $concursante[0]['ID_CONCURSO'],
+							SessionKey::CONCURSANTE_POSICION => $concursante[0]['CONCURSANTE_POSICION'],
+							SessionKey::ID_RONDA => $concurso['ID_RONDA'],
+							SessionKey::ID_CATEGORIA => $concurso['ID_CATEGORIA']];
+
+			$sesion->setMany($valuesSesion);
+			return $valuesSesion;
+		}
 		
 		/**
 		 * Accede y general a sesion del concursante al concurso
@@ -34,55 +68,38 @@
 		 * @param  [string] $password    
 		 * @return [string json]              
 		 */
-		public function accederConcurso($concurso,$concursante,$password){
-			$whereClause = ' ID_CONCURSO = ?  AND CONCURSANTE= ? AND PASSWORD= ?';
-			$values = ['ID_CONCURSO'=>$concurso,'CONCURSANTE'=>$concursante,'PASSWORD'=>$password];
-			$objConcursante = $this->get($whereClause,$values);
-			if(count($objConcursante) <= 0){
-				return json_encode(['estado'=>0, 'mensaje'=> 'Datos de concursante incorrectoss']);
-			}
-			$objConcurso = new Concurso();
-			$aConcurso = $objConcurso->getConcurso($concurso);
-			$gen = new PreguntasGeneradas();
-			if($gen->inicioLanzamiento($aConcurso['ID_RONDA'],$aConcurso['ID_CONCURSO']
-										,$aConcurso['NIVEL_EMPATE'])){
-				return json_encode(['estado'=>0
-					, 'mensaje'=> 'No es posible que entres a este concurso, el moderador ya ha comenzado a lanzar preguntas']);
-			}
-			// verificamos que no hayan iniciado sesion con el mismo concursabte
-			if($objConcursante[0]['INICIO_SESION'] == 1){
-				return json_encode(['estado'=>0, 'mensaje'=> 'Ya han ingresado con este concursante']);
-			}
-			// establecemos la sesion iniciada para este concursante
-			$this->update($objConcursante[0]['ID_CONCURSANTE'] , ['INICIO_SESION'=>1]);
-			$sesion = new Sesion();
-			$valuesSesion = [SessionKey::ID_CONCURSANTE => $objConcursante[0]['ID_CONCURSANTE'] ,
-							SessionKey::CONCURSANTE => $objConcursante[0]['CONCURSANTE'],
-							SessionKey::ID_CONCURSO => $objConcursante[0]['ID_CONCURSO'],
-							SessionKey::CONCURSANTE_POSICION => $objConcursante[0]['CONCURSANTE_POSICION'],
-							SessionKey::ID_RONDA => $aConcurso['ID_RONDA'],
-							SessionKey::ID_CATEGORIA => $aConcurso['ID_CATEGORIA']];
+		public function accederConcurso($idConcurso,$idConcursante,$password){
+			$concursante = $this->existeConcursanteEnConcurso($idConcurso,$idConcursante,$password);
+			if(!$concursante){ return $this->response->fail('Datos de concursante incorrectoss'); }
 
-			$sesion->setMany($valuesSesion);
-			
-			return json_encode(['estado'=>1, 
-				'mensaje'=> 'Inicio exitoso',
-				'concursante'=>$valuesSesion]); 
+			$objConcurso = new Concurso();
+			$concurso = $objConcurso->getConcurso($idConcurso);
+			$preguntasGeneradas = new PreguntasGeneradas();
+
+			if($preguntasGeneradas->inicioLanzamiento($concurso['ID_RONDA'],$concurso['ID_CONCURSO']
+										,$concurso['NIVEL_EMPATE'])){
+				return $this->response->fail('No es posible que entres a este concurso, el moderador ya ha comenzado a lanzar preguntas');
+			}
+
+			// verificamos que no hayan iniciado sesion con el mismo concursabte
+			if($concursante[0]['INICIO_SESION'] == 1){
+				return $this->response->fail('Ya han ingresado con este concursante');
+			}
+
+			// establecemos la sesion iniciada para este concursante
+			$this->update($concursante[0]['ID_CONCURSANTE'] , ['INICIO_SESION'=>1]);
+			$valoreSesion = $this->establecerSesion($concurso , $concursante);
+			return $this->response->success(['concursante' => $valoreSesion], 'Inicio exitoso');
 		}
 
 		public function getConcursantes($concurso){
-			$response =[ 'estado'=>0, 'mensaje'=>'No se realizo la operacion'];
 			try{
 				$whereClause = "ID_CONCURSO=?";
 				$whereValues = ['ID_CONCURSO'=>$concurso];
-				$response['concursantes'] = $this->get($whereClause,$whereValues);
-				$response['estado']= 1;
-				$response['mensaje']= "Concursantes obtenidos";
+				return $this->response->success(['concursantes' => $this->get($whereClause,$whereValues)] , 'Concursantes obtenidos');
 			}catch(Exception $ex){
-				$response['mensaje'] = $ex->getMessage();
+				return $this->response->fail($ex->getMessage());
 			}
-
-			return $response;
 		}
 
 		public function eliminar($id,$where,$values){
@@ -118,14 +135,13 @@
 		}
 
 		/**
-		 * Devuelve el concursante que se encuetre en la siguiente posicion al concursante dado si es el ultimo regra al primero
+		 * Devuelve el concursante que se encuetre en la siguiente posicion al concursante dado si es el ultimo regresa al primero
 		 * @param integer $concursanteActual
 		 * @param integer $concurso
 		 */
 		public function siguiente($concursanteActual,$concurso){
 			$concursantes = $this->getConcursantes($concurso)['concursantes'];
 			$actual = $this->find($concursanteActual);
-
 			foreach ($concursantes as $c) {
 				if($actual['CONCURSANTE_POSICION'] >= count($concursantes)){
 					if($c['CONCURSANTE_POSICION'] == 1){
@@ -144,59 +160,48 @@
 		 * @param  integer $concursante 
 		 * @return array              
 		 */
-		public function accederDesempate($idConcurso, $concursante){
+		public function accederDesempate($idConcurso, $idConcursante){
 			$concurso = new Concurso();
 			$concurso = $concurso->getConcurso($idConcurso);
 			$tabMaster = new TableroMaster();
+
 			// debe existir tableros calculados
 			if(count($tabMaster->getTablerosMasters($idConcurso)) <= 0){
-				return ['estado' => 0 
-				, 'mensaje' => 'Aun no se genera ninguna tablero para determinar las puntuaciones,por favor espera a que el moderador lo genere']; 
+				return $this->response->fail('Aun no se genera ninguna tablero para determinar las puntuaciones,por favor espera a que el moderador lo genere');
 			}
+
 			// el ultimo tablero no debe estar cerrado
-			$last = $tabMaster->getLast($idConcurso);
-			if($last['CERRADO'] != 0){
-				if($concurso['FECHA_CIERRE'] != null AND $concurso['FECHA_CIERRE'] != ''){
-					return ['estado'=> 1, 'mensaje' => 'El concurso ha sido cerrado', 'empatado'=>0];
-				}
-				return ['estado' => 0 
-				, 'mensaje' => 'Aun no se determinan los puntajes por favor espera a que el moderador lo indique']; 
+			$ultimoTableroMaster = $tabMaster->getLast($idConcurso);
+			if($ultimoTableroMaster['CERRADO'] != 0){
+				return ($concurso['FECHA_CIERRE'] != null AND $concurso['FECHA_CIERRE'] != '')
+					? $this->response->success(['empatado' => 0] , 'El concurso ha sido cerrado') 
+					: $this->response->fail('Aun no se determinan los puntajes por favor espera a que el moderador lo indique');
 			}
+
 			// el ultimo tablero ya debe tener todos los calculos hechos
-			if($last['POSICIONES_GENERADAS'] != 1){
-				return ['estado' => 0 
-				, 'mensaje' => 'Falta por calcularse las posicioens y determina posibles empates por favor espera a que el moderador lo indique']; 
+			if($ultimoTableroMaster['POSICIONES_GENERADAS'] != 1){
+				return $this->response->fail('Falta por calcularse las posicioens y determina posibles empates por favor espera a que el moderador lo indique');
 			}
+
 			// si ya fue validado
 			$tabPosiciones = new TableroPosiciones();
-			$mPosiciones = $tabPosiciones->obtenerPosicionesActuales($last['ID_TABLERO_MASTER']);
-			$es_emaptado = 0;
-			foreach ($mPosiciones as $pos) {
-				if($pos['ID_CONCURSANTE'] == $concursante){
-					if($pos['EMPATADO'] == 1){
-						$es_emaptado = 1;
-						break;
-					}
-				}
-			}
+			$posicionesActuales = $tabPosiciones->obtenerPosicionesActuales($ultimoTableroMaster['ID_TABLERO_MASTER']);
+			$es_emaptado = $tabPosiciones->empateEnPosiciones($idConcursante , $posicionesActuales);
+
 			if($es_emaptado == 1){
-				// si es que esto empatado la ronda de empata tiene que ser inicializada para que entre
+				// si es que esto empatado la ronda de empate tiene que ser inicializada para que entre
 				$ronda = new Rondas();
 				if(!$ronda->getRonda($concurso['ID_RONDA'])['IS_DESEMPATE']){
-					return ['estado' => 0 
-					, 'mensaje' => 'Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados']; 
+					return $this->response->fail('Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados');
 				}
+
 				$log = new RondasLog();
 				if(!$log->inicioRonda($concurso)){
-					return ['estado' => 0 
-					, 'mensaje' => 'Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados']; 
+					return $this->response->fail('Por favor espera a que el moderador pase al ronda de desempate para continuar,se han calculado empatados');
 				}
+
 				$rondaDesempate = $ronda->getRondaDesempate($concurso['ID_ETAPA']);
-				return ['estado' => 1 
-					, 'mensaje'=> 'Estas empatdo' 
-					, 'posiciones'=>$mPosiciones 
-					, 'empatado'=>$es_emaptado 
-					, 'ronda'=>$rondaDesempate['ID_RONDA']];
+				return $this->response->success(['posiciones'=>$posicionesActuales , 'empatado'=>$es_emaptado , 'ronda'=>$rondaDesempate['ID_RONDA']] , 'Estas empatado');
 			}
 
 			return ['estado'=> 1, 'mensaje' => 'No ha ocurrido empate', 'empatado'=>$es_emaptado];

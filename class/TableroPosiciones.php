@@ -219,6 +219,25 @@
 			return $this->delete($id,$where,$whereValues);
 		}
 
+		/**
+		 * Verifica si el concursante esta empatado en las posiciones dadas
+		 * @param int $idConcursante
+		 * @param array $posiciones
+		 */
+		public function empateEnPosicion($idConcursante , $posiciones){
+			$es_emaptado = 0;
+			foreach ($posiciones as $posicion) {
+				if($posicion['ID_CONCURSANTE'] == $idConcursante){
+					if($posicion['EMPATADO'] == 1){
+						$es_emaptado = 1;
+						break;
+					}
+				}
+			}
+
+			return $es_emaptado;
+		}
+
 	}	
 
 	/**

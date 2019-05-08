@@ -47,5 +47,7 @@
 		public function eliminar($id=0,$where="",$whereValues = []){
 			return $this->delete($id,$where,$whereValues);
 		}
+
+
 	}	
 ?>
