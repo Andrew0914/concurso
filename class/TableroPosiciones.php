@@ -144,6 +144,7 @@
 		 * Obtiene los tableros actuales del concurso
 		 * @param  integer $concurso      
 		 * @param  integer $master_creado 
+		 * @param boolean $es_empate
 		 * @return array                
 		 */
 		public function getTableros($concurso,$master_creado,$es_empate){
@@ -198,7 +199,7 @@
 
 		public function getByMasters($masters){
 			$tableros = [];
-			foreach ($master as $m) {
+			foreach ($masters as $m) {
 				$tableros["tableros"][] = $this->get("ID_TABLERO_MASTER = ?",['ID_TABLERO_MASTER'=>$m['ID_TABLERO_MASTER']]);
 			}
 			return $tableros;

@@ -27,7 +27,7 @@
 				$response['mensaje']= 'Rondas obteneidas';
 			} catch (Exception $e) {
 				$response['estado']=0 ;
-				$response['mensaje']= "RondasLog getRondasDisponibles:".$ex->getMessage();
+				$response['mensaje']= "RondasLog getRondasDisponibles:".$e->getMessage();
 			}
 
 			return $response;

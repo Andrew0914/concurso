@@ -1,5 +1,6 @@
 <?php 
 	require_once dirname(__FILE__) . '/database/BaseTable.php';
+	require_once dirname(__FILE__) . '/util/Response.php';
 
 	class Rondas extends BaseTable{
 
@@ -16,18 +17,14 @@
 		}
 
 		public function getRondas($etapa){
-			$response = ['estado' => '0', 'mensaje'=>'No se obtivieron las rondas'];
+			$response = new Response();
 			try{
 				$where = "ID_ETAPA = ?";
 				$values = ["ID_ETAPA"=> $etapa];
-				$response['estado']=1;
-				$response['mensaje']= 'se optuvieron las rondas';
-				$response['rondas'] = $this->get($where , $values);
+				return $response->success(['rondas' => $this->get($where , $values)],'se optuvieron las rondas');
 			}catch(Exception $ex){
-				$response['estado']=0;
-				$response['mensaje']= 'Rondas:'. $ex->getMessage();
+				return $response->fail('Rondas:'. $ex->getMessage());
 			}
-			return $response;
 		}
 
 		/**
