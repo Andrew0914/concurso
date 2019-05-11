@@ -53,12 +53,12 @@
 					}
 
 					for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
-						$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+						$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
 						$key = array_rand($preguntas);
 						$preguntaAleatoria = $preguntas[$key];
 						while ($this->existePreguntaEnConcursoRonda($idConcurso,
 							$preguntaAleatoria['ID_PREGUNTA'])) {
-							$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+							$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
 							$preguntaAleatoria = array_rand($preguntas);
 						}
 						if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
@@ -116,12 +116,12 @@
 			$valida= 1;
 			foreach ($concursantes as $cnc) {
 				for($cont = 1 ; $cont <= $ronda['TURNOS_PREGUNTA_CONCURSANTE']; $cont++){
-						$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+						$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
 						$key = array_rand($preguntas);
 						$preguntaAleatoria = $preguntas[$key];
 						while ($this->existePreguntaEnConcursoRonda($idConcurso,
 							$preguntaAleatoria['ID_PREGUNTA'])) {
-							$preguntas = $this->getPreguntasByCatGrado($idCategoria,$grados[$cont - 1]);
+							$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
 							$preguntaAleatoria = array_rand($preguntas);
 						}
 						if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
@@ -157,7 +157,7 @@
 		 * @param  integer $grado     
 		 * @return array            
 		 */
-		public function getPreguntasByCatGrado($categoria,$grado){
+		public function getPreguntasByCategoriaGrado($categoria,$grado){
 			$sentencia = "SELECT * FROM preguntas WHERE ID_CATEGORIA = ?  AND ID_GRADO =?";
 			$values= ['ID_CATEGORIA' => $categoria, 'ID_GRADO'=>$grado];
 			return $this->query($sentencia, $values,true);

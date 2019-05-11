@@ -19,7 +19,7 @@
 			return $this->query($sentencia,$valores)[0]['PUNTAJE'];
 		}
 
-		public function preguntasTotalesDisponibles($categoria){
+		public function preguntasTotalesByGradoCategoria($categoria){
 			$sentencia = 'SELECT "1" grado,COUNT(*) cantidad FROM preguntas
 					WHERE ID_CATEGORIA = ? AND ID_GRADO = 1 
 					UNION

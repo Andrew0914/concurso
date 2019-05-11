@@ -8,98 +8,107 @@
 
 	class Desempate{
 		
+		private $preguntasGeneradas;
+
 		public function __construct(){
+			$this->preguntasGeneradas = new PreguntasGeneradas();
+		}
+
+		private function getPreguntaRandomNoEnConcurso($preguntas ,$concurso){
+			$preguntaAleatoria = $preguntas[array_rand($preguntas , 1)];
+			while ($this->preguntasGeneradas->existePreguntaEnConcursoRonda($concurso['ID_CONCURSO'],
+				$preguntaAleatoria['ID_PREGUNTA'])) {
+				$preguntaAleatoria = $preguntas[array_rand($preguntas , 1)];
+			}
+			return $preguntaAleatoria;
+		}
+
+		private function insertarPreguntaParaDesempate($preguntaAleatoria, $idConcurso , $idRonda, $nivel_empate ){
+			$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
+				, 'ID_CONCURSO' => $idConcurso 
+				, 'ID_RONDA' => $idRonda
+				, 'NIVEL_EMPATE'=>$nivel_empate
+				, 'PREGUNTA_POSICION' => ($this->preguntasGeneradas->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
+
+				return $this->preguntasGeneradas->guardar($valoresInsert);
 		}
 
 		/**
 		 * Genera las preguntas para las rondas de desempate
 		 * @param  integer $etapa      
-		 * @param  integer $idConcurso 
+		 * @param  array $idConcurso 
 		 * @return array             
 		 */
-		public function generaPreguntas($etapa,$idConcurso,$nivel_empate = 0){
-
-			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas para el desempate correctamente'];
-			$mensaje ="";
-			$concurso = new Concurso();
-			$concurso = $concurso->getConcurso($idConcurso);
-			$objRonda = new Rondas();
-			$genera = new PreguntasGeneradas();
+		public function generaPreguntas($concurso,$rondaDesempate,$nivel_empate = 0){
+			$response = new Response();
 			$objRegla = new Reglas();
-			$valida= 1;
-			$ronda = $objRonda->getRondaDesempate($etapa);
-			$idRonda = $ronda['ID_RONDA'];
-			$regla = $objRegla->getReglasByRonda($idRonda)[0];
-			$categoria = new Categorias();
-			$cat = $categoria->getCategoria($concurso['ID_CATEGORIA']);
-			if(!$this->suficientesPreguntas($concurso['ID_CATEGORIA'],$idConcurso,$regla['ID_REGLA'])){
-				return ['estado'=>0 , 'mensaje'=>'Ya no es posible desplegar un desempate,por que las preguntas disponibles son insuficiones'];
+			$regla = $objRegla->getReglasByRonda($rondaDesempate['ID_RONDA'])[0];
+			$objCategoria = new Categorias();
+			$categoria = $objCategoria->getCategoria($concurso['ID_CATEGORIA']);
+
+			if(!$this->suficientesPreguntas($concurso['ID_CATEGORIA'],$concurso['ID_CONCURSO'],$regla['ID_REGLA'])){
+				return $response->fail('Ya no es posible desplegar un desempate,por que las preguntas disponibles son insuficientes');
 			}
+
 			// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
 			$grados = explode(',',$regla['GRADOS']);
-			for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
-				$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
-				$key = array_rand($preguntas);
-				$preguntaAleatoria = $preguntas[$key];
-				while ($genera->existePreguntaEnConcursoRonda($idConcurso,
-					$preguntaAleatoria['ID_PREGUNTA'])) {
-					$preguntas = $genera->getPreguntasByCatGrado($cat['ID_CATEGORIA'],$grados[$cont - 1]);
-					$preguntaAleatoria = array_rand($preguntas);
-				}
+			for($cont = 1 ; $cont <= $rondaDesempate['PREGUNTAS_POR_CATEGORIA']; $cont++){
+				$preguntas = $this->preguntasGeneradas->getPreguntasByCategoriaGrado($categoria['ID_CATEGORIA'],$grados[$cont - 1]);
+				$preguntaAleatoria = $this->getPreguntaRandomNoEnConcurso($preguntas , $concurso);
 				if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
 					$cont -=1;
 					continue;
 				}
-				$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
-				, 'ID_CONCURSO' => $idConcurso 
-				, 'ID_RONDA' => $idRonda
-				, 'NIVEL_EMPATE'=>$nivel_empate
-				, 'PREGUNTA_POSICION' => ($genera->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
-				if($genera->guardar($valoresInsert) <= 0){
-					$valida *= 0;
-				}	
-			}
-			if($valida){
-				if($mensaje ==''){
-					$mensaje = "GENERACION DE PREGUNTAS EXITOSA !";
+				if(!$this->insertarPreguntaParaDesempate($preguntaAleatoria , $concurso['ID_CONCURSO'] , $rondaDesempate['ID_RONDA'] , $nivel_empate) ){
+
+					$this->preguntasGeneradas->eliminar(0,"ID_CONCURSO=?  AND ID_RONDA = ? AND NIVEL_EMPATE = ?" 
+					, ['ID_CONCURSO' => $concurso['ID_CONCURSO']  ,'ID_RONDA'=>$rondaDesempate['ID_RONDA'] , 'NIVEL_EMPATE'=>$nivel_empate]);
+
+					return $response->fail('NO se generaron las preguntas para el desempate correctamente');
 				}
-
-				$rs = ['estado'=> 1,
-					'mensaje'=>$mensaje];
-			}else{
-				$genera->eliminar(0,"ID_CONCURSO=?  AND ID_RONDA = ? AND NIVEL_EMPATE = ?" 
-					, ['ID_CONCURSO' => $idConcurso  ,'ID_RONDA'=>$ronda['ID_RONDA'] , 'NIVEL_EMPATE'=>$nivel_empate]);
 			}
-
-			return $rs;
+			return $response->success([] , 'Preguntas generadas para desempate correctamente');
 		}
 
-		public function suficientesPreguntas($categoria , $concurso,$regla){
+		private function getCantidadAunDisponibles($idCategoria,$idConcurso , $grado){
+
 			$preguntas = new Preguntas();
+			$totalesPreguntaGradosCategoria = $preguntas->preguntasTotalesByGradoCategoria($idCategoria);
+			$totalUsadasGradosCategoria = $this->preguntasGeneradas->preguntasGeneradas($idCategoria,$idConcurso);
+
+			$totalGradoDisponibles  = array_filter($totalesPreguntaGradosCategoria, function ($var) use ($grado) {
+				return ($var['grado'] == $grado);
+			});
+
+			$totalGradoUsadas  = array_filter($totalUsadasGradosCategoria, function ($var) use ($grado) {
+				return ($var['grado'] == $grado);
+			});
+
+			return $totalGradoDisponibles['cantidad'] - $totalGradoUsadas['cantidad'];
+		}
+
+		/**
+		 * Hay suficientes preguntas para satisfacer la regla de la ronda 
+		 * @param int $categoria
+		 * @param int $regla
+		 * @param int $categoria
+		 */
+		public function suficientesPreguntas($categoria , $concurso, $regla){
 			$reglas = new Reglas();
-			$generadas = new PreguntasGeneradas();
-			$disponibles = $preguntas->preguntasTotalesDisponibles($categoria);
-			$usadas = $generadas->preguntasGeneradas($categoria,$concurso);
-			$necesarias = $reglas->getCountGrados($regla);
-			foreach ($disponibles as $d) {
-				foreach ($usadas as $u) {
-					if($d['grado'] == $u['grado']){
-						$aunDisponibles = 0;
-						$aunDisponibles = $d['cantidad'] - $u['cantidad'];
-						foreach($necesarias as $n){
-							if($n['grado'] == $u['grado']){
-								if($aunDisponibles < $n['cantidad']){
-									return false;
-								}
-							}
-						}
-					}
+			$totalesNecesariosRegla = $reglas->getCountGrados($regla);
+			for($grado = 1; $grado == 3 ; $grado++) {
+				$totalNecesariasGradoRegla  = array_filter($totalesNecesariosRegla, function ($var) use ($grado) {
+					return ($var['grado'] == $grado);
+				});
+				if($this->getCantidadAunDisponibles($categoria,$concurso,$grado) < $totalNecesariasGradoRegla['cantidad']){
+					return false;
 				}
 			}
-
 			return true;
 		}
 
 	}
+
+	
 
 ?>

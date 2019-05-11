@@ -244,18 +244,18 @@
 				$concurso = $this->find($idConcurso);
 				$nivel_empate = $concurso['NIVEL_EMPATE'] + 1;
 				$rondaClump = new RondaClump($concurso['ID_ETAPA']);
-				$desempate = $rondaClump->getRondaDesempate();
+				$rondaDesempate = $rondaClump->getRondaDesempate();
 
 				$sesion = new Sesion();
-				$sesion->setOne(SessionKey::ID_RONDA , $desempate['ID_RONDA']);
+				$sesion->setOne(SessionKey::ID_RONDA , $rondaDesempate['ID_RONDA']);
 
 				$objDesempate = new Desempate();
-				$generoPreguntas = $objDesempate->generaPreguntas($concurso['ID_ETAPA'],$concurso['ID_CONCURSO'] , $nivel_empate)['estado'] == 1;
+				$generoPreguntas = $objDesempate->generaPreguntas($concurso,$rondaDesempate, $nivel_empate)['estado'] == 1;
 				$log = new RondasLog();
 				if($generoPreguntas
-					AND $log->guardar(['ID_RONDA'=>$desempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA'],'NIVEL_EMPATE'=>$nivel_empate])
-					AND $this->update($idConcurso,['ID_RONDA'=> $desempate['ID_RONDA'],'NIVEL_EMPATE'=>$nivel_empate] )){
-					return $this->response->success([ 'ronda'=>$desempate] ,'Accedio al desempate' );
+					AND $log->guardar(['ID_RONDA'=>$rondaDesempate['ID_RONDA'] , 'INICIO'=>1 ,'ID_CONCURSO'=>$idConcurso,'ID_CATEGORIA'=>$concurso['ID_CATEGORIA'],'NIVEL_EMPATE'=>$nivel_empate])
+					AND $this->update($idConcurso,['ID_RONDA'=> $rondaDesempate['ID_RONDA'],'NIVEL_EMPATE'=>$nivel_empate] )){
+					return $this->response->success([ 'ronda'=>$rondaDesempate] ,'Accedio al desempate' );
 				}
 				return $this->response->fail('No se pudo ir al desempate :( ');
 			} catch (Exception $e) {
