@@ -59,7 +59,7 @@
                         type: 'POST',
                         dataType: 'json',
                         data: {'ID_CONCURSO': idConcurso
-                            , 'functionConcurso':'resetConcurso'},
+                            , 'functionConcurso':'restablecerConcurso'},
                         beforeSend:function(){
                             $("#loading-s").show(300);
                         },

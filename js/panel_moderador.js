@@ -3,47 +3,50 @@
  * @param  {int} concurso 
  * @param  {int} ronda    
  */
-function generaPreguntas(concurso,etapa){
-	var categoria = $("#ID_CATEGORIA").val();
-	if(categoria != ""){
-		var ajaxTask = $.ajax({
-			url: 'class/PreguntasGeneradas.php',
-			type: 'POST',
-			dataType: 'json',
-			data: {'ID_CONCURSO': concurso,
-					'ID_CATEGORIA':categoria,
-					'ID_ETAPA':etapa,
-					'functionGeneradas':'generaPreguntas'},
-			success: function(response){
-				if(response.estado==1){
-					var contadores = response.counts.contadores;
-					var contenido="";
-					for(var x=0; x < contadores.length ; x++){
-						contenido += "<tr>";
-						contenido += "<td>" + esNull(contadores[x]['ronda']) + "</td>";
-						contenido += "<td>" + esNull(contadores[x]['geofisica']) + "</td>";
-						contenido += "<td>" + esNull(contadores[x]['geologia']) + "</td>";
-						contenido += "<td>" + esNull(contadores[x]['petroleros']) + "</td>";
-						contenido += "<td>" + esNull(contadores[x]['generales'] ) + "</td>";
-						contenido += "</tr>";
-					}
-					$("#tbl-generadas tbody").html(contenido);
-					contadores = null;
-					contenido = null;
-				}
-				alert(response.mensaje);
-			},
-			error:function(error){
-				alert("Ocurrio un error inesperado");
-				console.log(error);
-			},complete:function(){
-				ajaxTask = null;
-				categoria = null;
-			}
-		});
-	}else{
-		alert("Debes seleccionar una categoria");
-	}
+function generaPreguntas(concurso, etapa) {
+    var categoria = $("#ID_CATEGORIA").val();
+    if (categoria != "") {
+        var ajaxTask = $.ajax({
+            url: 'class/PreguntasGeneradas.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'ID_CONCURSO': concurso,
+                'ID_CATEGORIA': categoria,
+                'ID_ETAPA': etapa,
+                'functionGeneradas': 'generaPreguntas'
+            },
+            success: function(response) {
+                if (response.estado == 1) {
+                    var contadores = response.counts.contadores;
+                    var contenido = "";
+                    for (var x = 0; x < contadores.length; x++) {
+                        contenido += "<tr>";
+                        contenido += "<td>" + esNull(contadores[x]['ronda']) + "</td>";
+                        contenido += "<td>" + esNull(contadores[x]['geofisica']) + "</td>";
+                        contenido += "<td>" + esNull(contadores[x]['geologia']) + "</td>";
+                        contenido += "<td>" + esNull(contadores[x]['petroleros']) + "</td>";
+                        contenido += "<td>" + esNull(contadores[x]['generales']) + "</td>";
+                        contenido += "</tr>";
+                    }
+                    $("#tbl-generadas tbody").html(contenido);
+                    contadores = null;
+                    contenido = null;
+                }
+                alert(response.mensaje);
+            },
+            error: function(error) {
+                alert("Ocurrio un error inesperado");
+                console.log(error);
+            },
+            complete: function() {
+                ajaxTask = null;
+                categoria = null;
+            }
+        });
+    } else {
+        alert("Debes seleccionar una categoria");
+    }
 }
 
 /**
@@ -51,11 +54,11 @@ function generaPreguntas(concurso,etapa){
  * @param  object valor 
  * @return object
  */
-function esNull(valor){
-	if(valor === "null" || valor === undefined || valor === null){
-		return '';
-	}
-	return valor;
+function esNull(valor) {
+    if (valor === "null" || valor === undefined || valor === null) {
+        return '';
+    }
+    return valor;
 }
 
 /**
@@ -63,23 +66,24 @@ function esNull(valor){
  * @param  {int} concurso    
  * @param  {int} rondaActual 
  */
-function cambiarFinalizarRonda(concurso,rondaActual){
-	var rondaNueva = $("#RONDA_NUEVA").val();
-	if(rondaNueva !=""){
-		$.post('class/RondasLog.php',
-			{'functionRondasLog': 'cambiarFinalizar',
-			 'ID_CONCURSO':concurso,
-			 'RONDA_ACTUAL': rondaActual,
-			 'RONDA_NUEVA':rondaNueva}, 
-			function(data, textStatus, xhr) {
-				alert(data.mensaje);
-				if(data.estado == 1){
-					window.location.replace('panel');
-				}
-		},'json');
-	}else{
-		alert("Elige una ronda");
-	}
+function cambiarFinalizarRonda(concurso, rondaActual) {
+    var rondaNueva = $("#RONDA_NUEVA").val();
+    if (rondaNueva != "") {
+        $.post('class/RondasLog.php', {
+                'functionRondasLog': 'cambiarFinalizar',
+                'ID_CONCURSO': concurso,
+                'RONDA_ACTUAL': rondaActual,
+                'RONDA_NUEVA': rondaNueva
+            },
+            function(data, textStatus, xhr) {
+                alert(data.mensaje);
+                if (data.estado == 1) {
+                    window.location.replace('panel');
+                }
+            }, 'json');
+    } else {
+        alert("Elige una ronda");
+    }
 }
 
 /**
@@ -88,53 +92,57 @@ function cambiarFinalizarRonda(concurso,rondaActual){
  * @param  integer concurso  
  * @param  integer etapa     
  */
-function iniciarCategoria(categoria,concurso){
-	var ajaxTask = $.ajax({
-		url: 'class/Concurso.php',
-		type: 'POST',
-		dataType: 'json',
-		data: {'ID_CONCURSO':concurso, 'ID_CATEGORIA' : categoria, 'functionConcurso':'iniciarCategoriaRonda' },
-		success: function(response){
-			if(response.estado == 1){
-				window.location.replace('leer_preguntas');
-			}else{
-				alert(response.mensaje);
-			}
-		},
-		error: function(xhr , text , error){
-			console.log(error);
-			alert("Ocurrio error inesperado: " + text);
-		},complete:function(){
-			ajaxTask = null;
-		}
-	});
+function iniciarCategoria(categoria, concurso) {
+    var ajaxTask = $.ajax({
+        url: 'class/Concurso.php',
+        type: 'POST',
+        dataType: 'json',
+        data: { 'ID_CONCURSO': concurso, 'ID_CATEGORIA': categoria, 'functionConcurso': 'iniciarRondasCategoria' },
+        success: function(response) {
+            if (response.estado == 1) {
+                window.location.replace('leer_preguntas');
+            } else {
+                alert(response.mensaje);
+            }
+        },
+        error: function(xhr, text, error) {
+            console.log(error);
+            alert("Ocurrio error inesperado: " + text);
+        },
+        complete: function() {
+            ajaxTask = null;
+        }
+    });
 }
 
-function generaTableros(concurso){
-	var isDesempate = document.getElementById("IS_DESEMPATE").value;
-	var ajaxTask = $.ajax({
-		url: 'class/TableroPosiciones.php',
-		type: 'POST',
-		dataType: 'json',
-		data: {'functionTabPosiciones': 'generaPosicionesx',
-				'ID_CONCURSO' : concurso,
-				'IS_DESEMPATE' : isDesempate},
-		beforeSend:function(){
-          $("#loading-s").show(300);
+function generaTableros(concurso) {
+    var isDesempate = document.getElementById("IS_DESEMPATE").value;
+    var ajaxTask = $.ajax({
+        url: 'class/TableroPosiciones.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            'functionTabPosiciones': 'generaPosicionesx',
+            'ID_CONCURSO': concurso,
+            'IS_DESEMPATE': isDesempate
         },
-		success:function(response){
-			if(response.estado == 1){
-				window.location.replace("tablero?id_master="+response.tablero_master);
-			}else{
-				alert("No hemos podido calcular los tableros");
-			}
-		},
-		error:function(error){
-			alert("No se pudieron generar los tableros de puntajes, porfavor intentalo de nuevo");
-			console.log(error);
-		},complete:function () {
-			isDesempate = null;
-			ajaxTask = null;
-		}
-	});	
+        beforeSend: function() {
+            $("#loading-s").show(300);
+        },
+        success: function(response) {
+            if (response.estado == 1) {
+                window.location.replace("tablero?id_master=" + response.tablero_master);
+            } else {
+                alert("No hemos podido calcular los tableros");
+            }
+        },
+        error: function(error) {
+            alert("No se pudieron generar los tableros de puntajes, porfavor intentalo de nuevo");
+            console.log(error);
+        },
+        complete: function() {
+            isDesempate = null;
+            ajaxTask = null;
+        }
+    });
 }

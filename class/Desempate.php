@@ -102,6 +102,4 @@
 
 	}
 
-	/*$desempate = new Desempate();
-	echo json_encode($desempate->generaPreguntas(2,139));*/
 ?>

@@ -549,6 +549,10 @@
 			return $this->query($queryGlosario,$valores,true);
 		}
 
+		public function tieneTodasGeneradas($preguntasNecesarias,$idConcurso, $idRonda,$idCategoria){
+			return $this->cantidadPreguntasCategoria($idConcurso, $idRonda, $idCategoria) == $preguntasNecesarias;
+		}
+
 	}
 
 	/**
