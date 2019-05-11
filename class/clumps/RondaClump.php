@@ -1,6 +1,5 @@
-
-<?
-    require_once '../Rondas.php';
+<?php
+    require_once dirname(__FILE__).'/../Rondas.php';
 
     class RondaClump{
 
