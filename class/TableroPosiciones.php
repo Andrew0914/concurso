@@ -259,19 +259,4 @@
 		}
 	}
 
-	/**
-	 * GET REQUESTS 
-	 */
-	if(isset($_GET['functionTabPosiciones'])){
-		$function = $_GET['functionTabPosiciones'];
-		$pos = new TableroPosiciones();
-		switch ($function) {
-			case 'getTableros':
-				echo  json_encode($pos->getTableros($_GET['ID_CONCURSO'] , $_GET['ID_TABLERO_MASTER']));
-				break;
-			default:
-				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida TableroPosiciones:GET']);
-				break;
-		}	
-	}
 ?>
