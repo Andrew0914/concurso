@@ -7,14 +7,25 @@
 	require_once dirname(__FILE__) . '/Preguntas.php';
 	require_once dirname(__FILE__) . '/Respuestas.php';
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
-
+	require_once dirname(__FILE__).'/util/Response.php';
 
 	class PreguntasGeneradas extends BaseTable{
 
 		protected $table = 'preguntas_generadas';
+		private $response;
 
 		public function __construct(){
 			parent::__construct();
+			$this->response = new Response();
+		}
+
+		private function getPreguntaRandom($preguntas , $idConcurso){
+			$preguntaAleatoria = $preguntas[array_rand($preguntas)];
+			while ($this->existePreguntaEnConcursoRonda($idConcurso,
+				$preguntaAleatoria['ID_PREGUNTA'])) {
+				$preguntaAleatoria = $preguntas[array_rand($preguntas)];
+			}
+			return $preguntaAleatoria;
 		}
 
 		/**
@@ -25,76 +36,53 @@
 		 * @return array              
 		 */
 		public function generaPreguntas($idConcurso, $idCategoria,$etapa){
-			$rs = ['estado'=> 0, 'mensaje'=>'NO se generaron las preguntas'];
 			$mensaje ="";
 			$objRonda = new Rondas();
 			$rondas = $objRonda->getRondas($etapa)['rondas'];
 			$objRegla = new Reglas();
-			$valida= 1;
 			foreach ($rondas as $ronda) {
 				if($ronda['IS_DESEMPATE'] == 0){
-					$idRonda = $ronda['ID_RONDA'];
-					if($idRonda == 5){
-						continue;
-					}
-					$regla = $objRegla->getReglasByRonda($idRonda)[0];
+					if($ronda['ID_RONDA'] == 5) continue;
+					$regla = $objRegla->getReglasByRonda($ronda['ID_RONDA'])[0];
 					// la cantidad de preguntas por categoria debe considir a la cantidad de grados en el campo
 					$grados = explode(',',$regla['GRADOS']);
-
-					if($this->cantidadPreguntasCategoria($idConcurso,$idRonda,$idCategoria) 
+					if($this->cantidadPreguntasCategoria($idConcurso,$ronda['ID_RONDA'],$idCategoria) 
 						>= $ronda['PREGUNTAS_POR_CATEGORIA']){
-						$mensaje .= 'Se han generado todas las preguntas para la categoria de la ronda '.$idRonda .' ; ';
+						$mensaje .= 'Se han generado todas las preguntas para la categoria de la ronda '.$ronda['ID_RONDA'] .' ; ';
 						continue;
 					}
 
-					if($this->cantidadPreguntasTotal($idConcurso,$idRonda) >= $ronda['CANTIDAD_PREGUNTAS']){
-						$mensaje .= 'Se han generado todas las preguntas para  la ronda '.$idRonda .' ; ';
+					if($this->cantidadPreguntasTotal($idConcurso,$ronda['ID_RONDA']) >= $ronda['CANTIDAD_PREGUNTAS']){
+						$mensaje .= 'Se han generado todas las preguntas para  la ronda '.$ronda['ID_RONDA'] .' ; ';
 						continue;
 					}
 
 					for($cont = 1 ; $cont <= $ronda['PREGUNTAS_POR_CATEGORIA']; $cont++){
 						$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
-						$key = array_rand($preguntas);
-						$preguntaAleatoria = $preguntas[$key];
-						while ($this->existePreguntaEnConcursoRonda($idConcurso,
-							$preguntaAleatoria['ID_PREGUNTA'])) {
-							$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
-							$preguntaAleatoria = array_rand($preguntas);
-						}
+						$preguntaAleatoria = $this->getPreguntaRandom($preguntas,$idConcurso);
 						if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
 							$cont -=1;
 							continue;
 						}
 						$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
 							, 'ID_CONCURSO' => $idConcurso 
-							, 'ID_RONDA' => $idRonda
-							, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,$idRonda) + 1) ];
-							if($this->save($valoresInsert) <= 0){
-								$valida *= 0;
-							}
+							, 'ID_RONDA' => $ronda['ID_RONDA']
+							, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,$ronda['ID_RONDA']) + 1) ];
+						if($this->save($valoresInsert) <= 0){
+							$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ?" , ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria]);
+							return $this->fail('No se generaron todas las preguntas correctamente');
+						}
 					}
 				}
 			}
-			$valida2 = 1;
+
 			if($etapa == 2){
-				$valida2 = $this->generaPreguntasGRP($idConcurso,$idCategoria)['estado'];
-			}
-
-			if($valida && $valida2){
-				if($mensaje ==''){
-					$mensaje = "GENERACION DE PREGUNTAS EXITOSA !";
+				if($this->generaPreguntasGRP($idConcurso,$idCategoria)['estado'] != 1){
+					$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ?" , ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria]); 
+					return $this->fail('No se generaron todas las preguntas correctamente');
 				}
-
-				$rs = ['estado'=> 1,
-					'mensaje'=>$mensaje,
-					'counts'=> $this->getCantidadGeneradas($etapa,$idConcurso)];
-			}else{
-				// elimino todas si no se generaron correctamente para volver a intentar
-				$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ?" 
-					, ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria]);
 			}
-
-			return $rs;
+			return $this->response->success(['counts'=> $this->getCantidadGeneradas($etapa,$idConcurso)] , $mensaje == "" ? "GENERACION DE PREGUNTAS EXITOSA !" : $mensaje);
 		}
 
 		/**
@@ -113,42 +101,27 @@
 			$grados = explode(',',$regla['GRADOS']);
 			$ronda = new Rondas();
 			$ronda = $ronda->getRonda(5);
-			$valida= 1;
 			foreach ($concursantes as $cnc) {
 				for($cont = 1 ; $cont <= $ronda['TURNOS_PREGUNTA_CONCURSANTE']; $cont++){
-						$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
-						$key = array_rand($preguntas);
-						$preguntaAleatoria = $preguntas[$key];
-						while ($this->existePreguntaEnConcursoRonda($idConcurso,
-							$preguntaAleatoria['ID_PREGUNTA'])) {
-							$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
-							$preguntaAleatoria = array_rand($preguntas);
-						}
-						if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
-							$cont -=1;
-							continue;
-						}
-						$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
-							, 'ID_CONCURSO' => $idConcurso 
-							, 'ID_RONDA' => 5
-							, 'ID_CONCURSANTE'=>$cnc['ID_CONCURSANTE']
-							, 'OLEADA'=>$cont 
-							, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,5) + 1) ];
-							if($this->save($valoresInsert) <= 0){
-								$valida *= 0;
-							}
+					$preguntas = $this->getPreguntasByCategoriaGrado($idCategoria,$grados[$cont - 1]);
+					$preguntaAleatoria = $this->getPreguntaRandom($preguntas,$idConcurso);
+					if($preguntaAleatoria['ID_PREGUNTA']  == null || $preguntaAleatoria['ID_PREGUNTA']  == ''){
+						$cont -=1;
+						continue;
 					}
+					$valoresInsert = ['ID_PREGUNTA' => $preguntaAleatoria['ID_PREGUNTA'] 
+						, 'ID_CONCURSO' => $idConcurso 
+						, 'ID_RONDA' => 5
+						, 'ID_CONCURSANTE'=>$cnc['ID_CONCURSANTE']
+						, 'OLEADA'=>$cont 
+						, 'PREGUNTA_POSICION' => ($this->cantidadPreguntasTotal($idConcurso,5) + 1) ];
+					if($this->save($valoresInsert) <= 0){
+						$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ? AND ID_RONDA = ?" , ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria , 'ID_RONDA'=>5]);
+						return $this->response->fail('No se generaron correctamente las preguntas de la ronda grupal');
+					}
+				}
 			}
-			if($valida){
-				$rs = ['estado'=> 1,
-					'mensaje'=>"GENERACION DE PREGUNTAS EXITOSA !"];
-			}else{
-				// elimino todas si no se generaron correctamente para volver a intentar
-				$this->delete(0,"ID_CONCURSO=? AND ID_CATEGORIA = ? AND ID_RONDA = ?" 
-					, ['ID_CONCURSO' => $idConcurso , 'ID_CATEGORIA'=>$idCategoria , 'ID_RONDA'=>5]);
-			}
-
-			return $rs;
+			return $this->response->success([] , "GENERACION DE PREGUNTAS EXITOSA !");
 		}
 
 		/**
@@ -315,7 +288,7 @@
 			// la marcamos como hecha
 			$values = ['HECHA' => 1];
 			if(!$this->update($idGenerada , $values))
-				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+				return $this->response->fail('Fallo al lanzar la pregunta, intenta de nuevo');
 			// la ponemos como lanzada para que sea la que aparezca al participante
 			$sentencia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? ";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda, 'ID_CATEGORIA'=>$idCategoria];
@@ -332,7 +305,7 @@
 			if(count($result) <= 0){
 				$values = ['LANZADA' => 1];
 				if(!$this->update($idGenerada , $values))
-					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+					return $this->response->fail('Fallo al lanzar la pregunta, intenta de nuevo');
 			}else{
 				// si ya se lanzaron previamente otras
 				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? ";
@@ -342,13 +315,11 @@
 				$rs = $this->query($otraSentencia, $valores);
 				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
 				if(!$this->update($idGenerada , $values))
-					return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
+					return $this->response->fail('Fallo al lanzar la pregunta, intenta de nuevo');	
 			}
 			$objRespuesta = new Respuestas();
 			$respuestas = $objRespuesta->getRespuestasByPregunta($this->find($idGenerada)['ID_PREGUNTA']);
-			return ['estado'=> 1 , 
-				'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder'
-				,'respuestas'=>$respuestas];
+			return $this->response->success(['respuestas'=>$respuestas],'Pregunta lanzada con exito, los participantes puedne responder');
 		}
 
 		/**
@@ -384,8 +355,6 @@
 		 * @return array              
 		 */
 		public function miUltimaLanzada($concurso,$ronda,$categoria,$concursante){
-			$response = ['estado'=>0,'mensaje'=>'Sin aaccion'];
-
 			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA,pg.TIEMPO_TRANSCURRIDO 
 						FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
 						WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ? AND p.ID_CATEGORIA = ? AND pg.ID_CONCURSANTE = ?";
@@ -407,21 +376,16 @@
 					}
 					$objRespuesta = new Respuestas();
 					$respuestas = $objRespuesta->getRespuestasByPregunta($result[0]['ID_PREGUNTA']);
-					$response['estado'] = 1;
-					$response['pregunta'] = $result;
-					$response['pregunta']['respuestas'] = $respuestas;
-					$response['mensaje'] = 'Pregunta obtenida exitosamente';
+					$pregunta = ['pregunta' => $result];
+    				$pregunta['pregunta']['respuestas'] = $respuestas;
+					return $this->response->success($pregunta  , 'Pregunta obtenida exitosamente');
 				}else{
-					$response['estado'] = 0;
-					$response['mensaje'] = "AUN NO LANZAN TU PREGUNTA";
+					return $this->response->fail("AUN NO LANZAN TU PREGUNTA");
 				}
 				
 			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = 'Fallo al obtener mi ultima pregunta:' . $ex->getMessage() . " Vuelve a intentar";
+				return $this->response->fail('Fallo al obtener mi ultima pregunta:' . $ex->getMessage() . " Vuelve a intentar");
 			}
-			
-			return $response;
 		}
 
 		/**
@@ -465,12 +429,12 @@
 			$tabPuntaje = new TableroPuntaje();
 			if($tabPuntaje->preRespuestaPorAsignacion($concurso,$idRonda,$idConcursante,$pAsignada['ID_PREGUNTA']
 														,$pAsignada['PREGUNTA_POSICION'],0)['estado'] == 0){
-				return ['estado'=> 0 , 'mensaje'=> 'No se pudo generar el tablero de asignacion de pregunta'];
+				return $this->response->fail('No se pudo generar el tablero de asignacion de pregunta');
 			}
 			// la marcamos como hecha
 			$values = ['HECHA' => 1];
 			if(!$this->update($idGenerada , $values))
-				return ['estado'=>0,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+				return $this->response->fail('Fallo al lanzar la pregunta, intenta de nuevo');
 			// la ponemos como lanzada para que sea la que aparezca al participante
 			$sentencia  = "SELECT pg.* FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE ID_CONCURSO =? AND ID_RONDA = ? AND p.ID_CATEGORIA= ? AND ID_CONCURSANTE = ? AND LANZADA != 0 ORDER BY LANZADA DESC LIMIT 1";
 			$valores = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=> $idRonda, 'ID_CATEGORIA'=>$idCategoria,'ID_CONCURSANTE'=>$idConcursante];
@@ -479,8 +443,7 @@
 			if(count($result) <= 0){
 				$values = ['LANZADA' => 1];
 				if(!$this->update($idGenerada , $values))
-					return ['estado'=>0
-							,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];
+					return $this->response->fail('Fallo al lanzar la pregunta, intenta de nuevo');
 			}else{
 				// si ya se lanzaron previamente otras
 				$otraSentencia = "SELECT MAX(LANZADA) AS ultima FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA 
@@ -488,14 +451,11 @@
 				$rs = $this->query($otraSentencia, $valores);
 				$values = ['LANZADA' => ( $rs[0]['ultima'] + 1 )];
 				if(!$this->update($idGenerada , $values))
-					return ['estado'=>0
-							,'mensaje' => 'Fallo al lanzar la pregunta, intenta de nuevo'];	
+					return $this->response->fail('Fallo al lanzar la pregunta, intenta de nuevo');	
 			}
 			$objRespuesta = new Respuestas();
 			$respuestas = $objRespuesta->getRespuestasByPregunta($this->find($idGenerada)['ID_PREGUNTA']);
-			return ['estado'=> 1 , 
-					'mensaje' => 'Pregunta lanzada con exito, los participantes puedne responder',
-					'respuestas'=>$respuestas];
+			return $this->response->success(['respuestas'=>$respuestas], 'Pregunta lanzada con exito, los participantes puedne responder');
 		}
 
 		/**

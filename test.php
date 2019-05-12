@@ -1,9 +1,14 @@
 <?php
-   $arrays = [['grado'=>1 , 'cantidad'=> 30 ] ,  ['grado'=>2 , 'cantidad'=> 20 ], ['grado'=>2 , 'cantidad'=> 10 ]];
+    require_once dirname(__FILE__).'/class/util/Response.php';
 
-    $filtrado = array_filter($arrays, function ($var) {
-        return ($var['grado'] == 1);
-    });
-
-   echo json_encode($filtrado);
+    $response['estado'] = 1;
+    $response['pregunta'] = ['algo'=>1];
+    $response['pregunta']['respuestas'] = ['algo'=>1];
+    $response['mensaje'] = 'Pregunta obtenida exitosamente';
+    echo json_encode($response);
+    echo "<br>";
+    $pregunta = ['pregunta' => ['algo'=>1]];
+    $pregunta['pregunta']['respuestas'] = ['algo' => 1]; 
+    $testResponse = new Response();
+    echo json_encode($testResponse->success($pregunta,'Pregunta obtenida exitosamente')  );
 ?>
