@@ -10,14 +10,16 @@
 	require_once dirname(__FILE__) . '/TableroPaso.php'; 
 	require_once dirname(__FILE__) . '/TableroPosiciones.php';
 	require_once dirname(__FILE__) . '/TableroMaster.php';
-	require_once dirname(__FILE__) . '/Rondas.php'; 
+	require_once dirname(__FILE__) . '/Rondas.php';
+	require_once dirname(__FILE__).'/util/Response.php';
 
 	class TableroPuntaje extends BaseTable{
 
 		protected $table= 'tablero_puntajes';
-		
+		private $response;
 		public function __construct(){
 			parent::__construct();
+			$this->response = new Response();
 		}
 
 		/**
@@ -63,7 +65,7 @@
 		}
 
 		/**
-		 * Genera el punta por la respuesta y condiciones dada
+		 * Genera el puntaje por la respuesta y condiciones dada
 		 * @param  integer  $concursante 
 		 * @param  integer  $concurso    
 		 * @param  integer  $ronda       
@@ -74,24 +76,24 @@
 		 * @return boolean               
 		 */
 		public function generaPuntaje($concursante,$concurso,$ronda,$pregunta,$respuesta,$correcta,$paso = 0){
-			$v_puntaje = ['PUNTAJE'=>0];
+			$puntaje = ['PUNTAJE'=>0];
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante];
 			$regla = new Reglas();
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
-			$v_puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
+			$puntaje['PUNTAJE'] = $objPregunta->getPuntajeDificultad($pregunta);
 			// regla para paso de preguntas
 			if($reglas[0]['TIENE_PASO'] == 1 AND $paso == 1 AND $reglas[0]['RESTA_PASO'] ==1 ){
-				$v_puntaje['PUNTAJE'] *= -1;
+				$puntaje['PUNTAJE'] *= -1;
 				// regla para resta por error
 			}else if($correcta == 0 AND $reglas[0]['RESTA_ERROR'] == 1){
-				$v_puntaje['PUNTAJE'] *= -1;
+				$puntaje['PUNTAJE'] *= -1;
 			}else if($correcta == 0 AND $reglas[0]['RESTA_PASO'] ==0 AND $reglas[0]['RESTA_ERROR'] == 0){
 				// regla para ronda comun sin negativos
-				$v_puntaje['PUNTAJE'] = 0;
+				$puntaje['PUNTAJE'] = 0;
 			}
-			return $this->update(0, $v_puntaje, $where, $whereValues);
+			return $this->update(0, $puntaje, $where, $whereValues);
 		}
 
 		/**
@@ -146,11 +148,10 @@
 							,'NIVEL_EMPATE'=>$nivel_empate];
 			if($this->update(0,$valores,$where,$whereValues)){
 				if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$valores['RESPUESTA_CORRECTA'],$paso)){
-					return ['estado'=>1, 'mensaje'=>'Respuesta almacenada con exito'];
+					return $this->response->success([] , 'Respuesta almacenada con exito');
 				}
 			}
-
-			return ['estado'=>0, 'mensaje'=>'No se almaceno tu respuesta'];
+			return $this->response->fail('No se almaceno tu respuesta');
 		}
 
 		/**
@@ -161,7 +162,6 @@
 		 * @return array
 		 */
 		public function getMarcadorPregunta($concurso,$ronda,$pregunta){
-			$response = ['estado'=>0, 'mensaje'=>'No se obtuvieron los marcadores'];
 			try{
 				// obtenenmos lso valores solo en las contestadas
 				$sentencia = 'SELECT "totales" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ?
@@ -170,39 +170,27 @@
 					UNION
 					SELECT "incorrectas" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND RESPUESTA_CORRECTA = 0';
 				$valores =[$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta];
-				$rs = $this->query($sentencia , $valores);
-				$totales = 0;
-				$correctas = 0;
-				$incorrectas = 0;
-				// asignamos para hacer los calculos
-				foreach ($rs as $r) {
-					if($r['tipo'] =='totales'){
-						$totales = $r['cantidad'];
-					}else if($r['tipo'] =='correctas'){
-						$correctas = $r['cantidad'];
-					}else if($r['tipo'] =='incorrectas'){
-						$incorrectas = $r['cantidad'];
-					}
-				}
-				if($totales <= 0){
-					$response['incorrectas'] = 0;
-					$response['correctas'] = 0;
-					$response['por_incorrectas'] = 0;
-					$response['por_correctas'] = 0;
-				}else{
-					$response['incorrectas'] = $incorrectas;
-					$response['correctas'] = $correctas;
-					$response['por_incorrectas'] = ($incorrectas * 100) / $totales;
-					$response['por_correctas'] = ($correctas * 100) / $totales;;
-				}
-				$response['estado']= 1;
-				$response['mensaje']='Marcadores obtenidos con exito';
+				$cantidades = $this->query($sentencia , $valores);
 
+				$totales  = array_filter($cantidades, function ($var){ return ($var['tipo'] == 'totales'); });
+				$correctas = array_filter($cantidades, function ($var){ return ($var['tipo'] == 'correctas'); });
+				$incorrectas = array_filter($cantidades, function ($var){ return ($var['tipo'] == 'incorrectas'); });
+
+				if($totales <= 0){
+					return $this->response->success(['incorrectas' =>0,
+													'correctas' =>0,
+													'por_incorrectas' =>0,
+													'por_correctas' =>0] , 
+												'Marcadores obtenidos aun no contesta nadie');
+				}
+				return $this->response->success(['incorrectas' =>  $incorrectas,
+												'correctas' => $correctas,
+												'por_incorrectas' => (($incorrectas * 100) / $totales),
+												'por_correctas' => (($correctas * 100) / $totales)] , 
+											'Marcadores obtenidos');
 			}catch(Exception $ex){
-				$response['mensaje']= 'Fallo al obtener marcadores:'.$ex->getMessage();
+				return $this->response->fail('Fallo al obtener marcadores:'.$ex->getMessage());
 			}
-			
-			return $response;
 		}
 		
 		/**
@@ -256,14 +244,10 @@
 					WHERE tps.ID_CONCURSO = ? AND tps.ID_RONDA = ?) resultados ORDER BY resultados.ID_RONDA,resultados.PREGUNTA_POSICION";
 				//echo json_encode($values);
 				$tablero = $this->query($query,$values,true);
-				$response['tablero'] = $tablero;
-				$response['estado'] = 1;
-				$response['mensaje'] = "Se obtuvo el puntaje";
+				return $this->response(['tablero' => $tablero], "Se obtuvo el puntaje");
 			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = "No se obtuvo el puntaje:" . $ex->getMessage();
+				return $this->response->fail("No se obtuvo el puntaje:" . $ex->getMessage());
 			}
-			return $response;
 		}
 
 		/**
@@ -286,7 +270,6 @@
 		 * @return array           
 		 */
 		public function getMejoresPuntajes($concurso, $es_empate = false){
-			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			$objConcurso = new Concurso();
 			$objConcurso = $objConcurso->getConcurso($concurso);
 			$rondas = new Rondas();
@@ -308,14 +291,10 @@
 				for($i =0 ; $i < count($mejores) ; $i++) {
 					$mejores[$i]['lugar'] = $i+1;
 				}
-				$response['mejores'] = $mejores;
-				$response['estado'] = 1;
-				$response['mensaje'] = "Se obtuvo el puntaje total";
+				return $this->response->success(['mejores' => $mejores],"Se obtuvo el puntaje total");
 			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = "No se obtuvo el puntaje total:" . $ex->getMessage();
+				return $this->response->fail( "No se obtuvo el puntaje total:" . $ex->getMessage());
 			}
-			return $response;
 		}
 
 		/**
@@ -326,10 +305,8 @@
 		 * @return array           
 		 */
 		public function getMejoresRonda($concurso, $ronda, $nivelEmpate){
-			$response = ['estado'=>0 , 'mensaje'=>'No se obtuvo el puntaje'];
 			$objConcurso = new Concurso();
 			$objConcurso = $objConcurso->getConcurso($concurso);
-			$rondas = new Rondas();
 			try{
 				$query = "SELECT c.ID_CONCURSANTE,c.CONCURSANTE,sum(t.PUNTAJE) as totalPuntos 
 						FROM tablero_puntajes as t INNER JOIN concursantes as c ON t.ID_CONCURSANTE = c.ID_CONCURSANTE 
@@ -341,14 +318,10 @@
 				for($i =0 ; $i < count($mejores) ; $i++) {
 					$mejores[$i]['lugar'] = $i+1;
 				}
-				$response['mejores'] = $mejores;
-				$response['estado'] = 1;
-				$response['mensaje'] = "Se obtuvo el puntaje total";
+				return $this->response->success(['mejores'=> $mejores] , "Se obtuvo el puntaje total");
 			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = "No se obtuvo el puntaje total:" . $ex->getMessage();
+				return $this->response->fail("No se obtuvo el puntaje total:" . $ex->getMessage());
 			}
-			return $response;
 		}
 		
 		/**
@@ -450,15 +423,10 @@
 						'PREGUNTA' => $pregunta,
 						'NIVEL_EMPATE' => $nivel_empate];
 			try{
-				$response['puntaje'] = $this->get($where , $valores)[0];
-				$response['mensaje']= 'Puntaje obtenido de tu pregunta';
-				$response['estado'] = 1;
+				return $this->response->success(['puntaje' => $this->get($where , $valores)[0]],'Puntaje obtenido de tu pregunta');
 			}catch(Exception $ex){
-				$response['estado'] = 0;
-				$response['mensaje'] = 'No se obtuvo tu puntaje :'. $ex->getTraceAsString();
+				return $this->response->fail('No se obtuvo tu puntaje :'. $ex->getTraceAsString());
 			}
-
-			return $response;
 		}
 
 		/**
@@ -487,7 +455,7 @@
 						,'NIVEL_EMPATE'=>$nivel_empate];
 				$registroTablero = $this->get($where,$whereValues);
 				if(count($registroTablero) <= 0){
-					return['estado'=> 0 , 'mensaje'=> 'Vaya parece que no se gere tu asignacion de pregunta correctamente'];
+					return $this->response->fail('Vaya parece que no se gere tu asignacion de pregunta correctamente');
 				}				
 				$registroTablero = $registroTablero[0];
 
@@ -501,13 +469,13 @@
 				}
 				if($this->update($registroTablero['ID_TABLERO_PUNTAJE'] , $values )){
 					if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$values['RESPUESTA_CORRECTA'],$paso)){
-						return ['estado'=>1, 'mensaje'=>'Respuesta almacenada con exito'];
+						return $this->response->success([],'Respuesta almacenada con exito');
 					}
-					return ['estado'=> 0 ,'mensaje'=> 'No se genero el puntaje para la respuesta correctamente'];
+					return $this->response->fail('No se genero el puntaje para la respuesta correctamente');
 				}
-				return ['estado'=> 0 ,'mensaje'=> 'No se genero la respuesta'];
+				return $this->response->fail('No se genero la respuesta');
 			}catch(Exception $ex){
-				return ['estado'=>0 , 'mensaje'=>'No se almaceno tu respuesta:'.$ex->getMessage()];
+				return $this->response->fail('No se almaceno tu respuesta:'.$ex->getMessage());
 			}
 		}
 
@@ -532,22 +500,22 @@
 				if($paso == 1){
 					if($this->guardaRespuestaAsignada($concursante, $concurso, $ronda, $pregunta, '', $posicion,$paso,$nivel_empate)['estado'] == 1){
 						if($this->update(0,$valoresPaso ,$where , $whereValues)){
-							return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
+							return $this->response->success([] , 'Pregunta pasada al siguiente concursante');
 						}
 					}else{
-						return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta x'];
+						return $this->response->fail('No se pudo pasar la pregunta');
 					}
 				}else if($paso == 2){
 					// ya almaceno cuando contesto incorrecto solo se actualiza el paso
 					if($this->update(0,$valoresPaso ,$where , $whereValues)){
-						return ['estado'=>1 , 'mensaje' => 'Pregunta pasada al siguiente concursante'];
+						return $this->response->success([] , 'Pregunta pasada al siguiente concursante');
 					}
 				}
 				
 			}catch(Exception $ex){
-				return ['estado'=>0 , 'mensaje'=>'Ocurrio un error al pasar:'.$ex->getMessage()];
+				return $this->response->fail('Ocurrio un error al pasar:'.$ex->getMessage());
 			}
-			return ['estado'=>0, 'mensaje'=>'No se pudo pasar la pregunta y'];
+			return $this->response->fail('No se pudo pasar la pregunta');
 		}
 
 		/**
@@ -561,15 +529,13 @@
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND CONCURSANTE_PASO = ?  ORDER BY ID_TABLERO_PUNTAJE DESC LIMIT 1";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'CONCURSANTE_PASO'=> $concursante];
 			$result = $this->get($where,$whereValues);
-			if(count($result) <= 0){
-				return ['estado'=>0 , 'mensaje'=>'No te han pasado ninguna pregunta'];
-			}
+
+			if(count($result) <= 0) return $this->response->fail('No te han pasado ninguna pregunta');
+			
 			$ultimaPreguntaPaso = $result[0];
 	
-			if($ultimaPreguntaPaso['CONCURSANTE_TOMO'] != 1){
-				return ['estado'=>0 , 'mensaje'=>'No has tomado ninguna pregunta'];
-			}
-
+			if($ultimaPreguntaPaso['CONCURSANTE_TOMO'] != 1) return $this->response->fail('No has tomado ninguna pregunta');
+			
 			// verificamos si su ultima ya la tiene contestada
 			$tabPaso= new TableroPaso();
 			$valoresContestada = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 'ID_CONCURSANTE'=>$concursante
@@ -577,14 +543,10 @@
 			$wheresContestada = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA = ?";
 			$registroPaso = $tabPaso->get($wheresContestada , $valoresContestada);
 
-			if(count($registroPaso) <= 0){
-				return ['estado'=>0 , 'mensaje'=>'No se genero el registro de tu pregunta de roba puntos :('];
-			}
-
-			if($registroPaso[0]['CONTESTADA'] == 1){
-				return ['estado'=>0 , 'mensaje'=>'Tu ultima pregunta de roba puntos ya la contestaste'];
-			}
-
+			if(count($registroPaso) <= 0) return $this->response->fail('No se genero el registro de tu pregunta de roba puntos :(');
+			
+			if($registroPaso[0]['CONTESTADA'] == 1) return $this->response->fail('Tu ultima pregunta de roba puntos ya la contestaste');
+			
 			$sentencia  = "SELECT pg.ID_GENERADA,pg.PREGUNTA_POSICION,pg.LANZADA,p.ID_PREGUNTA,p.PREGUNTA,pg.TIEMPO_TRANSCURRIDO_PASO
 			 FROM preguntas_generadas pg INNER JOIN preguntas p ON pg.ID_PREGUNTA = p.ID_PREGUNTA WHERE pg.ID_CONCURSO = ? AND pg.ID_RONDA = ?  AND ID_CONCURSANTE = ? AND p.ID_PREGUNTA = ?";
 			$valores = ['ID_CONCURSO'=>$concurso 
@@ -595,7 +557,8 @@
 			$objRespuesta = new Respuestas();
 			$respuestas = $objRespuesta->getRespuestasByPregunta($pregunta[0]['ID_PREGUNTA']);
 			$pregunta['respuestas'] = $respuestas;
-			return ['estado'=>1 , 'mensaje'=>'Pregunta de paso obtenida', 'pregunta'=>$pregunta];
+
+			return $this->response->success(['pregunta' => $pregunta], 'Pregunta de paso obtenida');
 		}
 
 		/**
@@ -612,25 +575,24 @@
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante];
-			$rs = $this->get($where,$whereValues);
+			$puntajes = $this->get($where,$whereValues);
 			//agregamos un segundo pasado a la pregunta para que el concursante solo tengalos segundos resantes
 			$queryTiempo = "UPDATE preguntas_generadas SET TIEMPO_TRANSCURRIDO = TIEMPO_TRANSCURRIDO + 1 
-			WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
+							WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND ID_PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$this->query($queryTiempo,$whereValues,false);
 			// verificamos si ya esta insertada la accion de contestado o paso
-			if(count($rs) > 0){
-				if($rs[0]['RESPUESTA'] != null AND $rs[0]['RESPUESTA'] != '' AND $rs[0]['PASO_PREGUNTA'] != 1){
-					if($rs[0]['RESPUESTA_CORRECTA'] == 1){
+			if(count($puntajes) > 0){
+				if($puntajes[0]['RESPUESTA'] != null AND $puntajes[0]['RESPUESTA'] != '' AND $puntajes[0]['PASO_PREGUNTA'] != 1){
+					if($puntajes[0]['RESPUESTA_CORRECTA'] == 1){
 						return ['estado' => 1 , 'mensaje'=>'El concursante ha contestado, oprime siguiente para elegir otra pregunta'];
 					}else{
 						return ['estado'=>2 
 						, 'mensaje'=>'El equipo actual ha contestado mal, quiere robar el siguiente equipo: '
 						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
 					}
-					
 				}
 				// SE GENERA UN PASO DE PREGUNTAS POR PASO DIRECTO = 1 Y POR ERROR = 2
-				if($rs[0]['PASO_PREGUNTA'] == 1 || $rs[0]['PASO_PREGUNTA'] == 2){
+				if($puntajes[0]['PASO_PREGUNTA'] == 1 || $puntajes[0]['PASO_PREGUNTA'] == 2){
 					return ['estado'=>2 
 						, 'mensaje'=>'El equipo actual ha pasado la pregunta, la quiere tomar el equipo: '
 						, 'concursante'=> $objConcursante->siguiente($concursante,$concurso) ];
@@ -649,23 +611,19 @@
 		 * @return array              
 		 */
 		public function tomoPaso($concurso,$ronda,$pregunta,$concursante,$posicion){
-			$response = ['estado'=>0 , 'mensaje'=>'No se pudo dar por tomada la pregunta'];
-
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ?";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA'=>$ronda , 
 							'PREGUNTA'=>$pregunta , 'ID_CONCURSANTE'=> $concursante,'PREGUNTA_POSICION'=>$posicion];
 			$tabPaso = new TableroPaso();
 			// primero generamos la pre respuesta para que este contabilizada
 			if(!$tabPaso->preRespuestaPaso($whereValues)){
-				return ['estado'=> 0 , 'mensaje' => 'No pudo ser establecida la pregunta de paso :('];
+				return $this->response->fail('No pudo ser establecida la pregunta de paso :(');
 			}
 			unset($whereValues['PREGUNTA_POSICION']);
 			if($this->update(0,['CONCURSANTE_TOMO'=>1] , $where , $whereValues)){
-				$response['estado'] = 1;
-				$response['mensaje'] = 'Pregunta tomada para el siguiente concursante';
+				return $this->response->success([] , 'Pregunta tomada para el siguiente concursante');
 			}
-
-			return $response;
+			return $this->response->fail('No se pudo dar por tomada la pregunta');
 		}
 
 		/**
@@ -699,11 +657,11 @@
 				}
 				// almacenamos la respuesta previa
 				if($this->save($values)){
-					return ['estado'=>1 , 'mensaje'=> "Se almaceno con exito el tablero de la pregunta asignada"];
+					return $this->response->success([],"Se almaceno con exito el tablero de la pregunta asignada");
 				}
-				return ['estado' => 0, 'mensaje'=>'No se pudo establercer el tablero asignado'];
+				return $this->response->fail('No se pudo establercer el tablero asignado');
 			}catch(Exception $ex){
-				return ['estado'=>0 , 'mensaje'=>'No se almaceno tu respuesta:'.$ex->getMessage()];
+				return $this->response->fail('No se almaceno tu respuesta:'.$ex->getMessage());
 			}
 		}
 
@@ -721,16 +679,15 @@
 								, 'ID_RONDA'=>$_POST['ID_RONDA'] ,'PREGUNTA'=>$_POST['ID_PREGUNTA'] ];
 				$updateValues = ['PASO_PREGUNTA' => 2, 'CONCURSANTE_PASO' => $siguienteConcursante['ID_CONCURSANTE']];
 				if($this->update(0, $updateValues , $where, $whereValues)){
-					return ['estado'=> 1 
-					, 'mensaje'=> 'Se termino el tiempo, quiere robar la pregunta el concursante:'. $siguienteConcursante['CONCURSANTE']
-					,'ID_CONCURSANTE' => $siguienteConcursante['ID_CONCURSANTE']];
+					return $this->response->success(['ID_CONCURSANTE' => $siguienteConcursante['ID_CONCURSANTE']] , '
+													Se termino el tiempo, quiere robar la pregunta el concursante:'. $siguienteConcursante['CONCURSANTE']);
 				}
-				return ['estado'=> 0 , 'mensaje'=> 'No se pudo generar el paso por tiempo terminado'];
+				return $this->response->fail('No se pudo generar el paso por tiempo terminado');
 			}
-
-			return ['estado'=> 0 , 'mensaje'=> 'No se pudo generar el puntaje por tiempo terminado'];
+			return $this->response->fail('No se pudo generar el puntaje por tiempo terminado');
 		}
 	}
+	
 	/**
 	 * POST REQUESTS
 	 */
