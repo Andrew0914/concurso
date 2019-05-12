@@ -14,20 +14,28 @@
 			PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);
 		}
 
-		public function generarExcel($concurso){
-			$indexHoja = 0;
-			//generamos el objeto de excel
-			$objPHPExcel = new PHPExcel;
-			$objPHPExcel->getDefaultStyle()->getFont()->setName('Arial');
-			$objPHPExcel->getDefaultStyle()->getFont()->setSize(10);
-			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, "Excel2007");
-			// especificamos la primer hoja para iniciar
-			$tabMaster = new TableroMaster();
-			$masters = $tabMaster->getTablerosMasters($concurso);
-			$tabPos = new TableroPosiciones();
+		private function setEncabezados(&$objSheet , $encabezados){
+			$columnas = range('A' , 'Z');
+			foreach($encabezados as $columna => $encabezado){
+				$objSheet->getCell($columnas[$columna].'1')->setValue($encabezado);
+			}
+		}
+
+		private function setValues(&$objSheet, $rangoColumnas , $valores, $fila){
+			foreach($rangoColumnas as $index => $columna){
+				$objSheet->getCell($columna.$fila)->setValue( $valores[$index] );
+			}
+		}
+
+		/**
+		 * Escribe los tableros de puntuaciones generales 
+		 */
+		private function escribirTablerosGenerales($concurso , &$indexHoja , &$objPHPExcel){
+			$objTabMaster = new TableroMaster();
+			$tablerosMaster = $objTabMaster->getTablerosMasters($concurso);
+			$objTableroPosiciones = new TableroPosiciones();
 			$concursante = new Concursante();
-			// INICIO TABLEROS DE POSICIONES GENERALES
-			foreach ($masters as $m) {
+			foreach ($tablerosMaster as $tableroMaster) {
 				// viene una hoja por defecto se obtiene si queremos mas se debe crear
 				if($indexHoja <= 0){
 					$objSheet = $objPHPExcel->getSheet($indexHoja);
@@ -35,95 +43,93 @@
 				else{
 					$objSheet = $objPHPExcel->createSheet($indexHoja);
 				}
-				$objSheet->setTitle('Tablero '.$m['ID_TABLERO_MASTER']);
+				$objSheet->setTitle('Tablero '.$tableroMaster['ID_TABLERO_MASTER']);
 				$objSheet->getStyle('A1:D1')->getFont()->setBold(true)->setSize(12);
-				$objSheet->getCell('A1')->setValue('CONCURSANTE');
-				$objSheet->getCell('B1')->setValue('POSICION');
-				$objSheet->getCell('C1')->setValue('PUNTAJE TOTAL');
-				$objSheet->getCell('D1')->setValue('EMPATADO');
-				$posiciones = $tabPos->obtenerPosicionesActuales($m['ID_TABLERO_MASTER']);
-				$indexCelda = 2;
-				foreach ($posiciones as $p) {
-					$objSheet->getCell('A'.$indexCelda)->setValue( $concursante->getConcursante($p['ID_CONCURSANTE'])['CONCURSANTE'] );
-					$objSheet->getCell('B'.$indexCelda)->setValue($p['POSICION']);
-					$objSheet->getCell('C'.$indexCelda)->setValue($p['PUNTAJE_TOTAL']);
-					if($p['EMPATADO'] == 1){
-						$objSheet->getCell('D'.$indexCelda)->setValue('SI');
-					}else{
-						$objSheet->getCell('D'.$indexCelda)->setValue('NO');
-					}
-					
-					$indexCelda++;
+				$this->setEncabezados($objSheet , ['CONCURSANTE','POSICION','PUNTAJE','EMPATADO']);
+				$posiciones = $objTableroPosiciones->obtenerPosicionesActuales($tableroMaster['ID_TABLERO_MASTER']);
+				$fila = 2;
+				foreach ($posiciones as $posicion) {
+					$this->setValues($objSheet , 
+									range('A','D') , 
+									[$concursante->getConcursante($posicion['ID_CONCURSANTE'])['CONCURSANTE'] ,
+										$posicion['POSICION'],
+										$posicion['PUNTAJE_TOTAL'],
+										$posicion['EMPATADO'] == 1 ? 'SI' : 'NO' ] , $fila);
+					$fila++;
 				}
-				
 				$indexHoja++;
 			}
-			// FIN TABLEROS DE POSICIONES GENERALES
-			// INICIO DE TABLERO DE PUNTAJES DETALLE
+
+		}
+		
+		/**
+		 * Escribe los tableros de puntaciones a detalle de un concurso
+		 */
+		private function escribirTablerosPuntuaciones($concurso, &$objPHPExcel, &$indexHoja ){
 			$tabPuntaje = new TableroPuntaje();
 			$puntajes = $tabPuntaje->getResultados($concurso)['tablero'];
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Puntuaciones Detalle');
 			$objSheet->getStyle('A1:I1')->getFont()->setBold(true)->setSize(12);
-			$objSheet->getCell('A1')->setValue('RONDA');
-			$objSheet->getCell('B1')->setValue('CONCURSANTE');
-			$objSheet->getCell('C1')->setValue('PREGUNTA');
-			$objSheet->getCell('D1')->setValue('INCISO');
-			$objSheet->getCell('E1')->setValue('RESPUESTA');
-			$objSheet->getCell('F1')->setValue('CATEGORIA');
-			$objSheet->getCell('G1')->setValue('ROBA PUNTOS');
-			$objSheet->getCell('H1')->setValue('PUNTAJE');
-			$objSheet->getCell('I1')->setValue('RONDA EMPATE');
-			$indexCelda = 2;
-
-			foreach ($puntajes as $pu) {
-				$objSheet->getCell('A'.$indexCelda)->setValue($pu['RONDA']);
-				$objSheet->getCell('B'.$indexCelda)->setValue($pu['CONCURSANTE']);
-				$objSheet->getCell('C'.$indexCelda)->setValue($pu['PREGUNTA_POSICION']);
-				$objSheet->getCell('D'.$indexCelda)->setValue($pu['INCISO']);
-				$objSheet->getCell('E'.$indexCelda)->setValue($pu['RESPUESTA']);
-				$objSheet->getCell('F'.$indexCelda)->setValue($pu['CATEGORIA']);
-				
-				$descripcion_paso = $pu['PASO_PREGUNTAS'] =='NO' 
-									? $pu['PASO_PREGUNTAS'] : 
-									$pu['PASO_PREGUNTAS'] . ' ' . $pu['CONCURSANTE_TOMO'];
-
-				$objSheet->getCell('G'.$indexCelda)->setValue($descripcion_paso);
-				$objSheet->getCell('H'.$indexCelda)->setValue($pu['PUNTAJE']);
-				if($pu['NIVEL_EMPATE'] == 0){
-					$objSheet->getCell('I'.$indexCelda)->setValue("No aplica");
-				}else{
-					$objSheet->getCell('I'.$indexCelda)->setValue($pu['NIVEL_EMPATE']);
-				}
-				$indexCelda++;
+			$this->setEncabezados($objSheet , ['RONDA','CONCURSANTE','PREGUNTA','INCISO','RESPUESTA','CATEGORIA','ROBA PUNTOS','PUNTAJE','RONDA EMPATE']);
+			$fila = 2;
+			foreach ($puntajes as $puntaje) {
+				$descripcion_paso = $puntaje['PASO_PREGUNTAS'] =='NO' 
+									? $puntaje['PASO_PREGUNTAS'] : 
+									$puntaje['PASO_PREGUNTAS'] . ' ' . $puntaje['CONCURSANTE_TOMO'];
+				$this->setValues($objSheet,
+								range('A' , 'I'),
+								[$puntaje['RONDA'],
+								$puntaje['CONCURSANTE'],
+								$puntaje['PREGUNTA_POSICION'],
+								$puntaje['INCISO'],
+								$puntaje['RESPUESTA'],
+								$puntaje['CATEGORIA'],
+								$descripcion_paso,
+								$puntaje['PUNTAJE'],
+								$puntaje['NIVEL_EMPATE'] == 0 ? 'NO APLICA' :$puntaje['NIVEL_EMPATE'] ],
+								$fila);
+				$fila++;
 			}
-			// FIN TABLERO DE PUNTAJES DETALLE
-			// INICIO GLOSARIO DE PREGUNTAS
+		}
+
+		/**
+		 * Escribe las preguntas realziadas en el concurso  en una hoja del documento como un glosario
+		 */
+		private function escribirGlosarioPreguntas($concurso, &$indexHoja, &$objPHPExcel){
 			$indexHoja += 1;
 			$generadas = new PreguntasGeneradas();
-			$glosario = $generadas->getGlosarioPreguntas($concurso);
+			$glosarios = $generadas->getGlosarioPreguntas($concurso);
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Glosario de preguntas');
 			$objSheet->getStyle('A1:D1')->getFont()->setBold(true)->setSize(12);
-			$objSheet->getCell('A1')->setValue('NUMERO');
-			$objSheet->getCell('B1')->setValue('PREGUNTA');
-			$objSheet->getCell('C1')->setValue('RONDA');
-			$objSheet->getCell('D1')->setValue('RONDA EMPATE');
-			$indexCelda = 2;
-			foreach ($glosario as $g) {
-				$objSheet->getCell('A'.$indexCelda)->setValue($g['numero']);
-				$objSheet->getCell('B'.$indexCelda)->setValue($g['pregunta']);
-				$objSheet->getCell('C'.$indexCelda)->setValue($g['ronda']);
-				if($pu['NIVEL_EMPATE'] == 0){
-					$objSheet->getCell('D'.$indexCelda)->setValue("No aplica");
-				}else{
-					$objSheet->getCell('D'.$indexCelda)->setValue($g['empate']);
-				}
-				$indexCelda++;
+			$this->setEncabezados($objSheet , ['NUMERO','PREGUNTA','RONDA','RONDA EMPATE']);
+			$fila = 2;
+			foreach ($glosarios as $glosario) {
+				$this->setValues($objSheet , 
+								range('A' , 'D'),
+								[$glosario['numero'],
+								$glosario['pregunta'],
+								$glosario['ronda'],
+								$glosario['empate'] == 0 ? 'NO APLICA' : $glosario['empate']],
+								$fila);
+				$fila++;
 			}
-			//FIN GLOSARIO DE PREGUNTAS
-			
+		}
 
+		/**
+		 * 	Construye el documento completo del reporte para 1 concurso
+		 */
+		public function generarExcel($concurso){
+			$indexHoja = 0;
+			//generamos el objeto de excel
+			$objPHPExcel = new PHPExcel;
+			$objPHPExcel->getDefaultStyle()->getFont()->setName('Arial');
+			$objPHPExcel->getDefaultStyle()->getFont()->setSize(10);
+			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, "Excel2007");
+			$this->escribirTablerosGenerales($concurso ,$indexHoja ,$objPHPExcel);
+			$this->escribirTablerosPuntuaciones($concurso,$objPHPExcel,$indexHoja);
+			$this->escribirGlosarioPreguntas($concurso,$indexHoja,$objPHPExcel);
 			$nombre = "tableros_concurso_".$concurso.".xlsx";
 			$ruta = "../gen_excel/".$nombre;
 			$objWriter->save($ruta);
