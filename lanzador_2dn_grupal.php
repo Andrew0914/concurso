@@ -32,7 +32,7 @@
 		<title>Leer pregunta</title>
 		<link rel="shortcut icon" href="image/favicon.png">
 		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap-reboot.css">
+		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap-reboot.min.css">
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 	</head>
 	<body class="content content-lg azul">

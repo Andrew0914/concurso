@@ -229,6 +229,17 @@
 		public function actualiza($id,$valores,$where,$whereValues){
 			return $this->update($id,$valores,$where,$whereValues);
 		}
+
+		public function entraronTodos($idConcurso){
+			$objConcursante = new Concursante();
+			$concursantes = $objConcursante->getConcursantes($idConcurso);
+			foreach ($concursantes as $concursante){
+				if($concursante['INICIO_SESION'] == 0){
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 	// POST REQUEST

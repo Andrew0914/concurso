@@ -22,6 +22,8 @@
         public function getRondas(){
             return $this->rondas->getRondas($this->idEtapa)['rondas'];
         }
+
+        
     }
 
 ?>
