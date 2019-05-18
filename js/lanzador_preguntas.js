@@ -4,11 +4,11 @@
  * @param  {int} idPregunta 
  * @param  {int} idGenerada 
  */
-function leer(pregunta,idPregunta,puntaje, idGenerada){
-    $("#mdl-leer-pregunta").modal({backdrop: 'static', keyboard: false});
-    $("#mdl-leer-pregunta").css("padding","1px");
+function leer(pregunta, idPregunta, puntaje, idGenerada) {
+    $("#mdl-leer-pregunta").modal({ backdrop: 'static', keyboard: false });
+    $("#mdl-leer-pregunta").css("padding", "1px");
     $("#p-pregunta").text(pregunta);
-    $("#titulo_modal").text(" Valor de la pregunta: "+ puntaje);
+    $("#titulo_modal").text(" Valor de la pregunta: " + puntaje);
     $("#ID_PREGUNTA").val(idPregunta);
     $("#ID_GENERADA").val(idGenerada);
 }
@@ -17,42 +17,44 @@ function leer(pregunta,idPregunta,puntaje, idGenerada){
  * Lanza la pregunta para que se le aparezca a los concursantes
  * @param  integer segundos 
  */
-function lanzarPregunta(segundos,boton){
-	var generada = $("#ID_GENERADA").val();
-	var concurso = $("#ID_CONCURSO").val();
-	var ronda = $("#ID_RONDA").val();
+function lanzarPregunta(segundos, boton) {
+    var generada = $("#ID_GENERADA").val();
+    var concurso = $("#ID_CONCURSO").val();
+    var ronda = $("#ID_RONDA").val();
     var categoria = $("#ID_CATEGORIA").val();
-    if(categoria == null || categoria == undefined){
+    if (categoria == null || categoria == undefined) {
         categoria = 'desempate';
     }
-	var ajaxTask = $.ajax({
-		type : 'POST',
-        url  : 'class/PreguntasGeneradas.php',
-        data :{'functionGeneradas':'lanzarPregunta',
-    			'ID_GENERADA':generada,
-    			'ID_CONCURSO':concurso,
-    			'ID_RONDA':ronda,
-                'ID_CATEGORIA':categoria,
-                'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value,
-                'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value},
+    var ajaxTask = $.ajax({
+        type: 'POST',
+        url: 'class/PreguntasGeneradas.php',
+        data: {
+            'functionGeneradas': 'lanzarPregunta',
+            'ID_GENERADA': generada,
+            'ID_CONCURSO': concurso,
+            'ID_RONDA': ronda,
+            'ID_CATEGORIA': categoria,
+            'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value,
+            'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value
+        },
         dataType: "json",
-        success : function(response){
-        	if(response.estado == 1){
+        success: function(response) {
+            if (response.estado == 1) {
                 $(boton).hide(300);
                 // activamos el cronometro
-				cronometro(segundos,function(){
+                cronometro(segundos, function() {
                     todosContestaron();
-                },function(){
-                    stopExecPerSecond= true;
+                }, function() {
+                    stopExecPerSecond = true;
                     afterAnswer();
                 });
                 var respuestas = response.respuestas;
                 var contenido = "<tr>";
-                for(var r = 0; r < respuestas.length; r++){
+                for (var r = 0; r < respuestas.length; r++) {
                     contenido += "<td><h4>" + respuestas[r].INCISO + " ) ";
-                    if(respuestas[r].ES_IMAGEN == 1){
+                    if (respuestas[r].ES_IMAGEN == 1) {
                         contenido += "<img src='image/respuestas/" + respuestas[r].RESPUESTA + "'/>";
-                    }else{
+                    } else {
                         contenido += respuestas[r].RESPUESTA;
                     }
                     contenido += "</h4></td>";
@@ -61,65 +63,67 @@ function lanzarPregunta(segundos,boton){
                 $("#content-respuestas tbody").html(contenido);
                 contenido = null;
                 respuestas = null;
-        	}else{
-        		alert(response.mensaje);
-        	}
+            } else {
+                alert(response.mensaje);
+            }
         },
-        error: function(error){
-        	alert("ocurrio un error, por favor vuelve a intentar");
-        },complete:function(){
+        error: function(error) {
+            alert("ocurrio un error, por favor vuelve a intentar");
+        },
+        complete: function() {
             ajaxTask = null;
             generada = null;
             concurso = null;
             ronda = null;
             categoria = null;
         }
-	});	
+    });
 }
 
 /**
  * Lanza la peticion para saber si todos los participantes contestaron
  */
-function todosContestaron(){
-   var concurso = $("#ID_CONCURSO").val();
-   var ronda = $("#ID_RONDA").val();
-   var pregunta = $("#ID_PREGUNTA").val();
-   var nivelEmpate = $("#NIVEL_EMPATE").val();
-   var ajaxTask = $.ajax({
-       url: 'class/TableroPuntaje.php',
-       type: 'GET',
-       dataType: 'json',
-       data: {'functionTablero':'todosContestaron','ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA': pregunta, 'NIVEL_EMPATE':nivelEmpate},
-       success:function(response){
-        if(response.estado == 1){
-            stopExecPerSecond= true;
-            notFinish = true;
-            afterAnswer();
-        }
-        getActividadPregunta();
-       },
-       error:function(error){
-        console.log(error);
-       },complete:function(){
-            ajaxTask = null;   
+function todosContestaron() {
+    var concurso = $("#ID_CONCURSO").val();
+    var ronda = $("#ID_RONDA").val();
+    var pregunta = $("#ID_PREGUNTA").val();
+    var nivelEmpate = $("#NIVEL_EMPATE").val();
+    var ajaxTask = $.ajax({
+        url: 'class/TableroPuntaje.php',
+        type: 'GET',
+        dataType: 'json',
+        data: { 'functionTablero': 'todosContestaron', 'ID_CONCURSO': concurso, 'ID_RONDA': ronda, 'ID_PREGUNTA': pregunta, 'NIVEL_EMPATE': nivelEmpate },
+        success: function(response) {
+            if (response.estado == 1) {
+                stopExecPerSecond = true;
+                notFinish = true;
+                afterAnswer();
+            }
+            getActividadPregunta();
+        },
+        error: function(error) {
+            console.log(error);
+        },
+        complete: function() {
+            ajaxTask = null;
             concurso = null;
             ronda = null;
             pregunta = null;
             nivelEmpate = null;
-       }
-   });
+        }
+    });
 }
 
-function afterAnswer(){
-    setTimeout(function(){
+function afterAnswer() {
+    setTimeout(function() {
         getMarcadorPregunta();
-    },1500);
+    }, 1500);
 }
 
 /**
  * Resetea al estado inicial el modal si l ocierran
  */
-function closeModal(){
+function closeModal() {
     $("#mdl-leer-pregunta").modal('hide');
     $("#p-pregunta").text('');
     $("#ID_PREGUNTA").val('');
@@ -134,7 +138,7 @@ function closeModal(){
 /**
  * Obtiene los numeros para el histograma de la pregunta correctas/incorrectas al final de la pregunta
  */
-function getMarcadorPregunta(){
+function getMarcadorPregunta() {
     var concurso = $("#ID_CONCURSO").val();
     var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
@@ -142,9 +146,9 @@ function getMarcadorPregunta(){
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
-        data: {'functionTablero':'getMarcadorPregunta','ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA': pregunta},
-        success:function(response){
-            if(response.estado == 1){
+        data: { 'functionTablero': 'getMarcadorPregunta', 'ID_CONCURSO': concurso, 'ID_RONDA': ronda, 'ID_PREGUNTA': pregunta },
+        success: function(response) {
+            if (response.estado == 1) {
                 $("#num_incorrectas").text(response.incorrectas);
                 $("#histo-incorrectas").css({
                     'width': response.por_incorrectas + "%",
@@ -155,14 +159,15 @@ function getMarcadorPregunta(){
                     'width': response.por_correctas + "%",
                     'background-color': 'green'
                 });
-                $("#reloj-cronometro").css("display","none");
+                $("#reloj-cronometro").css("display", "none");
                 $("#btn-siguiente").show(300);
                 $("#animated text").text("00:00");
             }
         },
-        error:function(error){
+        error: function(error) {
             console.log(error);
-        },complete:function(){
+        },
+        complete: function() {
             ajaxTask = null;
             concurso = null;
             ronda = null;
@@ -174,7 +179,7 @@ function getMarcadorPregunta(){
 /**
  * Obtiene los marcadores para la pregunta contestaron y no contestaron
  */
-function getActividadPregunta(){
+function getActividadPregunta() {
     var concurso = $("#ID_CONCURSO").val();
     var ronda = $("#ID_RONDA").val();
     var pregunta = $("#ID_PREGUNTA").val();
@@ -182,9 +187,9 @@ function getActividadPregunta(){
         url: 'class/TableroPuntaje.php',
         type: 'GET',
         dataType: 'json',
-        data: {'functionTablero':'getActividadPregunta','ID_CONCURSO':concurso,'ID_RONDA':ronda,'ID_PREGUNTA': pregunta},
-        success:function(response){
-            if(response.estado == 1){
+        data: { 'functionTablero': 'getActividadPregunta', 'ID_CONCURSO': concurso, 'ID_RONDA': ronda, 'ID_PREGUNTA': pregunta },
+        success: function(response) {
+            if (response.estado == 1) {
                 $("#num_contestadas").text(response.contestadas);
                 $("#histo-contestadas").css({
                     'width': response.porcentaje_contestadas + "%",
@@ -197,9 +202,10 @@ function getActividadPregunta(){
                 });
             }
         },
-        error:function(error){
+        error: function(error) {
             console.log(error);
-        },complete:function(){
+        },
+        complete: function() {
             ajaxTask = null;
             concurso = null;
             ronda = null;
@@ -208,7 +214,7 @@ function getActividadPregunta(){
     });
 }
 
-function siguienteRonda(){
+function siguienteRonda() {
     var concurso = $("#ID_CONCURSO").val();
     var categoria = $("#ID_CATEGORIA").val();
     var rondaActual = $("#ID_RONDA").val();
@@ -216,28 +222,31 @@ function siguienteRonda(){
         url: 'class/RondasLog.php',
         type: 'POST',
         dataType: 'json',
-        data: {'ID_CONCURSO': concurso , 
-                'ID_CATEGORIA': categoria ,
-                'functionRondasLog':'siguienteRonda',
-                'rondaActual':rondaActual,
-                'IS_DESEMPATE':document.getElementById('IS_DESEMPATE').value,
-                'NIVEL_EMPATE':document.getElementById('NIVEL_EMPATE').value},
-        success:function(response){
-            if(response.estado == 1 ){
+        data: {
+            'ID_CONCURSO': concurso,
+            'ID_CATEGORIA': categoria,
+            'functionRondasLog': 'siguienteRonda',
+            'rondaActual': rondaActual,
+            'IS_DESEMPATE': document.getElementById('IS_DESEMPATE').value,
+            'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
+        },
+        success: function(response) {
+            if (response.estado == 1) {
                 location.reload();
-            }else if(response.estado == 2){
+            } else if (response.estado == 2) {
                 alert(response.mensaje);
                 window.location.replace('panel');
-            }else if(response.estado == 3){
+            } else if (response.estado == 3) {
                 window.location.replace("lanzador_2dn_grupal");
-            }else{
+            } else {
                 alert(response.mensaje);
             }
         },
-        error:function(error){
+        error: function(error) {
             alert("ERROR");
             console.log(error);
-        },complete:function(){
+        },
+        complete: function() {
             ajaxTask = null;
             concurso = null;
             categoria = null;
@@ -246,12 +255,12 @@ function siguienteRonda(){
     })
 }
 
-function mostrarResumen(){
+function mostrarResumen() {
     $("#divtablero").slideToggle(500);
 }
 
-$(document).ready(function(){
-    $('#mdl-leer-pregunta').on('hidden.bs.modal', function () {
+$(document).ready(function() {
+    $('#mdl-leer-pregunta').on('hidden.bs.modal', function() {
         closeModal();
     });
 });

@@ -152,7 +152,7 @@
 	</style>
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
-	<script type="text/javascript" src="js/libs/bootstrap/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/libs/snap.svg-min.js"></script>
 	<script type="text/javascript" src="js/cronometro.js"></script>
 	<script type="text/javascript" src="js/cronometroPaso.js"></script>

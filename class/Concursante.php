@@ -186,7 +186,7 @@
 			// si ya fue validado
 			$tabPosiciones = new TableroPosiciones();
 			$posicionesActuales = $tabPosiciones->obtenerPosicionesActuales($ultimoTableroMaster['ID_TABLERO_MASTER']);
-			$es_emaptado = $tabPosiciones->empateEnPosiciones($idConcursante , $posicionesActuales);
+			$es_emaptado = $tabPosiciones->empateEnPosicion($idConcursante , $posicionesActuales);
 
 			if($es_emaptado == 1){
 				// si es que esto empatado la ronda de empate tiene que ser inicializada para que entre
@@ -204,7 +204,7 @@
 				return $this->response->success(['posiciones'=>$posicionesActuales , 'empatado'=>$es_emaptado , 'ronda'=>$rondaDesempate['ID_RONDA']] , 'Estas empatado');
 			}
 
-			return ['estado'=> 1, 'mensaje' => 'No ha ocurrido empate', 'empatado'=>$es_emaptado];
+			return $this->response->success([ 'empatado'=>$es_emaptado],'No ha ocurrido empate');
 		}
 
 		/**
@@ -237,7 +237,7 @@
 		$concursante = new Concursante();
 		switch ($function) {
 			case 'accederConcurso':
-				echo $concursante->accederConcurso($_POST['ID_CONCURSO'],$_POST['CONCURSANTE'],$_POST['PASSWORD']);
+				echo json_encode($concursante->accederConcurso($_POST['ID_CONCURSO'],$_POST['CONCURSANTE'],$_POST['PASSWORD']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE:POST']);

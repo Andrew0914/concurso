@@ -171,11 +171,9 @@
 					SELECT "incorrectas" tipo ,count(*) cantidad FROM tablero_puntajes WHERE ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND RESPUESTA_CORRECTA = 0';
 				$valores =[$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta,$concurso,$ronda,$pregunta];
 				$cantidades = $this->query($sentencia , $valores);
-
-				$totales  = array_filter($cantidades, function ($var){ return ($var['tipo'] == 'totales'); });
-				$correctas = array_filter($cantidades, function ($var){ return ($var['tipo'] == 'correctas'); });
-				$incorrectas = array_filter($cantidades, function ($var){ return ($var['tipo'] == 'incorrectas'); });
-
+				$totales  = array_filter($cantidades, function ($var){return $var['tipo'] == 'totales'; })[0]['cantidad'];
+				$correctas = array_filter($cantidades, function ($var){ return  $var['tipo'] == 'correctas'; })[1]['cantidad'];
+				$incorrectas = array_filter($cantidades, function ($var){ return   $var['tipo'] == 'incorrectas'; })[2]['cantidad'];
 				if($totales <= 0){
 					return $this->response->success(['incorrectas' =>0,
 													'correctas' =>0,
@@ -185,12 +183,16 @@
 				}
 				return $this->response->success(['incorrectas' =>  $incorrectas,
 												'correctas' => $correctas,
-												'por_incorrectas' => (($incorrectas * 100) / $totales),
-												'por_correctas' => (($correctas * 100) / $totales)] , 
+												'por_incorrectas' => $this->calcularPorcentaje($incorrectas ,$totales),
+												'por_correctas' => $this->calcularPorcentaje($correctas ,$totales)] , 
 											'Marcadores obtenidos');
 			}catch(Exception $ex){
 				return $this->response->fail('Fallo al obtener marcadores:'.$ex->getMessage());
 			}
+		}
+
+		private function calcularPorcentaje( $cantidad , $totales){
+			return ($cantidad * 100) / $totales;
 		}
 		
 		/**
@@ -244,7 +246,7 @@
 					WHERE tps.ID_CONCURSO = ? AND tps.ID_RONDA = ?) resultados ORDER BY resultados.ID_RONDA,resultados.PREGUNTA_POSICION";
 				//echo json_encode($values);
 				$tablero = $this->query($query,$values,true);
-				return $this->response(['tablero' => $tablero], "Se obtuvo el puntaje");
+				return $this->response->success(['tablero' => $tablero], "Se obtuvo el puntaje");
 			}catch(Exception $ex){
 				return $this->response->fail("No se obtuvo el puntaje:" . $ex->getMessage());
 			}
@@ -764,4 +766,7 @@
 			break;
 		}
 	}
+
+	/*$tesing = new TableroPuntaje();
+	echo json_encode($tesing->getMarcadorPregunta(7,1,31));*/
  ?>

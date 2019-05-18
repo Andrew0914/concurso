@@ -96,7 +96,7 @@ function irConcurso() {
             type: "GET",
             url: "class/Concurso.php",
             data: {
-                'functionConcurso': 'irConcurso',
+                'functionConcurso': 'entrarEnConcurso',
                 'concurso': concurso
             },
             dataType: "json",

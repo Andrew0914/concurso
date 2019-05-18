@@ -51,7 +51,6 @@
         </section>
         <!-- INICIO SCRIPTS -->
         <script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
-        <script type="text/javascript" src="js/ajuste-select.js"></script>
         <script type="text/javascript" >
             function getExcel(){
                 $.ajax({

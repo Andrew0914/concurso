@@ -33,7 +33,7 @@
 			$datosConcurso['ID_ETAPA'] = $values['ID_ETAPA'];
 			$datosConcurso['CONCURSO'] = $values['CONCURSO'];
 			$datosConcurso['ID_CATEGORIA'] = $values['ID_CATEGORIA'];
-			$datosConcurso['ID_RONDA']= $rondasClump->getPrimerRonda();
+			$datosConcurso['ID_RONDA']= $rondasClump->getPrimerRonda()['ID_RONDA'];
 
 			return $datosConcurso;
 		}

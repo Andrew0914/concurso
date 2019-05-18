@@ -227,7 +227,7 @@
 	</style>
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/popper.min.js"></script>
-	<script type="text/javascript" src="js/libs/bootstrap/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/concurso.js"></script>
 	<script type="text/javascript" src="js/ronda.js"></script>
 	<script type="text/javascript">
