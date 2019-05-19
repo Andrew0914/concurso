@@ -178,7 +178,7 @@
 													echo "<td>" . $puntaje['RONDA'] . '</td>';
 													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
 													echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
-													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'>";
+													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>";
 													echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
 
 													if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){

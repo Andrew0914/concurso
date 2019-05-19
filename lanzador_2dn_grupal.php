@@ -132,7 +132,7 @@
 					    <div class="modal-content">
 					    	<!-- Modal Header -->
 					    	<div class="modal-header">
-					        	<h4 class="modal-title">Puntajes preliminares</h4>
+					        	<h4 class="modal-title">Puntajes de la Ronda</h4>
 					       		<button type="button" class="close" data-dismiss="modal">&times;</button>
 					      	</div>
 						    <!-- Modal body -->
@@ -181,7 +181,7 @@
 								</div>
 								<br>
 								<button class="btn btn-lg btn-geo" onclick="mostrarResumen()">
-									Ver detalle de puntos
+									Detalle Puntuaciones
 								</button>
 								<br>
 								<!--PUNTAJES DETALLE PRELIMINARES -->
@@ -206,8 +206,8 @@
 													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
 													echo "<td>" . $puntaje['RONDA'] . '</td>';
 													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
-													echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
-													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'>";
+													echo "<td><button class='btn btn-info' data-toggle='tooltip' data-placement='right' ";
+													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>";
 													echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
 													// respuesta
 													if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){
