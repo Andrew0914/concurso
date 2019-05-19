@@ -10,7 +10,8 @@
 	    overflow-x: hidden;
 	    transition: 0.5s;
 	    padding-top: 60px;
-	    text-align: left;
+		text-align: left;
+		box-shadow: 1px 2px 5px gray;
 	}
 
 	.sidenav a {
@@ -31,7 +32,7 @@
 	    position: absolute;
 	    top: 0;
 	    right: 25px;
-	    font-size: 36px;
+	    font-size: 24px;
 	    margin-left: 50px;
 	}
 	
@@ -48,16 +49,20 @@
 	}
 </style>
 <div id="mySidenav" class="sidenav">
-  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-  <br><br>
-  <a href="moderador">Acceder a un Concurso</a>
-  <a href="obtener_excel">Obtener Excel De Resultados</a>
-  <a href="crear">Crear Un Concurso Nuevo</a>
-  <a href="inicio">Inicio Concursante</a>
-  <a href="restablecer">Restablecer Concurso</a>
+	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">
+	  <i class="fas fa-times"></i>
+	</a>
+	<br><br>
+	<a href="moderador">Acceder a un Concurso</a>
+	<a href="obtener_excel">Obtener Excel De Resultados</a>
+	<a href="crear">Crear Un Concurso Nuevo</a>
+	<a href="inicio">Inicio Concursante</a>
+	<a href="restablecer">Restablecer Concurso</a>
 </div>
 
-<span class="btn btn-geo btn-menu" onclick="openNav()">&#9776;</span>
+<span class="btn btn-geo btn-menu" onclick="openNav()">
+	<i class="fas fa-bars"></i>
+</span>
 
 <script>
 	function openNav() {

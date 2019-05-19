@@ -27,6 +27,7 @@
 	<title>Panel Moderador</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="blanco content content-md">
@@ -48,6 +49,14 @@
 			</div>
 			<div class="col-md-6 sm-text">
 				<b class="monserrat-bold">Categoria:</b> <?php echo $categoria['CATEGORIA']; ?>
+				<!-- SALIR SESION-->
+				<form method="post" name="form-out"  action="class/util/Sesion.php" class="mt-1">
+					<input type="hidden" name="functionSesion" id="functionSesion" value="out">
+					<button type="submit" class="btn btn-primary btn-sm">
+						Salir <i class="fas fa-sign-out-alt"></i>
+					</button>
+				</form>
+				<!-- SALIR SESION-->
 			</div>
 		</div>
 		<hr>
@@ -71,7 +80,7 @@
 					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>
 				</button>
 				<br><br>
-				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" />
+				<i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i>
 				<?php } ?>
 			</div>
 		</div>
@@ -145,7 +154,7 @@
 					</div>
 					<div class="col text-right">
 						<button class="btn btn-sm btn-info" onclick="<?php echo 'fetchConcursantes(' . $sesion->getOne(SessionKey::ID_CONCURSO) . ')'?>">
-							Actualizar concursantes
+							<i class="fas fa-sync-alt"></i>
 						</button>
 					</div>
 				</div>
@@ -167,16 +176,7 @@
 			</div>	
 		</div>
 		<!-- INFORMACION CONCURSANTES -->
-		<!-- SALIR SESION-->
-		<div class="col-md-1 offset-md-11">
-			<form method="post" name="form-out"  action="class/util/Sesion.php">
-				<input type="hidden" name="functionSesion" id="functionSesion" value="out">
-				<button type="submit" class="btn btn-primary btn-sm">
-					<b>Salir</b>
-				</button>
-			</form>
-		</div>
-		<!-- SALIR SESION-->
+
 	</div>
 	<!-- SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>

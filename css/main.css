@@ -134,6 +134,10 @@ input[type=number] {
     color: rgb(140, 138, 130);
 }
 
+.table-geo input {
+    width: 100%;
+}
+
 .card-md,
 .card-sm,
 .card-lg {

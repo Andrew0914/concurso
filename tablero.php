@@ -55,7 +55,7 @@
 					}
 				?>
 				<br>
-				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
+				<i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i>
 			</div>
 		</div>
 		<h1>
