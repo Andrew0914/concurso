@@ -44,7 +44,7 @@
                 <i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i> 
                 <br>
                 <h5>
-                    <a href="moderador"><u>Volver al inicio </u> </a>
+                    <a href="moderador" class="enlace"><u>Volver al inicio </u> </a>
                 </h5>
             </form>
         </section>

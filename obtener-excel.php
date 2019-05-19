@@ -45,7 +45,7 @@
                 </h1>
                 <br><br>
                 <h5>
-                    <a href="moderador"><u>Volver al inicio </u> </a>
+                    <a href="moderador" class="enlace"><u>Volver al inicio </u> </a>
                 </h5>
             </form>
         </section>

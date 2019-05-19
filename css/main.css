@@ -248,3 +248,8 @@ svg#animated-paso {
     box-shadow: 1px 1px 2px gray;
     font-size: 24px;
 }
+
+.enlace {
+    font-size: 24px;
+    font-weight: bold;
+}
