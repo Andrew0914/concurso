@@ -240,6 +240,20 @@
 			}
 			return true;
 		}
+
+		public function liberarConcursante($idConcursante){
+			try{
+				$concursante = $this->find($idConcursante);
+				if($concursante['INICIO_SESION'] == 0){
+					return $this->response->fail('Este concursante puede iniciar sesion');
+				}
+				if($this->update($idConcursante , ['INICIO_SESION' => 0 ])){
+					return $this->response->success([] , 'Concursante ' . $concursante['CONCURSANTE']. ' liberado para que pueda entrar');
+				}
+			}catch(Exception $ex){
+				return $this->fail($ex->getMessage());
+			}
+		}
 	}
 
 	// POST REQUEST
@@ -249,6 +263,9 @@
 		switch ($function) {
 			case 'accederConcurso':
 				echo json_encode($concursante->accederConcurso($_POST['ID_CONCURSO'],$_POST['CONCURSANTE'],$_POST['PASSWORD']));
+				break;
+			case 'liberarConcursante':
+				echo json_encode($concursante->liberarConcursante($_POST['ID_CONCURSANTE']));
 				break;
 			default:
 				echo json_encode(['estado'=>0,'mensaje'=>'funcion no valida CONCURSANTE:POST']);

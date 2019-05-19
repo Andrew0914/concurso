@@ -30,6 +30,7 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="blanco content content-md">
+	<input type="hidden" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>"  id="ID_CONCURSO"/>
 	<div class="card-lg">
 		<div class="row">
 			<div class="col-md-4 offset-md-4">
@@ -90,7 +91,7 @@
 							<?php 
 								$generadas = new PreguntasGeneradas();
 								$generadas = $generadas->getCantidadGeneradas($sesion->getOne(SessionKey::ID_ETAPA),  
-									$sesion->getOne(SessionKey::ID_CONCURSO));
+								$sesion->getOne(SessionKey::ID_CONCURSO));
 								$contadores = $generadas['contadores'];
 								for ($i=0; $i < count($contadores) ; $i++) { 
 									echo "<tr>";
@@ -136,27 +137,31 @@
 		<!-- INFORMACION CONCURSANTES -->
 		<div class="row">
 			<div class="col-md-12">
-				<b class="monserrat-bold" onclick="$('#tbl-concursantes').slideToggle(500)" style="cursor: pointer;text-decoration: underline;">
-					Ver Concursantes
-				</b>
+				<div class="row">
+					<div class="col">
+						<b class="monserrat-bold" onclick="$('#tbl-concursantes').slideToggle(500)" style="cursor: pointer;text-decoration: underline;">
+							Ver Concursantes
+						</b>
+					</div>
+					<div class="col text-right">
+						<button class="btn btn-sm btn-info" onclick="<?php echo 'fetchConcursantes(' . $sesion->getOne(SessionKey::ID_CONCURSO) . ')'?>">
+							Actualizar concursantes
+						</button>
+					</div>
+				</div>
+				
 				<br>
 				<table class="table table-sm" style="display: none" id="tbl-concursantes">
 					<thead>
 						<tr>
 							<th>Concursante</th>
 							<th>Password</th>
+							<th>Sesión Iniciada</th>
+							<th>¿No puede entrar?</th>
 						</tr>
 					</thead>
 					<tbody>
-						<?php 
-							$concursantes = new Concursante();
-							$concursantes = $concursantes->getConcursantes($sesion->getOne(SessionKey::ID_CONCURSO));
-							$concursantes = $concursantes['concursantes'];
-							foreach ($concursantes as  $concursante) {
-								echo "<tr><td>".$concursante['CONCURSANTE']
-									."</td><td>".$concursante['PASSWORD']."</td></tr>";
-							}
-						 ?>
+
 					</tbody>
 				</table>
 			</div>	

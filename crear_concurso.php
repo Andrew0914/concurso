@@ -46,7 +46,7 @@
 			</select>
 			<br>
 			<input type="text" id="CANTIDAD_PARTICIPANTES" name="CANTIDAD_PARTICIPANTES" class="form-control" placeholder="Cantidad de participantes" /> 
-			<button class="btn btn-sm monserrat-bold" style="float: right;display: none" title="cambiar numero" id="btn-deshacer" onclick="deshacerConcursantes()" type="button">
+			<button class="btn btn-sm btn-secondary monserrat-bold" style="float: right;display: none" title="cambiar numero" id="btn-deshacer" onclick="deshacerConcursantes()" type="button">
 				<b>&times;</b>
 			</button>
 			<br><br>
@@ -73,6 +73,7 @@
 	<!-- / CONTENIDO-->
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/concurso.js"></script>
 	<!-- FIN SCRIPTS  -->
 </body>
