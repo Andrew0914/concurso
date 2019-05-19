@@ -33,6 +33,7 @@
 		<link rel="shortcut icon" href="image/favicon.png">
 		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap-reboot.min.css">
+		<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 	</head>
 	<body class="content content-lg azul">
@@ -109,7 +110,7 @@
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
 						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
-							Siguiente ->
+							<i class="fas fa-forward fa-2x"></i>
 						</button>
 					</div>
 				</div>
@@ -219,10 +220,19 @@
 		    	<div class="modal-content blanco">
 		    		<div class="modal-header">
 		    			<div class="row" style="width:100%">
-		    				<div class="col-md-4 offset-md-8">
-		    					<h3 id="titulo_modal" class="modal-title monserrat-bold" style="float: right;">
-						          	Leer pregunta
-						        </h3>
+		    				<div class="col-md-4 offset-md-8 text-right">
+								<div class="row">
+									<div class="col-10">
+										<h3 id="titulo_modal" class="modal-title monserrat-bold" >
+											Leer pregunta
+										</h3>
+									</div>
+									<div class="col-2">
+										<button class='btn btn-secondary btn-sm' data-dismiss="modal">
+											<i class='fas fa-times'></i>
+										</button>
+									</div>
+								</div>
 		    				</div>
 		    			</div>
 				    </div>
@@ -299,7 +309,7 @@
 			        			Lanzar pregunta
 		        			</button>
 		        			<button type="button" class="btn btn-lg btn-geo" onclick="location.reload();" id="btn-siguiente" style="display: none;">
-			        			Siguiente
+								<i class="fas fa-forward"></i>
 		        			</button>
 			        	</form>
 			        </div>

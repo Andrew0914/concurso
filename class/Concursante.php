@@ -232,7 +232,7 @@
 
 		public function entraronTodos($idConcurso){
 			$objConcursante = new Concursante();
-			$concursantes = $objConcursante->getConcursantes($idConcurso);
+			$concursantes = $objConcursante->getConcursantes($idConcurso)['concursantes'];
 			foreach ($concursantes as $concursante){
 				if($concursante['INICIO_SESION'] == 0){
 					return false;

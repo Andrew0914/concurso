@@ -121,7 +121,7 @@
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
 						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
-							Siguiente ->
+							<i class="fas fa-forward fa-2x"></i>
 						</button>
 					</div>
 				</div>
@@ -332,7 +332,7 @@
 			        			Lanzar pregunta
 		        			</button>
 		        			<button type="button" class="btn btn-lg btn-geo" onclick="location.reload();" id="btn-siguiente" style="display: none;">
-			        			Siguiente
+								<i class="fas fa-forward"></i>
 		        			</button>
 			        	</form>
 			        </div>

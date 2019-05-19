@@ -77,7 +77,7 @@
 					if($concurso['FECHA_CIERRE'] == '' || $concurso['FECHA_CIERRE'] == null){
 				?>
 				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>
+					<h5 class="monserrat-bold">Calcular Puntajes <i class="fas fa-trophy"></i></h5>
 				</button>
 				<br><br>
 				<i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i>
