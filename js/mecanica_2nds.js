@@ -300,10 +300,10 @@ function afterSend(esPaso) {
                 var mensaje = "<h4>Tu respuesta fue:";
                 if (response.puntaje.RESPUESTA_CORRECTA == 1) {
                     mensaje += " CORRECTA </h4>";
-                    mensaje += "<img src='image/correcta.png'/>"
+                    mensaje += "<i class='fas fa-check-circle fa-2x correcta'></i>";
                 } else {
                     mensaje += " INCORRECTA </h4>";
-                    mensaje += "<img src='image/incorrecta.png'/>";
+                    mensaje += "<i class='fas fa-times-circle fa-2x incorrecta'></i>";
                     if (!esPaso) {
                         paso(true);
                     }
@@ -422,10 +422,10 @@ function afterSendPaso() {
                 var mensaje = "<h4>Tu respuesta fue:";
                 if (response.puntaje.RESPUESTA_CORRECTA == 1) {
                     mensaje += " CORRECTA </h4>";
-                    mensaje += "<img src='image/correcta.png'/>"
+                    mensaje += "<i class='fas fa-check-circle fa-2x correcta'></i>";
                 } else {
                     mensaje += " INCORRECTA </h4>";
-                    mensaje += "<img src='image/incorrecta.png'/>"
+                    mensaje += "<i class='fas fa-times-circle fa-2x incorrecta'></i>";
                 }
                 // motramos el marcador de la pregunta en la pantalla principal
                 $("#resultado-mi-pregunta").html(mensaje);

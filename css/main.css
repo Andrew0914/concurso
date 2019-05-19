@@ -230,3 +230,11 @@ svg#animated-paso {
 #divtablero table {
     font-size: 20px;
 }
+
+.correcta {
+    color: green;
+}
+
+.incorrecta {
+    color: red;
+}

@@ -25,6 +25,7 @@
 	<title>Panel Concurso</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="content blanco content-lg">
@@ -156,9 +157,9 @@
 									//roba puntos
 									echo "<td>".$puntaje['PASO_PREGUNTAS'];
 									if($puntaje['PASO'] == 1){
-										echo '<br><img src="image/por_paso.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+										echo '<br><i class="fas fa-step-forward"></i>&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
 									}else if($puntaje['PASO'] == 2){
-										echo '<br><img src="image/por_error.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+										echo '<br><i class="fas fa-times-circle"></i>&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
 									}else{
 										echo '</td>';
 									}
