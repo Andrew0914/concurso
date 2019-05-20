@@ -1,92 +1,4 @@
 /**
- * Dispara la peticion que genera lasp reguntas y setea los contadores en la tabla
- * @param  {int} concurso 
- * @param  {int} ronda    
- */
-function generaPreguntas(concurso, etapa) {
-    var categoria = $("#ID_CATEGORIA").val();
-    if (categoria != "") {
-        var ajaxTask = $.ajax({
-            url: 'class/PreguntasGeneradas.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'ID_CONCURSO': concurso,
-                'ID_CATEGORIA': categoria,
-                'ID_ETAPA': etapa,
-                'functionGeneradas': 'generaPreguntas'
-            },
-            success: function(response) {
-                if (response.estado == 1) {
-                    var contadores = response.counts.contadores;
-                    var contenido = "";
-                    for (var x = 0; x < contadores.length; x++) {
-                        contenido += "<tr>";
-                        contenido += "<td>" + esNull(contadores[x]['ronda']) + "</td>";
-                        contenido += "<td>" + esNull(contadores[x]['geofisica']) + "</td>";
-                        contenido += "<td>" + esNull(contadores[x]['geologia']) + "</td>";
-                        contenido += "<td>" + esNull(contadores[x]['petroleros']) + "</td>";
-                        contenido += "<td>" + esNull(contadores[x]['generales']) + "</td>";
-                        contenido += "</tr>";
-                    }
-                    $("#tbl-generadas tbody").html(contenido);
-                    contadores = null;
-                    contenido = null;
-                }
-                alert(response.mensaje);
-            },
-            error: function(error) {
-                alert("Ocurrio un error inesperado");
-                console.log(error);
-            },
-            complete: function() {
-                ajaxTask = null;
-                categoria = null;
-            }
-        });
-    } else {
-        alert("Debes seleccionar una categoria");
-    }
-}
-
-/**
- * Funciaon para verificar si un campo es null y no pintar 'null'
- * @param  object valor 
- * @return object
- */
-function esNull(valor) {
-    if (valor === "null" || valor === undefined || valor === null) {
-        return '';
-    }
-    return valor;
-}
-
-/**
- * Cambiar y finaliza la ronda actual
- * @param  {int} concurso    
- * @param  {int} rondaActual 
- */
-function cambiarFinalizarRonda(concurso, rondaActual) {
-    var rondaNueva = $("#RONDA_NUEVA").val();
-    if (rondaNueva != "") {
-        $.post('class/RondasLog.php', {
-                'functionRondasLog': 'cambiarFinalizar',
-                'ID_CONCURSO': concurso,
-                'RONDA_ACTUAL': rondaActual,
-                'RONDA_NUEVA': rondaNueva
-            },
-            function(data, textStatus, xhr) {
-                alert(data.mensaje);
-                if (data.estado == 1) {
-                    window.location.replace('panel');
-                }
-            }, 'json');
-    } else {
-        alert("Elige una ronda");
-    }
-}
-
-/**
  * Inicia las preguntas para la categoria elegida
  * @param  integer categoria 
  * @param  integer concurso  
@@ -146,3 +58,62 @@ function generaTableros(concurso) {
         }
     });
 }
+
+function fetchConcursantes(idConcurso) {
+    $.ajax({
+        type: "GET",
+        url: "class/Concursante.php",
+        data: { "functionConcursante": "getConcursantes", "concurso": idConcurso },
+        dataType: "json",
+        success: function(response) {
+            if (response.estado == 1) {
+                $('#tbl-concursantes').slideDown(300);
+                var concursantes = response.concursantes;
+                var content = "";
+                for (var d = 0; d < concursantes.length; d++) {
+                    content += "<tr>";
+                    content += "<td>" + concursantes[d].CONCURSANTE + "</td>";
+                    content += "<td>" + concursantes[d].PASSWORD + "</td>";
+                    content += "<td>" + (concursantes[d].INICIO_SESION ? "SI" : "NO") + "</td>";
+                    content += "<td><button class='btn btn-sm btn-secondary' onclick='liberarConcursante(" + concursantes[d].ID_CONCURSANTE + ")'>Liberar sesión</button></td>";
+                    content += "</tr>";
+                }
+                content += "";
+                $("#tbl-concursantes tbody").html(content);
+                content = null;
+                concursantes = null;
+            } else {
+                alert(response.mensaje);
+            }
+        },
+        error: function(error) {
+            alert("No se pudieron traer los concursantes :(, recarga la página");
+        }
+    });
+}
+
+function liberarConcursante(idConcursante) {
+    if (confirm("¿Estas seguro de cerrar la sesion de este concursante?")) {
+        $.ajax({
+            type: "POST",
+            url: "class/Concursante.php",
+            data: { "functionConcursante": "liberarConcursante", "ID_CONCURSANTE": idConcursante },
+            dataType: "json",
+            success: function(response) {
+                if (response.estado == 1) {
+                    fetchConcursantes($("#ID_CONCURSO").val());
+                } else {
+                    alert(response.mensaje);
+                }
+            },
+            error: function(error) {
+                console.log(error);
+                alert("No se pudo liberar al concursante");
+            }
+        });
+    }
+}
+
+$(document).ready(function() {
+    fetchConcursantes($("#ID_CONCURSO").val());
+});

@@ -13,6 +13,7 @@
 	<title>Crear Concurso</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="content blanco centrado content-md">
@@ -46,8 +47,8 @@
 			</select>
 			<br>
 			<input type="text" id="CANTIDAD_PARTICIPANTES" name="CANTIDAD_PARTICIPANTES" class="form-control" placeholder="Cantidad de participantes" /> 
-			<button class="btn btn-sm monserrat-bold" style="float: right;display: none" title="cambiar numero" id="btn-deshacer" onclick="deshacerConcursantes()" type="button">
-				<b>&times;</b>
+			<button class="btn btn-sm btn-danger monserrat-bold" style="float: right;display: none" title="cambiar numero" id="btn-deshacer" onclick="deshacerConcursantes()" type="button">
+				<i class="fas fa-times"></i>
 			</button>
 			<br><br>
 			<table class="table table-bordered table-geo" id="tbl-concursantes" style="width: 100%">
@@ -63,7 +64,7 @@
 			<button type="button" name="btn_generar_concursantes" id="btn_generar_concursantes" class="btn btn-geo" onclick="generaConcursantes()">
 				Generar concursantes
 			</button>
-			<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
+			<i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i>
 			<br> <br>
 			<button type="button" name="btn_generar_concurso" id="btn_generar_concurso" class="btn btn-geo" onclick="generarConcurso($('#form-genera-concurso'))" style="display: none;">
 				Generar concurso
@@ -73,6 +74,7 @@
 	<!-- / CONTENIDO-->
 	<!-- INICIO SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/concurso.js"></script>
 	<!-- FIN SCRIPTS  -->
 </body>

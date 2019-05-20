@@ -24,6 +24,7 @@
 	<title>Concursante::Responder</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="content content-lg azul">
@@ -37,8 +38,10 @@
 		<input type="hidden" name="NIVEL_EMPATE" id="NIVEL_EMPATE" value="<?php echo $concurso['NIVEL_EMPATE'] ?>">
 		<input type="hidden" name="PREGUNTAS_POR_CATEGORIA" id="PREGUNTAS_POR_CATEGORIA" value="<?php echo $ronda['PREGUNTAS_POR_CATEGORIA'] ?>" />
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
-		<div class="centrado card-sm">
-			<b>Concursante: <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></b>
+		<div class="row">
+			<div class="col-3 offset-9 concursante">
+				<b><i class="fas fa-user"></i> <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></b>
+			</div>
 		</div>
 		<div class="card-md centrado" id="card-inicio">
 			<h2><img src="image/logo_geollin.png" /></h2>

@@ -24,6 +24,7 @@
 	<title>Concursante::Responder</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="content content-lg azul">
@@ -39,8 +40,10 @@
 		<input type="hidden" name="CANTIDAD_PREGUNTAS" id="CANTIDAD_PREGUNTAS" value="<?php echo $ronda['CANTIDAD_PREGUNTAS'] ?>" />
 		<input type="hidden" name="SEGUNDOS_PASO" id="SEGUNDOS_PASO" value="<?php echo $ronda['SEGUNDOS_PASO'] ?>" />
 		<input type="hidden" name="TURNOS_PREGUNTA_CONCURSANTE" id="TURNOS_PREGUNTA_CONCURSANTE" value="<?php echo $ronda['TURNOS_PREGUNTA_CONCURSANTE'] ?>" />
-		<div class="centrado card-sm">
-			<b>Equipo: <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></b>
+		<div class="row">
+			<div class="col-3 offset-9 concursante">
+				<b><i class="fas fa-users"></i> <?php echo $sesion->getOne(SessionKey::CONCURSANTE); ?></b>
+			</div>
 		</div>
 		<div class="card-lg centrado" id="card-inicio">
 			<h3><img src="image/logo_geollin.png" /></h3>

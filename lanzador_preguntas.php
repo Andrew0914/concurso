@@ -32,7 +32,8 @@
 		<title>Leer pregunta</title>
 		<link rel="shortcut icon" href="image/favicon.png">
 		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap-reboot.css">
+		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap-reboot.min.css">
+		<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 	</head>
 	<body class="content content-lg azul">
@@ -109,7 +110,7 @@
 				<div class="row" style="width: 100%">
 					<div class="col-md-5 offset-md-7 centrado">
 						<button class="btn btn-geo btn-block" onclick="siguienteRonda()">
-							Siguiente ->
+							<i class="fas fa-forward fa-2x"></i>
 						</button>
 					</div>
 				</div>
@@ -120,7 +121,7 @@
 					    <div class="modal-content">
 					    	<!-- Modal Header -->
 					    	<div class="modal-header">
-					        	<h4 class="modal-title">Puntajes preliminares</h4>
+					        	<h4 class="modal-title">Puntajes de la Ronda</h4>
 					       		<button type="button" class="close" data-dismiss="modal">&times;</button>
 					      	</div>
 						    <!-- Modal body -->
@@ -151,7 +152,7 @@
 								</div>
 								<br>
 								<button class="btn btn-lg btn-geo" onclick="mostrarResumen()">
-									Ver detalle de puntos
+									Puntuaciones
 								</button>
 								<br>
 								<!--PUNTAJES DETALLE PRELIMINARES -->
@@ -163,7 +164,7 @@
 												<th>Ronda</th>
 												<th>Categoria</th>
 												<th> Pregunta </th>
-												<th>Respuesta</th>
+												<th>Respuesta del concursante</th>
 												<th>Puntaje</th>
 												<th>Roba Puntos</th>
 											</tr>
@@ -176,9 +177,12 @@
 													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
 													echo "<td>" . $puntaje['RONDA'] . '</td>';
 													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
-													echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
-													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'>";
-													echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
+													echo "<td><button class='btn btn-info' data-toggle='tooltip' data-placement='right' ";
+													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>&nbsp;";
+													echo $puntaje['PREGUNTA_POSICION'].'</button>';
+													echo "<button class='btn btn-success ml-1' onclick='verRespuestaCorrecta(";
+													echo $puntaje['ID_PREGUNTA']. ",this)'>";
+													echo "<i class='fas fa-reply'></i> </button> </td>";
 
 													if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){
 														echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
@@ -219,10 +223,19 @@
 		    	<div class="modal-content blanco">
 		    		<div class="modal-header">
 		    			<div class="row" style="width:100%">
-		    				<div class="col-md-4 offset-md-8">
-		    					<h3 id="titulo_modal" class="modal-title monserrat-bold" style="float: right;">
-						          	Leer pregunta
-						        </h3>
+		    				<div class="col-md-4 offset-md-8 text-right">
+								<div class="row">
+									<div class="col-10">
+										<h3 id="titulo_modal" class="modal-title monserrat-bold" >
+											Leer pregunta
+										</h3>
+									</div>
+									<div class="col-2">
+										<button class='btn btn-secondary btn-sm' data-dismiss="modal">
+											<i class='fas fa-times'></i>
+										</button>
+									</div>
+								</div>
 		    				</div>
 		    			</div>
 				    </div>
@@ -299,7 +312,7 @@
 			        			Lanzar pregunta
 		        			</button>
 		        			<button type="button" class="btn btn-lg btn-geo" onclick="location.reload();" id="btn-siguiente" style="display: none;">
-			        			Siguiente
+								<i class="fas fa-forward"></i>
 		        			</button>
 			        	</form>
 			        </div>
@@ -347,6 +360,22 @@
 				$(boton).attr("title",pregunta);
 				$(boton).tooltip('show');
 			}
+			function verRespuestaCorrecta(idPregunta, boton){
+			$.ajax({
+				type: "GET",
+				url: "class/Respuestas.php",
+				data: { "functionRespuesta" : "verCorrecta" , "ID_PREGUNTA" : idPregunta},
+				dataType: "json",
+				success: function (response) {
+					if(response.estado == 1){
+						$(boton).attr("title", "RESPUESTA CORRECTA: " + response.RESPUESTA);
+						$(boton).tooltip('show');
+					}
+				},error:function(error){
+					console.log(error);
+				}
+			});
+		}
 		</script>
 		<?php 
 			if ($todasHechas) {

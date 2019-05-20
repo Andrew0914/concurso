@@ -27,9 +27,11 @@
 	<title>Panel Moderador</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="blanco content content-md">
+	<input type="hidden" value="<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>"  id="ID_CONCURSO"/>
 	<div class="card-lg">
 		<div class="row">
 			<div class="col-md-4 offset-md-4">
@@ -47,6 +49,14 @@
 			</div>
 			<div class="col-md-6 sm-text">
 				<b class="monserrat-bold">Categoria:</b> <?php echo $categoria['CATEGORIA']; ?>
+				<!-- SALIR SESION-->
+				<form method="post" name="form-out"  action="class/util/Sesion.php" class="mt-1">
+					<input type="hidden" name="functionSesion" id="functionSesion" value="out">
+					<button type="submit" class="btn btn-primary btn-sm">
+						Salir <i class="fas fa-sign-out-alt"></i>
+					</button>
+				</form>
+				<!-- SALIR SESION-->
 			</div>
 		</div>
 		<hr>
@@ -67,10 +77,10 @@
 					if($concurso['FECHA_CIERRE'] == '' || $concurso['FECHA_CIERRE'] == null){
 				?>
 				<button class="btn btn-block btn-geo" onclick="generaTableros(<?php echo $sesion->getOne(SessionKey::ID_CONCURSO); ?>)">
-					<h5 class="monserrat-bold">Calcular y Ver Puntajes</h5>
+					<h5 class="monserrat-bold">Calcular Puntajes <i class="fas fa-trophy"></i></h5>
 				</button>
 				<br><br>
-				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" />
+				<i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i>
 				<?php } ?>
 			</div>
 		</div>
@@ -90,7 +100,7 @@
 							<?php 
 								$generadas = new PreguntasGeneradas();
 								$generadas = $generadas->getCantidadGeneradas($sesion->getOne(SessionKey::ID_ETAPA),  
-									$sesion->getOne(SessionKey::ID_CONCURSO));
+								$sesion->getOne(SessionKey::ID_CONCURSO));
 								$contadores = $generadas['contadores'];
 								for ($i=0; $i < count($contadores) ; $i++) { 
 									echo "<tr>";
@@ -136,42 +146,37 @@
 		<!-- INFORMACION CONCURSANTES -->
 		<div class="row">
 			<div class="col-md-12">
-				<b class="monserrat-bold" onclick="$('#tbl-concursantes').slideToggle(500)" style="cursor: pointer;text-decoration: underline;">
-					Ver Concursantes
-				</b>
+				<div class="row">
+					<div class="col">
+						<b class="monserrat-bold" onclick="$('#tbl-concursantes').slideToggle(500)" style="cursor: pointer;text-decoration: underline;">
+							Ver Concursantes
+						</b>
+					</div>
+					<div class="col text-right">
+						<button class="btn btn-sm btn-info" onclick="<?php echo 'fetchConcursantes(' . $sesion->getOne(SessionKey::ID_CONCURSO) . ')'?>">
+							<i class="fas fa-sync-alt"></i>
+						</button>
+					</div>
+				</div>
+				
 				<br>
 				<table class="table table-sm" style="display: none" id="tbl-concursantes">
 					<thead>
 						<tr>
 							<th>Concursante</th>
 							<th>Password</th>
+							<th>Sesión Iniciada</th>
+							<th>¿No puede entrar?</th>
 						</tr>
 					</thead>
 					<tbody>
-						<?php 
-							$concursantes = new Concursante();
-							$concursantes = $concursantes->getConcursantes($sesion->getOne(SessionKey::ID_CONCURSO));
-							$concursantes = $concursantes['concursantes'];
-							foreach ($concursantes as  $concursante) {
-								echo "<tr><td>".$concursante['CONCURSANTE']
-									."</td><td>".$concursante['PASSWORD']."</td></tr>";
-							}
-						 ?>
+
 					</tbody>
 				</table>
 			</div>	
 		</div>
 		<!-- INFORMACION CONCURSANTES -->
-		<!-- SALIR SESION-->
-		<div class="col-md-1 offset-md-11">
-			<form method="post" name="form-out"  action="class/util/Sesion.php">
-				<input type="hidden" name="functionSesion" id="functionSesion" value="out">
-				<button type="submit" class="btn btn-primary btn-sm">
-					<b>Salir</b>
-				</button>
-			</form>
-		</div>
-		<!-- SALIR SESION-->
+
 	</div>
 	<!-- SCRIPTS -->
 	<script type="text/javascript" src="js/libs/jquery-3.3.1.min.js"></script>

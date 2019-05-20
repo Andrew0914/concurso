@@ -25,6 +25,7 @@
 	<title>Panel Concurso</title>
 	<link rel="shortcut icon" href="image/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body class="content blanco content-lg">
@@ -55,7 +56,7 @@
 					}
 				?>
 				<br>
-				<img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
+				<i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i>
 			</div>
 		</div>
 		<h1>
@@ -125,7 +126,7 @@
 								<th>Ronda</th>
 								<th>Categoria</th>
 								<th>Pregunta</th>
-								<th>Respuesta</th>
+								<th>Respuesta del concursante</th>
 								<th>Puntaje</th>
 								<th>Roba Puntos</th>
 							</tr>
@@ -138,10 +139,12 @@
 									echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
 									echo "<td>" . $puntaje['RONDA'] . '</td>';
 									echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
-									echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
-									echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'>";
-									echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
-
+									echo "<td><button class='btn btn-info' data-toggle='tooltip' data-placement='right' ";
+									echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>&nbsp;";
+									echo $puntaje['PREGUNTA_POSICION'].'</button>';
+									echo "<button class='btn btn-success ml-1' onclick='verRespuestaCorrecta(";
+									echo $puntaje['ID_PREGUNTA']. ",this)'>";
+									echo "<i class='fas fa-reply'></i> </button> </td>";
 									if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){
 										echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
 										if($puntaje['ES_IMAGEN'] == 1){
@@ -156,9 +159,9 @@
 									//roba puntos
 									echo "<td>".$puntaje['PASO_PREGUNTAS'];
 									if($puntaje['PASO'] == 1){
-										echo '<br><img src="image/por_paso.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+										echo '<br><i class="fas fa-step-forward"></i>&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
 									}else if($puntaje['PASO'] == 2){
-										echo '<br><img src="image/por_error.png">&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
+										echo '<br><i class="fas fa-times-circle"></i>&nbsp;'.$puntaje['CONCURSANTE_TOMO'].'</td>';
 									}else{
 										echo '</td>';
 									}
@@ -238,6 +241,23 @@
 		function verPregunta(pregunta,boton){
 			$(boton).attr("title",pregunta);
 			$(boton).tooltip('show');
+		}
+
+		function verRespuestaCorrecta(idPregunta, boton){
+			$.ajax({
+				type: "GET",
+				url: "class/Respuestas.php",
+				data: { "functionRespuesta" : "verCorrecta" , "ID_PREGUNTA" : idPregunta},
+				dataType: "json",
+				success: function (response) {
+					if(response.estado == 1){
+						$(boton).attr("title", "RESPUESTA CORRECTA: " + response.RESPUESTA);
+						$(boton).tooltip('show');
+					}
+				},error:function(error){
+					console.log(error);
+				}
+			});
 		}
 	</script>
 	<!-- FIN SCRIPTS  -->

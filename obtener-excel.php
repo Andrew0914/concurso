@@ -8,6 +8,7 @@
         <title>Resultados</title>
         <link rel="shortcut icon" href="image/favicon.png">
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css"/>
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
     <body class="content content-mdx blanco">
@@ -40,12 +41,11 @@
                 <br><br>
                 <h1>
                      <a href="#" id="obtener" style="display: none;" class="monserrat-bold" onclick='desapareccer(this)'>
-                        <u>Descargar</u> <img src="image/download.png"> 
-                    </a>
+                        <u>Descargar</u> <i class="fas fa-file-download"></i>
                 </h1>
                 <br><br>
                 <h5>
-                    <a href="moderador"><u>Volver al inicio </u> </a>
+                    <a href="moderador" class="enlace"><u>Volver al inicio </u> </a>
                 </h5>
             </form>
         </section>

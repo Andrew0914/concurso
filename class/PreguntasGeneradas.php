@@ -280,6 +280,10 @@
 		 * @return [assoc array]             
 		 */
 		public function lanzarPregunta($idGenerada,$concurso,$idRonda,$idCategoria,$es_desempate = false,$nivel_empate = 0){
+			$objConcursante = new Concursante();
+			if(!$objConcursante->entraronTodos($concurso)){
+				return $this->response->fail('Aun no entran todos los concursantes');
+			}
 			//objeto del a ronda 
 			$ronda = new Rondas();
 			$ronda = $ronda->getRonda($idRonda);

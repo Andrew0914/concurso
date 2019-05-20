@@ -8,6 +8,7 @@
         <title>Restablecer</title>
         <link rel="shortcut icon" href="image/favicon.png">
         <link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css"/>
         <link rel="stylesheet" type="text/css" href="css/main.css">
     </head>
     <body class="content content-mdx blanco">
@@ -40,10 +41,10 @@
                     Restablecer concurso
                 </button>
                 <br>
-                <img src="image/loading.gif" width="50" height="50" id="loading-s" style="display: none" /> 
+                <i class="fa fa-spinner fa-pulse fa-3x fa-fw" id="loading-s" style="display: none"></i> 
                 <br>
                 <h5>
-                    <a href="moderador"><u>Volver al inicio </u> </a>
+                    <a href="moderador" class="enlace"><u>Volver al inicio </u> </a>
                 </h5>
             </form>
         </section>
