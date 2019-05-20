@@ -131,7 +131,8 @@ input[type=number] {
     border: 2px solid rgb(158, 219, 180);
     background-color: white;
     font-family: 'monserrat';
-    color: rgb(140, 138, 130);
+    color: rgb(95, 94, 89);
+    font-size: 16px !important;
 }
 
 .table-geo input {
@@ -146,7 +147,7 @@ input[type=number] {
     border-radius: 10px;
     background-color: white;
     box-shadow: 5px 5px 10px rgb(114, 124, 170);
-    padding: 5px;
+    padding: 15px;
     color: rgb(140, 138, 130);
 }
 
@@ -246,7 +247,7 @@ svg#animated-paso {
     text-align: center;
     border-radius: 10px;
     box-shadow: 1px 1px 2px gray;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .enlace {

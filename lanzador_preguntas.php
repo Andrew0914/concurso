@@ -121,7 +121,7 @@
 					    <div class="modal-content">
 					    	<!-- Modal Header -->
 					    	<div class="modal-header">
-					        	<h4 class="modal-title">Puntajes preliminares</h4>
+					        	<h4 class="modal-title">Puntajes de la Ronda</h4>
 					       		<button type="button" class="close" data-dismiss="modal">&times;</button>
 					      	</div>
 						    <!-- Modal body -->
@@ -152,7 +152,7 @@
 								</div>
 								<br>
 								<button class="btn btn-lg btn-geo" onclick="mostrarResumen()">
-									Ver detalle de puntos
+									Puntuaciones
 								</button>
 								<br>
 								<!--PUNTAJES DETALLE PRELIMINARES -->
@@ -164,7 +164,7 @@
 												<th>Ronda</th>
 												<th>Categoria</th>
 												<th> Pregunta </th>
-												<th>Respuesta</th>
+												<th>Respuesta del concursante</th>
 												<th>Puntaje</th>
 												<th>Roba Puntos</th>
 											</tr>
@@ -177,9 +177,12 @@
 													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
 													echo "<td>" . $puntaje['RONDA'] . '</td>';
 													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
-													echo "<td><button class='btn' data-toggle='tooltip' data-placement='right' ";
-													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>";
-													echo $puntaje['PREGUNTA_POSICION'].'</button></td>';
+													echo "<td><button class='btn btn-info' data-toggle='tooltip' data-placement='right' ";
+													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>&nbsp;";
+													echo $puntaje['PREGUNTA_POSICION'].'</button>';
+													echo "<button class='btn btn-success ml-1' onclick='verRespuestaCorrecta(";
+													echo $puntaje['ID_PREGUNTA']. ",this)'>";
+													echo "<i class='fas fa-reply'></i> </button> </td>";
 
 													if($puntaje['INCISO'] != '' and $puntaje['INCISO'] != null){
 														echo "<td><b>".$puntaje['INCISO'].')&nbsp;</b>';
@@ -357,6 +360,22 @@
 				$(boton).attr("title",pregunta);
 				$(boton).tooltip('show');
 			}
+			function verRespuestaCorrecta(idPregunta, boton){
+			$.ajax({
+				type: "GET",
+				url: "class/Respuestas.php",
+				data: { "functionRespuesta" : "verCorrecta" , "ID_PREGUNTA" : idPregunta},
+				dataType: "json",
+				success: function (response) {
+					if(response.estado == 1){
+						$(boton).attr("title", "RESPUESTA CORRECTA: " + response.RESPUESTA);
+						$(boton).tooltip('show');
+					}
+				},error:function(error){
+					console.log(error);
+				}
+			});
+		}
 		</script>
 		<?php 
 			if ($todasHechas) {

@@ -208,7 +208,7 @@
 			$objConcurso = $objConcurso->getConcurso($concurso);
 			$rondas = new Rondas();
 			try{
-				$query = "SELECT * FROM (SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,
+				$query = "SELECT * FROM (SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.ID_PREGUNTA,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA,
 				(CASE 
 					WHEN tp.PASO_PREGUNTA = 0 THEN 'NO'
 					WHEN tp.PASO_PREGUNTA = 1 THEN CONCAT('Paso pregunta a ' , (SELECT CONCURSANTE FROM concursantes cp WHERE cp.ID_CONCURSANTE = tp.CONCURSANTE_PASO ))
@@ -235,7 +235,7 @@
 				$values[':ID_CONCURSO'] = $concurso;
 				$values[':ID_RONDA'] = $objConcurso['ID_RONDA'];
 				$query.= " UNION ALL ";
-				$query.= " SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA
+				$query.= " SELECT r.ID_RONDA,r.RONDA,c.CONCURSANTE,p.ID_PREGUNTA,p.PREGUNTA,w.INCISO,w.RESPUESTA,w.ES_IMAGEN,ca.CATEGORIA
 								,'ROBA PUNTOS' AS PASO_PREGUNTAS,tps.PUNTAJE,'0' as NIVEL_EMPATE,tps.PREGUNTA_POSICION,'0' PASO,'' CONCURSANTE_TOMO
 					FROM tablero_pasos tps
 					LEFT JOIN rondas r ON tps.ID_RONDA = r.ID_RONDA

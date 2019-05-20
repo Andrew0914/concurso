@@ -146,7 +146,8 @@
 			$master = new TableroMaster();
 			$pasos = new TableroPaso();
 			if($master_creado > 0){
-				$sentencia = "SELECT tp.*,c.CONCURSANTE FROM tablero_posiciones tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE  WHERE tp.ID_TABLERO_MASTER = ? GROUP BY c.ID_CONCURSANTE ORDER BY tp.POSICION";
+				$sentencia = "SELECT tp.*,c.CONCURSANTE FROM tablero_posiciones tp INNER JOIN concursantes c ON tp.ID_CONCURSANTE = c.ID_CONCURSANTE  
+							WHERE tp.ID_TABLERO_MASTER = ? GROUP BY c.ID_CONCURSANTE ORDER BY tp.POSICION";
 				return $this->response->success([
 						'master' => $master->getMaster($master_creado),
 						'posiciones' => $this->query($sentencia,['ID_TABLERO_MASTER'=>$master_creado]),
