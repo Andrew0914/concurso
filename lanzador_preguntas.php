@@ -223,10 +223,10 @@
 		    	<div class="modal-content blanco">
 		    		<div class="modal-header">
 		    			<div class="row" style="width:100%">
-		    				<div class="col-md-4 offset-md-8 text-right">
+		    				<div class="col-md-5 offset-md-7 text-right">
 								<div class="row">
 									<div class="col-10">
-										<h3 id="titulo_modal" class="modal-title monserrat-bold" >
+										<h3 id="titulo_modal" class="info-remark modal-title monserrat-bold" >
 											Leer pregunta
 										</h3>
 									</div>
