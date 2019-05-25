@@ -170,11 +170,11 @@
 			}
 
 			if($emptatados > 0){
-				return $this->response->success(['empatados' => $posiciones ] , 'Se genero empate');
+				return $this->response->success(['empatados' => $posiciones ] , 'Se generó empate');
 			}else{
-				return ['estado' => 2 , 'mensaje'=>'No se genero empate' , 'empatados' => $posiciones];
+				return ['estado' => 2 , 'mensaje'=>'No se generó empate' , 'empatados' => $posiciones];
 			}
-			return $this->response->fail('No se genero ningun empate');
+			return $this->response->fail('No se generó ningún empate');
 		}
 
 		public function esEmpateByConcurso($idConcurso){

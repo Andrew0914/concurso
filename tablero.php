@@ -182,7 +182,7 @@
 			<div class="modal-content blanco">
 				<div class="modal-header">
 					<h3 class="modal-title">Fin del concurso</h3>
-					<button class="btn" style="font-size: 24px" onclick="$('#mdl-fin-concurso').modal('hide')">&times;</button>
+					<button class="btn btn-danger" style="font-size: 24px" onclick="$('#mdl-fin-concurso').modal('hide')">&times;</button>
 				</div>
 				<div class="modal-body centrado">
 					<hr>
