@@ -320,12 +320,11 @@ function afterSend() {
                 $jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
                 $jq("#content-respuestas").html("");
             } else if (response.estado == 1) {
-                var mensaje = "<h4>Tu respuesta fue:";
+                var mensaje = "<h4 class='info-remark'>Tu respuesta fue: <br><span>" + response.puntaje.RESPUESTA;
+                mensaje += "</span> <br> en el segundo: <br><span>" + response.puntaje.TIEMPO + "</span></h4>";
                 if (response.puntaje.RESPUESTA_CORRECTA == 1) {
-                    mensaje += " CORRECTA </h4>";
                     mensaje += "<i class='fas fa-check-circle fa-2x correcta'></i>";
                 } else {
-                    mensaje += " INCORRECTA </h4>";
                     mensaje += "<i class='fas fa-times-circle fa-2x incorrecta'></i>";
                 }
                 $jq("#resultado-mi-pregunta").html(mensaje);

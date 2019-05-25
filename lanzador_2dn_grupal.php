@@ -261,12 +261,12 @@
 		    		<div class="modal-header">
 		    			<div class="row" style="width:100%">
 		    				<div class="col-md-6">
-		    					<h3 id="concursante" class="modal-title monserrat-bold" style="float: left;background: white">
+		    					<h3 id="concursante" class="info-remark modal-title monserrat-bold" style="float: left;background: white">
 						          	Equipo
 						        </h3>
 		    				</div>
 		    				<div class="col-md-6">
-		    					<h3 id="titulo_modal" class="modal-title monserrat-bold" style="float: right;">
+		    					<h3 id="titulo_modal" class="info-remark modal-title monserrat-bold" style="float: right;">
 						          	Leer pregunta
 						        </h3>
 		    				</div>

@@ -8,7 +8,7 @@ function leer(pregunta, idPregunta, puntaje, idGenerada) {
     $("#mdl-leer-pregunta").modal({ backdrop: 'static', keyboard: false });
     $("#mdl-leer-pregunta").css("padding", "1px");
     $("#p-pregunta").text(pregunta);
-    $("#titulo_modal").text(" Valor de la pregunta: " + puntaje);
+    $("#titulo_modal").html(" Valor de la pregunta: <span>" + puntaje + " puntos</span>");
     $("#ID_PREGUNTA").val(idPregunta);
     $("#ID_GENERADA").val(idGenerada);
 }

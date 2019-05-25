@@ -173,14 +173,25 @@
 		 */
 		public function miPuntajePregunta($concurso,$ronda,$concursante,$pregunta){
 			$where = "ID_CONCURSO = ?  AND ID_RONDA= ? AND ID_CONCURSANTE = ? AND PREGUNTA = ?  ";
+
 			$valores = ['ID_CONCURSO' => $concurso  , 
 						'ID_RONDA' => $ronda, 
 						'ID_CONCURSANTE' => $concursante,
 						'PREGUNTA' => $pregunta];
+			
 			try{
-				return $this->response->success(['puntaje' =>$this->get($where , $valores)[0] ], 'Puntaje obtenido de tu pregunta');
+				$puntaje = $this->get($where , $valores)[0];
+				$objRespuesta = new Respuestas();
+				$respuesta = $objRespuesta->find($puntaje['RESPUESTA']);
+				return $this->response->success(
+					['puntaje' => [
+						'TIEMPO' => $puntaje['TIEMPO'],
+						'RESPUESTA_CORRECTA' => $puntaje['RESPUESTA_CORRECTA'] , 
+						'RESPUESTA' => '('.$respuesta['INCISO'].')'.$respuesta['RESPUESTA']]
+					],
+					'Puntaje obtenido de tu pregunta');
 			}catch(Exception $ex){
-				return $this->response->fail('No se obtuvo tu puntaje :'. $ex->getMessage());
+				return $this->response->fail('No se obtuvo tu puntaje :'. $ex->getTraceAsString());
 			}
 		}
 
