@@ -283,7 +283,7 @@
 			$rondaClump = new RondaClump($concurso['ID_ETAPA']);
 
 			if(!$this->actualiza($concurso['ID_CONCURSO']
-			, ['ID_RONDA'=>$rondaClump->getPrimeraRonda()['ID_RONDA'],'NIVEL_EMPATE'=>0],"",null)){
+			, ['ID_RONDA'=>$rondaClump->getPrimerRonda()['ID_RONDA'],'NIVEL_EMPATE'=>0],"",null)){
 				return ['estado'=>0 , 'mensaje'=>'No se pudo restablecer la ronda inicial'];
 			}
 
