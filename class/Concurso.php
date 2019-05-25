@@ -179,14 +179,13 @@
 					$preguntasNecesarias = count($concursantes) * $ronda['TURNOS_PREGUNTA_CONCURSANTE'];
 					if(!$preguntasGeneradas->tieneTodasGeneradas($preguntasNecesarias,$idConcurso, $ronda['ID_RONDA'], $idCategoria))
 						return $this->response->fail('No hay preguntas suficientes para iniciar esta ronda');
-				}
-					
-				if($ronda['IS_DESEMPATE'] == 0 ){
-					if(!$preguntasGeneradas->tieneTodasGeneradas( $ronda['PREGUNTAS_POR_CATEGORIA']  ,$idConcurso, $ronda['ID_RONDA'], $idCategoria)){
-						return $this->response->fail('No hay preguntas suficientes para iniciar esta ronda');
+				}else{
+					if($ronda['IS_DESEMPATE'] == 0 ){
+						if(!$preguntasGeneradas->tieneTodasGeneradas( $ronda['PREGUNTAS_POR_CATEGORIA']  ,$idConcurso, $ronda['ID_RONDA'], $idCategoria)){
+							return $this->response->fail('No hay preguntas suficientes para iniciar esta ronda');
+						}
 					}
 				}
-				
 			}
 
 			$log = new RondasLog();
