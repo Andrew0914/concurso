@@ -251,7 +251,7 @@
 				dataType: "json",
 				success: function (response) {
 					if(response.estado == 1){
-						$(boton).attr("title", "RESPUESTA CORRECTA: " + response.RESPUESTA);
+						$(boton).attr("title", "RESPUESTA CORRECTA: (" + response.INCISO + ") "+ response.RESPUESTA);
 						$(boton).tooltip('show');
 					}
 				},error:function(error){

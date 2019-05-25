@@ -33,6 +33,7 @@
 		<link rel="shortcut icon" href="image/favicon.png">
 		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="css/libs/bootstrap-reboot.min.css">
+		<link rel="stylesheet" type="text/css" href="css/libs/fontawesome/css/all.css">
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 	</head>
 	<body class="content content-lg azul">
@@ -390,7 +391,7 @@
 				dataType: "json",
 				success: function (response) {
 					if(response.estado == 1){
-						$(boton).attr("title", "RESPUESTA CORRECTA: " + response.RESPUESTA);
+						$(boton).attr("title","RESPUESTA CORRECTA: (" + response.INCISO + ") "+ response.RESPUESTA);
 						$(boton).tooltip('show');
 					}
 				},error:function(error){
