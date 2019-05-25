@@ -193,16 +193,24 @@
 							$empatados = $empate['empatados'];
 							echo "<table class='table table-sm table-bordered table-geo'>";
 							echo "<thead>";
-							echo "<tr> <th> # </th>";
+							echo "<tr> <th> Posición </th>";
 							echo "<th> Concursante </th>";
 							echo "<th> Puntaje </th> </tr>";
 							echo "</thead>";
-							foreach ($empatados as $e) {
-								if($e['EMPATADO']){
+							foreach ($empatados as $empatado) {
+								if($empatado['EMPATADO']){
 									echo "<tr>";
-									echo "<td>". $e['ID_CONCURSANTE'] . "</td>";
-									echo "<td>". $e['CONCURSANTE'] . "</td>";
-									echo "<td>". $e['PUNTAJE_TOTAL'] . "</td>";
+									if($empatado['POSICION'] == 1){
+										echo "<td><img src='image/gold_medal.png' width='35' height='35'></td>";
+									}else if($empatado['POSICION']==2){
+										echo "<td><img src='image/silver_medal.png' width='35' height='35'></td>";
+									}else if($empatado['POSICION'] == 3){
+										echo "<td><img src='image/bronze_medal.png' width='35' height='35'></td>";
+									}else{
+										echo "<td>".$empatado['POSICION'] . "</td>";
+									}
+									echo "<td>". $empatado['CONCURSANTE'] . "</td>";
+									echo "<td>". $empatado['PUNTAJE_TOTAL'] . "</td>";
 									echo "</tr>";
 								}
 								
