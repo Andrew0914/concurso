@@ -69,5 +69,5 @@ function initTimerPerSecond(segundos, functionPerSecond, finishFunction) {
 
 
 function getTimePass() {
-    return timePass;
+    return timePass + 1;
 }
