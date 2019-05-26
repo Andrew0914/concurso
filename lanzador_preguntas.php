@@ -160,13 +160,13 @@
 									<table class="table table-bordered table-geo" id="tbl-puntaje" style="width: 100%;">
 										<thead>
 											<tr>
-												<th>Concursante</th>
+												<th><i class="fa fa-user"></i></th>
 												<th>Ronda</th>
-												<th>Categoria</th>
-												<th> Pregunta </th>
-												<th>Respuesta del concursante</th>
+												<th><i class="fas fa-question-circle"></i></th>
+												<th>Respondió</th>
 												<th>Puntaje</th>
 												<th>Roba Puntos</th>
+												<th><i class="fa fa-clock"></i></th>
 											</tr>
 										</thead>
 										<tbody>
@@ -176,7 +176,6 @@
 													echo "<tr>";
 													echo "<td>" . $puntaje['CONCURSANTE'] . '</td>';
 													echo "<td>" . $puntaje['RONDA'] . '</td>';
-													echo "<td>" . $puntaje['CATEGORIA'] .'</td>';
 													echo "<td><button class='btn btn-info' data-toggle='tooltip' data-placement='right' ";
 													echo " onclick='verPregunta(\"".addslashes($puntaje['PREGUNTA'])."\",this)'><i class='fas fa-info-circle'></i>&nbsp;";
 													echo $puntaje['PREGUNTA_POSICION'].'</button>';
@@ -197,6 +196,7 @@
 													
 													echo "<td>".$puntaje['PUNTAJE'].'</td>';
 													echo "<td>".$puntaje['PASO_PREGUNTAS'].'</td>';
+													echo "<td>" . $puntaje['TIEMPO'] . '</td>';
 													echo "</tr>";	
 												}
 											?>

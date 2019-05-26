@@ -128,11 +128,16 @@ input[type=number] {
 }
 
 .table-geo {
-    border: 2px solid rgb(158, 219, 180);
+    border: 2px solid rgb(120, 161, 135);
     background-color: white;
     font-family: 'monserrat';
     color: rgb(95, 94, 89);
     font-size: 16px !important;
+}
+
+.table-geo td,
+.table-geo th {
+    border: 1px solid rgb(120, 161, 135) !important;
 }
 
 .table-geo input {
