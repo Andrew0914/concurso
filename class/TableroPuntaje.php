@@ -32,15 +32,18 @@
 			unset($data['functionTablero']);
 			unset($data['final']);
 			$data = ['ID_CONCURSO'=>$data['ID_CONCURSO'],
-							'ID_RONDA'=>$data['ID_RONDA'],
-							'ID_CONCURSANTE'=>$data['ID_CONCURSANTE'],
-							'PREGUNTA_POSICION'=>$data['PREGUNTA_POSICION'],
-							'PREGUNTA'=>$data['PREGUNTA'],
-							'NIVEL_EMPATE'=>$data['NIVEL_EMPATE']];
-			if(!$this->existeEnTablero($data)){
-				if($final == 1){
-					$data['RESPUESTA_CORRECTA'] = 0;
-				}
+					'ID_RONDA'=>$data['ID_RONDA'],
+					'ID_CONCURSANTE'=>$data['ID_CONCURSANTE'],
+					'PREGUNTA_POSICION'=>$data['PREGUNTA_POSICION'],
+					'PREGUNTA'=>$data['PREGUNTA'],
+					'PRE_RESPUESTA' => $data['PRE_RESPUESTA'],
+					'TIEMPO' =>$data['TIEMPO'], 
+					'NIVEL_EMPATE'=>$data['NIVEL_EMPATE']];
+			if($final == 1){
+				$data['RESPUESTA_CORRECTA'] = 0;
+			}
+			$puntajeExistente = $this->existeEnTablero($data);
+			if(count($puntajeExistente) <= 0){
 				if($this->save($data)){
 					if($final == 1){
 						$data['RESPUESTA'] = null;
@@ -50,6 +53,15 @@
 					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
 				}
 				return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
+			}else{
+				if($data['PRE_RESPUESTA'] != $puntajeExistente['PRE_RESPUESTA']){
+					if( !$this->update(
+						$puntajeExistente[0]['ID_TABLERO_PUNTAJE'],
+						['TIEMPO' => $data['TIEMPO'] ] ) ){
+							return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
+					}
+					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
+				}
 			}
 			return ['estado' => 2, 'mensaje'=>'Ya existe la pre respuesta almacenada'];	
 		}
@@ -60,8 +72,10 @@
 		 * @return [type]               [description]
 		 */
 		public function existeEnTablero($preRespuesta){
+			unset($preRespuesta['TIEMPO']);
+			unset($preRespuesta['PRE_RESPUESTA']);
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA = ? AND NIVEL_EMPATE = ?";
-			return count($this->get($where, $preRespuesta)) > 0;
+			return $this->get($where, $preRespuesta);
 		}
 
 		/**
@@ -79,6 +93,7 @@
 			$puntaje = ['PUNTAJE'=>0];
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? ";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda , 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante];
+			
 			$regla = new Reglas();
 			$reglas = $regla->getReglasByRonda($ronda);
 			$objPregunta = new Preguntas();
@@ -92,6 +107,12 @@
 			}else if($correcta == 0 AND $reglas[0]['RESTA_PASO'] ==0 AND $reglas[0]['RESTA_ERROR'] == 0){
 				// regla para ronda comun sin negativos
 				$puntaje['PUNTAJE'] = 0;
+			}else if($correcta == 1 AND $ronda != 5){
+				$rowPuntaje = $this->get($where, $whereValues)[0];
+				if($rowPuntaje['TIEMPO'] < 10 ){
+					$puntosQuitar = 10 - $rowPuntaje['TIEMPO'];
+					$puntaje['PUNTAJE'] -= $puntosQuitar;
+				}
 			}
 			return $this->update(0, $puntaje, $where, $whereValues);
 		}
@@ -134,18 +155,16 @@
 		 * @param  integer $paso        
 		 * @return array               
 		 */
-		public function saveRespuesta($concursante,$concurso,$ronda,$pregunta,$respuesta,$nivel_empate=0,$paso = 0){
+		public function saveRespuesta($concursante,$concurso,$ronda,$pregunta,$respuesta,$tiempo, $nivel_empate=0,$paso = 0){
 			$objRespuesta = new Respuestas();
 			$valores = ['RESPUESTA' => $respuesta];
-			if($objRespuesta->esCorrecta($pregunta, $respuesta)){
-				$valores['RESPUESTA_CORRECTA'] = 1;
-			}else{
-				$valores['RESPUESTA_CORRECTA'] = 0;
-			}
+			$valores['RESPUESTA_CORRECTA'] = $objRespuesta->esCorrecta($pregunta, $respuesta) ? 1 : 0;
+			
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? AND NIVEL_EMPATE = ? ";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda 
 							, 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante
 							,'NIVEL_EMPATE'=>$nivel_empate];
+
 			if($this->update(0,$valores,$where,$whereValues)){
 				if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$valores['RESPUESTA_CORRECTA'],$paso)){
 					return $this->response->success([] , 'Respuesta almacenada con exito');
@@ -711,7 +730,7 @@
 				echo json_encode($tablero->preRespuesta($_POST));
 				break;
 			case 'saveRespuesta':
-				echo json_encode($tablero->saveRespuesta($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['NIVEL_EMPATE']));
+				echo json_encode($tablero->saveRespuesta($_POST['ID_CONCURSANTE'],$_POST['ID_CONCURSO'],$_POST['ID_RONDA'],$_POST['ID_PREGUNTA'],$_POST['ID_RESPUESTA'],$_POST['TIEMPO'],$_POST['NIVEL_EMPATE']));
 				break;
 			case 'tomoPaso':
 					echo json_encode($tablero->tomoPaso($_POST['ID_CONCURSO'],$_POST['ID_RONDA'],

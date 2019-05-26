@@ -1,5 +1,9 @@
 // LISTENER PARA ESCUCHAR EL CAMBIO DE PREGUNTA
 var lastLanzada = false;
+var SIN_RESPUESTA = 1;
+var CON_RESPUESTA = 0;
+var ANSWER_SENT = false;
+
 var Comet = Class.create();
 Comet.prototype = {
     lanzada: 0,
@@ -22,7 +26,7 @@ Comet.prototype = {
             onSuccess: function(transport) {
                 var response = transport.responseText.evalJSON();
                 if (response.tiempo_muerto != 1) {
-                    this.comet.lanzada = response['lanzada'];
+                    this.comet.lanzada = response.lanzada;
                     this.comet.handleResponse(response);
                     this.comet.noerror = true;
                 }
@@ -34,14 +38,14 @@ Comet.prototype = {
                 if (response.tiempo_muerto != 1) {
                     if (response.todas_lanzadas != 1) {
                         if (!this.comet.noerror) {
-                            setTimeout(function() { comet.connect() }, 1000);
+                            setTimeout(function() { comet.connect(); }, 1000);
                         } else {
                             this.comet.connect();
                             this.comet.noerror = false;
                         }
                     }
                 } else {
-                    setTimeout(function() { comet.connect() }, 1500);
+                    setTimeout(function() { comet.connect(); }, 1500);
                 }
 
                 // lmpiamos variables
@@ -67,7 +71,7 @@ Comet.prototype = {
             lastLanzada = true;
         }
     }
-}
+};
 
 var comet = new Comet();
 comet.connect();
@@ -133,22 +137,36 @@ function eligeInciso(boton) {
     // checamos el radio oculto
     $jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked', true);
     if ($jq($jq(boton).siblings('input[type=radio]')[0]).prop('checked')) {
-        sendPreRespuestas(0);
+        sendPreRespuestas(CON_RESPUESTA);
     } else {
         eligeInciso(boton);
     }
+}
+
+function getRespuestaSelccionada(pregunta) {
+    var respuesta = '';
+    var respuestas = document.getElementsByName("mRespuesta-" + pregunta);
+    for (var i = 0, length = respuestas.length; i < length; i++) {
+        if (respuestas[i].checked) {
+            respuesta = respuestas[i].value;
+            i = null;
+            break;
+        }
+    }
+    return respuesta;
 }
 
 /**
  * Rregistra la accion previa a mandar la respuesta , para validar que todos hayan contestado
  * @param  integer final 
  */
-function sendPreRespuestas(final) {
+function sendPreRespuestas(tipoRespuesta) {
     var posicion = $jq("#PREGUNTA_POSICION").val();
     var concurso = $jq("#ID_CONCURSO").val();
     var ronda = $jq("#ID_RONDA").val();
     var concursante = $jq("#ID_CONCURSANTE").val();
     var pregunta = $jq("#ID_PREGUNTA").val();
+
     var ajaxTask = $jq.ajax({
         type: "POST",
         url: "class/TableroPuntaje.php",
@@ -159,13 +177,15 @@ function sendPreRespuestas(final) {
             'ID_CONCURSANTE': concursante,
             'PREGUNTA_POSICION': posicion,
             'PREGUNTA': pregunta,
-            'final': final,
+            'PRE_RESPUESTA': getRespuestaSelccionada(pregunta),
+            'TIEMPO': getTimePass(),
+            'final': tipoRespuesta,
             'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
         },
         dataType: "json",
         success: function(response) {
             if (response.estado == 0) {
-                sendPreRespuestas(final);
+                sendPreRespuestas(tipoRespuesta);
             } else {
                 //console.log(response);
             }
@@ -232,21 +252,12 @@ function sendRespuesta() {
     var ronda = $jq("#ID_RONDA").val();
     var pregunta = $jq("#ID_PREGUNTA").val();
     var concursante = $jq("#ID_CONCURSANTE").val();
-    var respuestas = document.getElementsByName("mRespuesta-" + pregunta);
-    var respuesta = '';
-
-    for (var i = 0, length = respuestas.length; i < length; i++) {
-        if (respuestas[i].checked) {
-            respuesta = respuestas[i].value;
-            i = null;
-            break;
-        }
-    }
+    var respuesta = getRespuestaSelccionada(pregunta);
     // SI NO EXISTE OPCION SELECCIONADA
     if (respuesta == '') {
-        // solo mandamso la pre respuesta (con la respuesta nula)
-        sendPreRespuestas(1);
-        afterSend();
+        // solo mandamos la pre respuesta (con la respuesta nula)
+        sendPreRespuestas(SIN_RESPUESTA);
+        afterSendAnswer();
     } else {
         // MANDAMOS LA RESPUESTA SELECCIONADA
         var ajaxTask = $jq.ajax({
@@ -260,15 +271,16 @@ function sendRespuesta() {
                 'ID_CONCURSANTE': concursante,
                 'ID_PREGUNTA': pregunta,
                 'ID_RESPUESTA': respuesta,
+                'TIEMPO': getTimePass(),
                 'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
             },
             success: function(data) {
                 if (data.estado == 1) {
-                    afterSend();
+                    afterSendAnswer();
                     stopExecPerSecond = true;
                     notFinish = true;
                 } else {
-                    console.log(data.mensaje)
+                    console.log(data.mensaje);
                 }
             },
             error: function(a, b, c) {
@@ -293,7 +305,7 @@ function sendRespuesta() {
 /**
  * Resetea la pantalla para esperar y muestra el resutlado de la ultima pregunta
  */
-function afterSend() {
+function afterSendAnswer() {
     var concurso = $jq("#ID_CONCURSO").val();
     var ronda = $jq("#ID_RONDA").val();
     var concursante = $jq("#ID_CONCURSANTE").val();
@@ -332,6 +344,7 @@ function afterSend() {
                 $jq("#animated text").text(0);
                 $jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
                 $jq("#content-respuestas").html("");
+                mensaje = null;
             } else {
                 $jq("#resultado-mi-pregunta").html(response.mensaje);
                 $jq("#cronometro-content").css("display", "none");
@@ -339,8 +352,6 @@ function afterSend() {
                 $jq("#pregunta p").text("Termino la pregunta, por favor espera a que lance la siguiente el moderador");
                 $jq("#content-respuestas").html("");
             }
-
-            mensaje = null;
         },
         error: function(error) {
             $jq("#resultado-mi-pregunta").html("No pudimos mostrarte el marcador de tu pregunta :( ");
