@@ -152,9 +152,10 @@
 							, 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante
 							,'NIVEL_EMPATE'=>$nivel_empate];
 			$respuestaPrevia = $this->get($where , $whereValues)[0];
-			if($respuestaPrevia['RESPUESTA'] != $respuesta){
+			if($respuestaPrevia['RESPUESTA'] != null AND $respuestaPrevia['RESPUESTA'] != $respuesta){
 				$valores['TIEMPO'] = $tiempo;
 			}
+			
 			if($this->update(0,$valores,$where,$whereValues)){
 				if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$valores['RESPUESTA_CORRECTA'],$paso)){
 					return $this->response->success([] , 'Respuesta almacenada con exito');

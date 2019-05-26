@@ -2,6 +2,7 @@
 var lastLanzada = false;
 var SIN_RESPUESTA = 1;
 var CON_RESPUESTA = 0;
+var ANSWER_SENT = false;
 
 var Comet = Class.create();
 Comet.prototype = {
@@ -115,7 +116,7 @@ function showPregunta(response) {
         todosContestaron();
     };
     var fnTermino = function() {
-        sendRespuesta();
+        sendRespuesta('var fnTermino = function()');
     };
     cronometro(segundos, fnSegundo, fnTermino);
 
@@ -212,7 +213,7 @@ function todosContestaron() {
             if (response.estado == 1) {
                 stopExecPerSecond = true;
                 notFinish = true;
-                sendRespuesta();
+                sendRespuesta('todosContestaron');
             }
         },
         error: function(error) {
@@ -231,7 +232,7 @@ function todosContestaron() {
 /**
  * Manda la respuesta final del participante
  */
-function sendRespuesta() {
+function sendRespuesta(log) {
     var concurso = $jq("#ID_CONCURSO").val();
     var ronda = $jq("#ID_RONDA").val();
     var pregunta = $jq("#ID_PREGUNTA").val();
@@ -265,7 +266,8 @@ function sendRespuesta() {
                 'ID_PREGUNTA': pregunta,
                 'ID_RESPUESTA': respuesta,
                 'TIEMPO': getTimePass(),
-                'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
+                'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value,
+                'log': log
             },
             success: function(data) {
                 if (data.estado == 1) {
