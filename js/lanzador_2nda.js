@@ -49,7 +49,7 @@ function lanzarPregunta(segundos, boton) {
         success: function(response) {
             if (response.estado == 1) {
                 $(boton).hide(300);
-                $("#loading").show(300)
+                $("#loading").show(300);
                 var respuestas = response.respuestas;
                 var contenido = "<tr>";
                 for (var r = 0; r < respuestas.length; r++) {
@@ -157,9 +157,9 @@ function contestoOpaso() {
                 clearInterval(timerCronometro);
                 ocultarCronometro();
                 stopExecPerSecond = true;
-                if (confirm(response.mensaje + response.concursante['CONCURSANTE'] + " ?")) {
+                if (confirm(response.mensaje + response.concursante.CONCURSANTE + " ?")) {
                     $("#loading").hide(300);
-                    tomoPaso(response.concursante['ID_CONCURSANTE']);
+                    tomoPaso(response.concursante.ID_CONCURSANTE);
                 } else {
                     $("#loading").hide(300);
                     $("#btn-siguiente").show(300);
@@ -290,7 +290,7 @@ function closeModal() {
     $("#ID_PREGUNTA").val('');
     $("#ID_GENERADA").val('');
     $("#tbl-generadas tbody").html('');
-    $("#tbl-generadas tbody").html('')
+    $("#tbl-generadas tbody").html('');
     $("#tbl-generadas").hide();
     $("#btn-siguiente").hide();
     $("#btn-lanzar").show();
@@ -336,7 +336,7 @@ function siguienteRonda() {
             categoria = null;
             rondaActual = null;
         }
-    })
+    });
 }
 
 function mostrarResumen() {

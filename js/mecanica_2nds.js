@@ -126,11 +126,11 @@ function guardaRespuestaAsignada(paso) {
                 notFinish = true;
                 afterSend(false);
             } else {
-                console.log(data.mensaje)
+                console.log(data.mensaje);
             }
         },
         error: function(error) {
-            console.log(error)
+            console.log(error);
         },
         complete: function() {
             ajaxTask = null;
@@ -257,11 +257,11 @@ function guardarRespuestaPaso() {
                 notFinish1 = true;
                 afterSendPaso();
             } else {
-                console.log(data.mensaje)
+                console.log(data.mensaje);
             }
         },
         error: function(error) {
-            console.log(error)
+            console.log(error);
         },
         complete: function() {
             ajaxTask = null;
@@ -315,6 +315,7 @@ function afterSend(esPaso) {
                 $("#btn-obtener-pr").show(300);
                 $("#btn-obtener-pr-paso").show(300);
                 $("#btn-paso").hide(300);
+                mensaje = null;
             } else {
                 alert(response.mensaje);
             }
@@ -323,7 +324,7 @@ function afterSend(esPaso) {
                 $("#btn-terminar").show(300);
             }
 
-            mensaje = null;
+
         },
         error: function(error) {
             alert("No pudimos mostrarte el resultado de tu pregunta");
@@ -435,6 +436,7 @@ function afterSendPaso() {
                 $("#btn-paso").hide(300);
                 //cerramos el modal de robapuntos
                 $('#mdl-pr-paso').modal('hide');
+                mensaje = null;
             } else {
                 alert(response.mensaje);
             }
@@ -443,8 +445,6 @@ function afterSendPaso() {
                 $("#btn-obtener-pr").hide(300);
                 $("#btn-terminar").show(300);
             }
-
-            mensaje = null;
         },
         error: function(error) {
             alert("No pudimos mostrate el resultado de tu pregunta");
