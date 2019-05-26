@@ -206,7 +206,7 @@
 		 	}else if($id > 0 AND $whereClause != null){
 		 		$query .= ' WHERE '.$this->id_name.'='.$id.' AND ' . $whereClause;
 		 	}else{
-		 		die(json_encode(['estado'=>0,'mensaje'=>'Delete reqiere al menos una condicion para borrar , como el ID del row o una clausala where']));
+		 		die(json_encode(['estado'=>0,'mensaje'=>'UPDATE reqiere al menos una condicion para borrar , como el ID del row o una clausala where']));
 		 	}
 
 		 	$statement = $this->connection->prepare($query);

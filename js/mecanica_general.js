@@ -116,7 +116,7 @@ function showPregunta(response) {
         todosContestaron();
     };
     var fnTermino = function() {
-        sendRespuesta('var fnTermino = function()');
+        sendRespuesta();
     };
     cronometro(segundos, fnSegundo, fnTermino);
 
@@ -143,6 +143,19 @@ function eligeInciso(boton) {
     }
 }
 
+function getRespuestaSelccionada(pregunta) {
+    var respuesta = '';
+    var respuestas = document.getElementsByName("mRespuesta-" + pregunta);
+    for (var i = 0, length = respuestas.length; i < length; i++) {
+        if (respuestas[i].checked) {
+            respuesta = respuestas[i].value;
+            i = null;
+            break;
+        }
+    }
+    return respuesta;
+}
+
 /**
  * Rregistra la accion previa a mandar la respuesta , para validar que todos hayan contestado
  * @param  integer final 
@@ -153,6 +166,7 @@ function sendPreRespuestas(tipoRespuesta) {
     var ronda = $jq("#ID_RONDA").val();
     var concursante = $jq("#ID_CONCURSANTE").val();
     var pregunta = $jq("#ID_PREGUNTA").val();
+
     var ajaxTask = $jq.ajax({
         type: "POST",
         url: "class/TableroPuntaje.php",
@@ -163,6 +177,7 @@ function sendPreRespuestas(tipoRespuesta) {
             'ID_CONCURSANTE': concursante,
             'PREGUNTA_POSICION': posicion,
             'PREGUNTA': pregunta,
+            'PRE_RESPUESTA': getRespuestaSelccionada(pregunta),
             'TIEMPO': getTimePass(),
             'final': tipoRespuesta,
             'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
@@ -213,7 +228,7 @@ function todosContestaron() {
             if (response.estado == 1) {
                 stopExecPerSecond = true;
                 notFinish = true;
-                sendRespuesta('todosContestaron');
+                sendRespuesta();
             }
         },
         error: function(error) {
@@ -232,21 +247,12 @@ function todosContestaron() {
 /**
  * Manda la respuesta final del participante
  */
-function sendRespuesta(log) {
+function sendRespuesta() {
     var concurso = $jq("#ID_CONCURSO").val();
     var ronda = $jq("#ID_RONDA").val();
     var pregunta = $jq("#ID_PREGUNTA").val();
     var concursante = $jq("#ID_CONCURSANTE").val();
-    var respuestas = document.getElementsByName("mRespuesta-" + pregunta);
-    var respuesta = '';
-
-    for (var i = 0, length = respuestas.length; i < length; i++) {
-        if (respuestas[i].checked) {
-            respuesta = respuestas[i].value;
-            i = null;
-            break;
-        }
-    }
+    var respuesta = getRespuestaSelccionada(pregunta);
     // SI NO EXISTE OPCION SELECCIONADA
     if (respuesta == '') {
         // solo mandamos la pre respuesta (con la respuesta nula)
@@ -266,8 +272,7 @@ function sendRespuesta(log) {
                 'ID_PREGUNTA': pregunta,
                 'ID_RESPUESTA': respuesta,
                 'TIEMPO': getTimePass(),
-                'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value,
-                'log': log
+                'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
             },
             success: function(data) {
                 if (data.estado == 1) {

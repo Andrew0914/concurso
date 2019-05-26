@@ -36,12 +36,14 @@
 					'ID_CONCURSANTE'=>$data['ID_CONCURSANTE'],
 					'PREGUNTA_POSICION'=>$data['PREGUNTA_POSICION'],
 					'PREGUNTA'=>$data['PREGUNTA'],
+					'PRE_RESPUESTA' => $data['PRE_RESPUESTA'],
 					'TIEMPO' =>$data['TIEMPO'], 
 					'NIVEL_EMPATE'=>$data['NIVEL_EMPATE']];
-			if(!$this->existeEnTablero($data)){
-				if($final == 1){
-					$data['RESPUESTA_CORRECTA'] = 0;
-				}
+			if($final == 1){
+				$data['RESPUESTA_CORRECTA'] = 0;
+			}
+			$puntajeExistente = $this->existeEnTablero($data);
+			if(count($puntajeExistente) <= 0){
 				if($this->save($data)){
 					if($final == 1){
 						$data['RESPUESTA'] = null;
@@ -51,6 +53,15 @@
 					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
 				}
 				return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
+			}else{
+				if($data['PRE_RESPUESTA'] != $puntajeExistente['PRE_RESPUESTA']){
+					if( !$this->update(
+						$puntajeExistente[0]['ID_TABLERO_PUNTAJE'],
+						['TIEMPO' => $data['TIEMPO'] ] ) ){
+							return ['estado' => 0, 'mensaje'=>'No se almaceno la pre respuesta'];
+					}
+					return ['estado' => 1, 'mensaje'=>'Pre respuesta almacenada con exito'];
+				}
 			}
 			return ['estado' => 2, 'mensaje'=>'Ya existe la pre respuesta almacenada'];	
 		}
@@ -62,8 +73,9 @@
 		 */
 		public function existeEnTablero($preRespuesta){
 			unset($preRespuesta['TIEMPO']);
+			unset($preRespuesta['PRE_RESPUESTA']);
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND ID_CONCURSANTE = ? AND PREGUNTA_POSICION = ? AND PREGUNTA = ? AND NIVEL_EMPATE = ?";
-			return count($this->get($where, $preRespuesta)) > 0;
+			return $this->get($where, $preRespuesta);
 		}
 
 		/**
@@ -147,15 +159,12 @@
 			$objRespuesta = new Respuestas();
 			$valores = ['RESPUESTA' => $respuesta];
 			$valores['RESPUESTA_CORRECTA'] = $objRespuesta->esCorrecta($pregunta, $respuesta) ? 1 : 0;
+			
 			$where = "ID_CONCURSO = ? AND ID_RONDA = ? AND PREGUNTA = ? AND ID_CONCURSANTE = ? AND NIVEL_EMPATE = ? ";
 			$whereValues = ['ID_CONCURSO'=>$concurso , 'ID_RONDA' => $ronda 
 							, 'PREGUNTA'=> $pregunta, 'ID_CONCURSANTE' => $concursante
 							,'NIVEL_EMPATE'=>$nivel_empate];
-			$respuestaPrevia = $this->get($where , $whereValues)[0];
-			if($respuestaPrevia['RESPUESTA'] != null AND $respuestaPrevia['RESPUESTA'] != $respuesta){
-				$valores['TIEMPO'] = $tiempo;
-			}
-			
+
 			if($this->update(0,$valores,$where,$whereValues)){
 				if($this->generaPuntaje($concursante, $concurso, $ronda, $pregunta, $respuesta,$valores['RESPUESTA_CORRECTA'],$paso)){
 					return $this->response->success([] , 'Respuesta almacenada con exito');
