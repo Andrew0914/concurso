@@ -44,6 +44,13 @@
 			return $this->query($sentencia,$valores,true)[0];
 		}
 
+		public function getPrevio($concurso, $ultimoMaster){
+			$sentencia = "SELECT * FROM tablero_master WHERE ID_CONCURSO = ? AND ID_TABLERO_MASTER != ? ORDER BY ID_TABLERO_MASTER DESC LIMIT 1";
+			$valores = ['ID_CONCURSO'=> $concurso , 'ID_TABLERO_MASTER' => $ultimoMaster];
+			return $this->query($sentencia,$valores,true)[0];
+		}
+
+
 		public function eliminar($id=0,$where="",$whereValues = []){
 			return $this->delete($id,$where,$whereValues);
 		}
