@@ -51,14 +51,20 @@
 		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
 		}
 
-		private function getMejoresOnTableroMaster($concurso,$es_empate){
+		private function getMejoresGenerales($concurso,$es_empate){
 			$puntaje = new TableroPuntaje();
 			$mejores = $puntaje->getMejoresPuntajes($concurso,$es_empate)['mejores'];
 			$objConcurso = new Concurso();
 			$objConcurso = $objConcurso->getConcurso($concurso);
 
 			// si es grupal contamos las puntuacioens del paso para medir las posiciones
-			if($objConcurso['ID_ETAPA'] == 2){
+			$mejores = $this->agregarPuntajesRobaPuntos($concurso , $objConcurso['ID_ETAPA'] , $mejores);
+
+			return $mejores;
+		}
+
+		private function agregarPuntajesRobaPuntos($concurso , $etapa , $mejores){
+			if($etapa == 2){
 				$pasos = new TableroPaso();
 				$mejoresPaso = $pasos->getMejores($concurso)['mejores'];
 				for($x = 0 ; $x<count($mejores) ; $x++) {
@@ -75,22 +81,10 @@
 					$mejores[$i]['lugar'] = $i+1;
 				}
 			}
-			return $mejores;
 		}
 
-		/**
-		 * Genera y almacena las posiciones de los puntajes
-		 * @param  array $mejores  
-		 * @param  integer $concurso 
-		 * @return boolean           
-		 */
-		public function generaPosiciones($concurso,$es_empate = false){
-			$master = new TableroMaster();
-			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
-
-			if($id_master <= 0) return $this->response->fail('No se pudo generar el tablero maestro');
-
-			$mejores = $this->getMejoresOnTableroMaster($concurso, $es_empate);
+		private function guardaPosicionesGenerales($concurso, $es_empate , $id_master){
+			$mejores = $this->getMejoresGenerales($concurso, $es_empate);
 
 			// almacenamos las posiciones brutas
 			foreach ($mejores as $mejor) {
@@ -100,18 +94,23 @@
 							,'ID_TABLERO_MASTER' => $id_master
 							,'EMPATADO' => 0 ];
 
-				if(!$this->guardar($posicion)) return $this->fail('No se alamacenaron las posiciones correctamente');
+				if(!$this->guardar($posicion)) return false;
 			}
+			return true;
+		}
 
+		private function calcularEmpates($id_master){
 			// calculamos los empates
 			$posiciones = $this->obtenerPosicionesActuales($id_master);
 			foreach ($posiciones as $p) {
 				foreach ($posiciones as $ps) {
+
 					if($p['ID_CONCURSANTE'] != $ps['ID_CONCURSANTE'] 
 						AND $p['PUNTAJE_TOTAL'] == $ps['PUNTAJE_TOTAL']
 						AND $p['POSICION'] <= 3){
+
 						if(!($this->update($ps['ID_TABLERO_POSICION'],['EMPATADO'=>1]) 
-						AND $this->update($p['ID_TABLERO_POSICION'] , ['EMPATADO'=>1]))) return $this->response->fail('No se calcularon los empates');
+							AND $this->update($p['ID_TABLERO_POSICION'] , ['EMPATADO'=>1]))) return $this->response->fail('No se calcularon los empates');
 
 						// cambiamos posicion (solo vivusal para las medallas)
 						if(!$this->cambioMiposicion($ps['ID_CONCURSANTE'],$ps['ID_TABLERO_MASTER'])){
@@ -120,8 +119,27 @@
 						}
 
 					}
+					
 				}
 			}
+		}
+
+		/**
+		 * Genera y almacena las posiciones de los puntajes
+		 * @param  integer $concurso 
+		 * @param  boolean $es_empate 
+		 * @return boolean           
+		 */
+		public function generaPosiciones($concurso,$es_empate = false){
+			$master = new TableroMaster();
+			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
+
+			if($id_master <= 0) return $this->response->fail('No se pudo generar el tablero maestro');
+
+			if(!$this->guardaPosicionesGenerales($concurso , $es_empate , $id_master))
+				return $this->fail('No se alamacenaron las posiciones correctamente');
+
+			$this->calcularEmpates($id_master);
 
 			if( !$master->actualiza($id_master ,['POSICIONES_GENERADAS' => 1]) ) return $this->response->fail('No se pudo establecer la bandera de posiciones generadas');
 
