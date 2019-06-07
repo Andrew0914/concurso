@@ -146,7 +146,6 @@
 
 						// cambiamos posicion (solo vivusal para las medallas)
 						if(!$this->cambioMiposicion($ps['ID_CONCURSANTE'],$ps['ID_TABLERO_MASTER'])){
-							echo  "CONCURSANTE: " . $ps['ID_CONCURSANTE'] . " Posicion: " . $lugar_a_dar . "<-calculo empate <br>";
 							$this->update($ps['ID_TABLERO_POSICION'] , ['POSICION'=>$lugar_a_dar , 'POSICION_CAMBIO'=>1]);
 							$this->update($p['ID_TABLERO_POSICION'] , ['POSICION_CAMBIO'=>1]);
 						}
@@ -210,8 +209,6 @@
 										['POSICION' => $posicioAsignada['POSICION'] ] ) ){
 							
 							return $this->response->fail('No se pudo establecer la reasignacion de posiciones');
-					}else{
-						echo  "CONCURSANTE: " . $posicioAsignada['ID_CONCURSANTE'] . " Posicion: " . $posicioAsignada['POSICION'] . "<-reasignacion no empatados <br>";
 					}
 						
 				}
