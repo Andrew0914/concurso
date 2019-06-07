@@ -185,7 +185,7 @@
 
 			// si ya fue validado
 			$tabPosiciones = new TableroPosiciones();
-			$posicionesActuales = $tabPosiciones->obtenerPosicionesActuales($ultimoTableroMaster['ID_TABLERO_MASTER']);
+			$posicionesActuales = $tabPosiciones->obtenerPosicionesTablero($ultimoTableroMaster['ID_TABLERO_MASTER']);
 			$es_emaptado = $tabPosiciones->empateEnPosicion($idConcursante , $posicionesActuales);
 
 			if($es_emaptado == 1){

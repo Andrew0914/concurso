@@ -46,7 +46,7 @@
 				$objSheet->setTitle('Tablero '.$tableroMaster['ID_TABLERO_MASTER']);
 				$objSheet->getStyle('A1:D1')->getFont()->setBold(true)->setSize(12);
 				$this->setEncabezados($objSheet , ['CONCURSANTE','POSICION','PUNTAJE','EMPATADO']);
-				$posiciones = $objTableroPosiciones->obtenerPosicionesActuales($tableroMaster['ID_TABLERO_MASTER']);
+				$posiciones = $objTableroPosiciones->obtenerPosicionesTablero($tableroMaster['ID_TABLERO_MASTER']);
 				$fila = 2;
 				foreach ($posiciones as $posicion) {
 					$this->setValues($objSheet , 
