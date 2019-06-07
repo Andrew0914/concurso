@@ -418,8 +418,7 @@ function afterSendPaso() {
         success: function(response) {
             console.log(response);
             if (response.estado == 1) {
-                var mensaje = "<h4 class='info-remark'>Tu respuesta fue: <br><span>" + response.puntaje.RESPUESTA;
-                mensaje += "</span> <br> en el segundo: <br><span>" + response.puntaje.TIEMPO + "</span></h4>";
+                var mensaje = "<h4 class='info-remark'>Tu respuesta fue: <br><span>" + response.puntaje.RESPUESTA + "</span></h4>";
                 if (response.puntaje.RESPUESTA_CORRECTA == 1) {
                     mensaje += "<i class='fas fa-check-circle fa-2x correcta'></i>";
                 } else {
