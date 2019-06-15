@@ -8,6 +8,7 @@
 	require_once dirname(__FILE__). '/Concursante.php';
 	require_once dirname(__FILE__). '/Concursante.php';
 	require_once dirname(__FILE__).'/util/Response.php';
+	require_once dirname(__FILE__). '/CalculoPosiciones.php';
 	
 	class TableroPosiciones extends BaseTable{
 
@@ -39,7 +40,7 @@
 			return $this->get($where,$valores);
 		}
 
-		private function guardaPosiciones($posiciones, $id_master){
+		public function guardaPosiciones($posiciones, $id_master){
 
 			foreach ($posiciones as $posicion) {
 
@@ -151,6 +152,40 @@
 			}
 
 			return $es_emaptado;
+		}
+
+		public function getPosicionPrevia($idConcursante , $idConcurso, $idMaster){
+			$master = new TableroMaster();
+			$id_master_previo = $master->getPrevio($idConcurso , $idMaster)['ID_TABLERO_MASTER'];
+			$posicionPrevia = $this->get("ID_TABLERO_MASTER = ? AND ID_CONCURSANTE = ?", ['ID_TABLERO_MASTER' => $id_master_previo, 'ID_CONCURSANTE' => $idConcursante]);
+			if(count($posicionPrevia) > 0 )
+				return $posicionPrevia[0]['POSICION'];
+			return null;
+		}
+
+		public function generaPosiciones($concurso, $es_empate){
+			$calculo = new  CalculoPosiciones($this);
+			return $calculo->generaPosiciones($concurso , $es_empate);
+		}
+
+		public function guardarNoEmpatados($idConcurso , $idMaster){
+			$master = new TableroMaster();
+			$id_master_previo = $master->getPrevio($idConcurso , $idMaster)['ID_TABLERO_MASTER'];
+			$posiciones = $this->obtenerPosicionesTablero($id_master_previo);
+			foreach($posiciones as $posicion){
+				// GUARDA TODOS LOS LUGARAS GANADOS Y LOS MAYORES A LA POSICION 3
+				if($posicion['EMPATADO'] == 0 ){
+					unset($posicion['ID_TABLERO_POSICION']);
+					$posicion['ID_TABLERO_MASTER'] = $idMaster;
+					if(!$this->save($posicion)) return false;
+				}
+					
+			}
+			return true;
+		}
+
+		public function removerEmpateLugaresInferiores($id_master){
+			return $this->update(0 , ['EMPATADO' => 0] , 'ID_TABLERO_MASTER =  ?  AND POSICION > 3 ', ['ID_TABLERO_MASTER' => $id_master] );
 		}
 
 	}	

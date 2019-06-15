@@ -56,15 +56,30 @@
 			if($id_master <= 0) 
 				return $this->response->fail('No se pudo generar el tablero maestro');
 
-			$posicionesSegunPuntajes = $this->getMejoresPuntajes($concurso , $es_empate , $id_master);
+			$posicionesSegunPuntajes = $this->getMejoresPuntajes($concurso , $es_empate);
 
 			if(!$es_empate){
-				$this->tableroPosiciones->guardaPosiciones( $this->getPosicionesCalculadas($posicionesSegunPuntajes) , $id_master );
+
+				if(!$this->tableroPosiciones->guardaPosiciones( $this->getPosicionesCalculadas($posicionesSegunPuntajes) , $id_master ))
+					return $this->response->fail("No se calcularon las posiciones");
+				
 			}else{
 
-                $primerosLugares = $this->filtrarPrimerosLugares($posicionesCalculadas);
+				for($index = 0 ; $index < count($posicionesSegunPuntajes) ; $index++){
+					$posicionesSegunPuntajes[$index]['lugar'] = $this->tableroPosiciones->getPosicionPrevia($posicionesSegunPuntajes[$index]['ID_CONCURSANTE'], $concurso,$id_master);
+				}
 
-            }
+				$posicionesCalculadas = $this->calcularPosicionesConEmpate($posicionesSegunPuntajes);
+				
+				// guardamos las que no hayan empatado antes
+				if(!$this->tableroPosiciones->guardarNoEmpatados($concurso , $id_master))
+					return $this->response->fail("No se pudieron guardar los lugares no empatados");
+
+				if(!$this->tableroPosiciones->guardaPosiciones( $this->getPosicionesCalculadas($posicionesCalculadas) , $id_master ))
+					return $this->response->fail("No se calcularon las posiciones con empate");
+			}
+			
+			$this->tableroPosiciones->removerEmpateLugaresInferiores($id_master);
 
 			if( !$master->actualiza($id_master ,['POSICIONES_GENERADAS' => 1]) ) 
 				return $this->response->fail('No se pudo establecer la bandera de posiciones generadas');
@@ -113,29 +128,33 @@
 				switch ($posicion['lugar']) {
 				case 1:
 					$firstPlaces[] = $posicion;
+					break;
 				case 2:
 					$secondPlaces[] = $posicion;
+					break;
 				case 3:
 					$thirdPlaces[] = $posicion;
+					break;
 				}
 			}
 			
 			usort($firstPlaces,array($this,"cmpPuntos"));
 			usort($secondPlaces,array($this,"cmpPuntos"));
 			usort($thirdPlaces,array($this,"cmpPuntos"));
-			
-			$this->addInterestPositions($firstPlaces , $posicionesCalculadas);
-			$this->addInterestPositions($secondPlaces , $posicionesCalculadas);
-			$this->addInterestPositions($thirdPlaces , $posicionesCalculadas);
-			
+
+			$posicionesCalculadas  = array_merge( $this->addInterestPositions($firstPlaces), $this->addInterestPositions($secondPlaces), $this->addInterestPositions($thirdPlaces) );
+
 			return $this->getPosicionesCalculadas( $posicionesCalculadas );
 		}
 
-		private function addInterestPositions($places , &$posicionesCalculadas){
+		private function addInterestPositions($places){
+			$posicionesCalculadas = array();
 			for ($num = 0 ; $num < count($places) ; $num++) {
-				$places[$num]['lugar'] = $places[$num]['lugar'] + num;
+				$places[$num]['lugar'] = $places[$num]['lugar'] + $num;
 				$posicionesCalculadas[] = ($places[$num]);
 			}
+
+			return $posicionesCalculadas;
         }
 
         private function cmp($a , $b){	
@@ -159,8 +178,6 @@
 		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
         }
         
-
-        private function getPosicionPrevia($idConcursante , $idConcurso, $idMaster)
     }
 
 ?>
