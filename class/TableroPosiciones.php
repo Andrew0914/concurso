@@ -51,11 +51,11 @@
 		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
 		}
 
-		private function cmpPuntaje($a , $b){	
-		    if ($a['PUNTAJE_TOTAL'] == $b['PUNTAJE_TOTAL']) {
+		private function cmpLugar($a , $b){	
+		    if ($a['lugar'] == $b['lugar']) {
 		        return 0;
 		    }
-		    return ($a['PUNTAJE_TOTAL'] > $b['PUNTAJE_TOTAL']) ? -1 : 1;
+		    return ($a['lugar'] > $b['lugar']) ? -1 : 1;
 		}
 
 		private function getMejoresGenerales($concurso,$es_empate){
@@ -91,78 +91,50 @@
 			return $mejores;
 		}
 
-		private function guardaPosicionesGenerales($concurso, $es_empate , $id_master){
-			$mejores = $this->getMejoresGenerales($concurso, $es_empate);
+		private function guardaPosicionesGenerales($posicionesSegunPuntajes, $id_master){
+			foreach ($posicionesSegunPuntajes as $posicion) {
+				$empatado = 0;
+				if($posicion['empatado'] and $posicion['empatado'] == 1){	
 
-			// almacenamos las posiciones brutas
-			foreach ($mejores as $mejor) {
-				$posicion = [ 'ID_CONCURSANTE' => $mejor['ID_CONCURSANTE']
-							, 'POSICION'=> $mejor['lugar']
-							,'PUNTAJE_TOTAL'=>$mejor['totalPuntos']
+				}
+				$posicion = [ 'ID_CONCURSANTE' => $posicion['ID_CONCURSANTE']
+							, 'POSICION'=> $posicion['lugar']
+							,'PUNTAJE_TOTAL'=>$posicion['totalPuntos']
 							,'ID_TABLERO_MASTER' => $id_master
-							,'EMPATADO' => 0 ];
+							,'EMPATADO' => $empatado  ];
 
 				if(!$this->guardar($posicion)) return false;
 			}
+
 			return true;
 		}
 
-		private function calcularEmpates($id_master,$es_empate,$concurso){
-			// calculamos los empates
-			$posiciones = $this->obtenerPosicionesTablero($id_master);
-			$posicionesAnteriores = array();
-			if($es_empate){
-				$master = new TableroMaster();
-				$posicionesAnteriores = $this->obtenerPosicionesTablero($master->getPrevio($concurso , $id_master)['ID_TABLERO_MASTER']);
+		private function filtrarPrimerosLugares($lugares){
+			$lugaresFiltrados = array();
+			foreach($lugares as $lugar){
+				if($lugar['lugar'] < 4)
+					$lugaresFiltrados[] = $lugar;
 			}
-				
-			foreach ($posiciones as $p) {
-				foreach ($posiciones as $ps) {
-
-					
-					if($p['ID_CONCURSANTE'] != $ps['ID_CONCURSANTE'] 
-						AND $p['PUNTAJE_TOTAL'] == $ps['PUNTAJE_TOTAL']
-						AND $p['POSICION'] <= 3){
-						// si es desempate
-						
-						$lugar_a_dar = 0;
-						if($es_empate){
-							$pPasado = $this->filtrarConcursante($posicionesAnteriores, $p['ID_CONCURSANTE']);
-							$psPasado = $this->filtrarConcursante($posicionesAnteriores, $ps['ID_CONCURSANTE']);
-							// si no venian de estar empatados en la misma posicion previamente, no pueden empatar entre si y se salta esta iteracion
-							if($pPasado != null AND $psPasado != null ){
-								if( $pPasado['POSICION'] == $psPasado['POSICION']){
-									$lugar_a_dar = $pPasado['POSICION'];
-								}else{
-									continue;
-								}
-							}
-						}else{
-							$lugar_a_dar = $p['POSICION'];
-						}
-
-						if(!($this->update($ps['ID_TABLERO_POSICION'],['EMPATADO'=>1]) 
-							AND $this->update($p['ID_TABLERO_POSICION'] , ['EMPATADO'=>1]))) return $this->response->fail('No se calcularon los empates');
-
-						// cambiamos posicion (solo vivusal para las medallas)
-						if(!$this->cambioMiposicion($ps['ID_CONCURSANTE'],$ps['ID_TABLERO_MASTER'])){
-							$this->update($ps['ID_TABLERO_POSICION'] , ['POSICION'=>$lugar_a_dar , 'POSICION_CAMBIO'=>1]);
-							$this->update($p['ID_TABLERO_POSICION'] , ['POSICION_CAMBIO'=>1]);
-						}
-
-					}
-					
-				}
-			}
+			return $lugaresFiltrados;
 		}
 
-		private function filtrarConcursante($posicionesAnteriores , $id_concursante){
-			foreach($posicionesAnteriores as $posicion){
-				if($posicion['ID_CONCURSANTE'] == $id_concursante)
-					return $posicion;
+		private function getPosicionesCalculadas($posicionesSegunPuntajes){
+			$positionControl = 0 ;
+
+			// Calculo y asignacion de posiciones y empates
+			while($positionControl < (count($posicionesSegunPuntajes) - 1 ) ) {
+				for($index = ( $positionControl + 1) ;  $index <= count($posicionesSegunPuntajes) - 1 ; $index++){
+					if($posicionesSegunPuntajes[$positionControl]['totalPuntos'] == $posicionesSegunPuntajes[$index]['totalPuntos']){
+						$posicionesSegunPuntajes[$index]['lugar'] = $posicionesSegunPuntajes[$positionControl]['lugar'];
+						$posicionesSegunPuntajes[$index]['empatado'] = 1;
+					}
+				}
+				$positionControl = $positionControl +  1;
 			}
 
-			return null;
+			usort($posicionesSegunPuntajes,array($this,"cmpLugar"));
+
+			return $posicionesSegunPuntajes;
 		}
 
 		/**
@@ -172,95 +144,29 @@
 		 * @return boolean           
 		 */
 		public function generaPosiciones($concurso,$es_empate = false){
+
 			$master = new TableroMaster();
 			$id_master = $master->guardar(['ID_CONCURSO' => $concurso]);
 
-			if($id_master <= 0) return $this->response->fail('No se pudo generar el tablero maestro');
+			if($id_master <= 0) 
+				return $this->response->fail('No se pudo generar el tablero maestro');
 
-			if(!$this->guardaPosicionesGenerales($concurso , $es_empate , $id_master))
-				return $this->fail('No se alamacenaron las posiciones correctamente');
+			$posicionesSegunPuntajes = $this->getMejoresGenerales($concurso , $es_empate , $id_master);
 
-		
-			$this->calcularEmpates($id_master,$es_empate,$concurso);
+			$posicionesCalculadas = $this->getPosicionesCalculadas($posicionesSegunPuntajes);
 
-			$posicionesAnteriores = array();
-			if($es_empate){
-				$posicionesAnteriores = $this->obtenerPosicionesTablero($master->getPrevio($concurso , $id_master)['ID_TABLERO_MASTER']);
-				$no_empatatados_previos = $this->filtrarEmpatados($posicionesAnteriores , 0);
-				$empatatados_previos = $this->filtrarEmpatados($posicionesAnteriores , 1);
-
-				foreach($no_empatatados_previos as $posicion){
-					$posicion = [ 'ID_CONCURSANTE' => $posicion['ID_CONCURSANTE']
-							, 'POSICION'=> $posicion['POSICION']
-							,'PUNTAJE_TOTAL'=>$posicion['PUNTAJE_TOTAL']
-							,'ID_TABLERO_MASTER' => $id_master
-							,'EMPATADO' => 0 ];
-
-				if(!$this->guardar($posicion)) return $this->response->fail('No se almacenaron los lugares previos en el nuevo tablero');
-				}
-
-				$posicionesActuales = $this->filtrarEmpatados($this->obtenerPosicionesTablero($id_master) , 0);
-				$posicionesReasignadas = array_merge( $this->reasignacionPosicion($posicionesActuales ,$empatatados_previos,  1),			
-													$this->reasignacionPosicion($posicionesActuales ,$empatatados_previos,  2),
-													$this->reasignacionPosicion($posicionesActuales ,$empatatados_previos,  3));
-
-				foreach($posicionesReasignadas as $posicioAsignada){
-					if(!$this->update($posicioAsignada['ID_TABLERO_POSICION'], 
-										['POSICION' => $posicioAsignada['POSICION'] ] ) ){
-							
-							return $this->response->fail('No se pudo establecer la reasignacion de posiciones');
-					}
-						
-				}
-
+			if(!$es_empate){
+				$this->guardaPosicionesGenerales($posicionesCalculadas , $id_master );
 			}
 
-			if( !$master->actualiza($id_master ,['POSICIONES_GENERADAS' => 1]) ) return $this->response->fail('No se pudo establecer la bandera de posiciones generadas');
+			$primerosLugares = $this->filtrarPrimerosLugares($posicionesSegunPuntajes);
+
+			if( !$master->actualiza($id_master ,['POSICIONES_GENERADAS' => 1]) ) 
+				return $this->response->fail('No se pudo establecer la bandera de posiciones generadas');
 
 			return $this->response->success(['tablero_master'=>$id_master] , 'Tableros generados');
 		}
-
-		private function filtrarEmpatados($posiciones , $empatado){
-			$filtro = array();
-
-			foreach($posiciones as $posicion){
-				if($posicion['EMPATADO'] == $empatado)
-					$filtro[] = $posicion;
-			}
-
-			return $filtro;
-		}
-
-		private function reasignacionPosicion($posicionesActuales ,$empatatados_previos,  $lugar){
-			$concursantesPosicion = array();
-			foreach($posicionesActuales as $posicion){
-				foreach($this->empatadosEnPosicion($empatatados_previos , $lugar ) as $empatado){
-					if($posicion['ID_CONCURSANTE']  == $empatado['ID_CONCURSANTE']){
-						$concursantesPosicion[] = $posicion;
-					}
-				}
-			}
-
-			usort($concursantesPosicion,array($this,"cmpPuntaje"));
-
-			for($i= 0 ; $i< count($concursantesPosicion) ; $i++){
-				$concursantesPosicion[$i]['POSICION'] = $lugar++;  
-			}
-
-			return $concursantesPosicion;
-		}
-
-		private function empatadosEnPosicion($empatados , $lugar){
-			$filtro = array();
-
-			foreach($empatados as $posicion){
-				if($posicion['POSICION'] == $lugar)
-					$filtro[] = $posicion;
-			}
-
-			return $filtro;
-		}
-
+		
 		public function cambioMiposicion($concursante, $master){
 			$where = "ID_CONCURSANTE = ? AND ID_TABLERO_MASTER = ?";
 			$valores = ['ID_CONCURSANTE'=>$concursante , 'ID_TABLERO_MASTER' => $master];
