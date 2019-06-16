@@ -59,23 +59,27 @@
 			$posicionesSegunPuntajes = $this->getMejoresPuntajes($concurso , $es_empate);
 
 			if(!$es_empate){
-
-				if(!$this->tableroPosiciones->guardaPosiciones( $this->getPosicionesCalculadas($posicionesSegunPuntajes) , $id_master ))
+				// cuando no es desempate calculo las posiciones como vienen ordenadas
+				$posicionesCalculadas = $this->getPosicionesCalculadas($posicionesSegunPuntajes, false);
+		
+				if(!$this->tableroPosiciones->guardaPosiciones(  $posicionesCalculadas , $id_master ))
 					return $this->response->fail("No se calcularon las posiciones");
 				
 			}else{
 
+				// coloco las posiciones previas cuando es un desempate
 				for($index = 0 ; $index < count($posicionesSegunPuntajes) ; $index++){
 					$posicionesSegunPuntajes[$index]['lugar'] = $this->tableroPosiciones->getPosicionPrevia($posicionesSegunPuntajes[$index]['ID_CONCURSANTE'], $concurso,$id_master);
 				}
 
-				$posicionesCalculadas = $this->calcularPosicionesConEmpate($posicionesSegunPuntajes);
+				$posicionesCalculadas = $this->getPosicionesCalculadas($posicionesSegunPuntajes , true);
 				
 				// guardamos las que no hayan empatado antes
 				if(!$this->tableroPosiciones->guardarNoEmpatados($concurso , $id_master))
 					return $this->response->fail("No se pudieron guardar los lugares no empatados");
 
-				if(!$this->tableroPosiciones->guardaPosiciones( $this->getPosicionesCalculadas($posicionesCalculadas) , $id_master ))
+				// guardamos las posiciones 
+				if(!$this->tableroPosiciones->guardaPosiciones( $posicionesCalculadas , $id_master ))
 					return $this->response->fail("No se calcularon las posiciones con empate");
 			}
 			
@@ -88,18 +92,42 @@
         }
 
 
-        private function getPosicionesCalculadas($posicionesSegunPuntajes){
+        private function getPosicionesCalculadas($posiciones , $es_empate){
+
 			$positionControl = 0 ;
+			$count = 1;
 
 			// Calculo y asignacion de posiciones y empates
-			while($positionControl < (count($posicionesSegunPuntajes) - 1 ) ) {
-				for($index = ( $positionControl + 1) ;  $index <= count($posicionesSegunPuntajes) - 1 ; $index++){
-					if($posicionesSegunPuntajes[$positionControl]['totalPuntos'] == $posicionesSegunPuntajes[$index]['totalPuntos']){
-						$posicionesSegunPuntajes[$index]['lugar'] = $posicionesSegunPuntajes[$positionControl]['lugar'];
-						$posicionesSegunPuntajes[$index]['empatado'] = 1;
-						$posicionesSegunPuntajes[$positionControl]['empatado'] = 1;
+			while($positionControl < (count($posiciones) - 1 ) ) {
+				for($index = ( $positionControl + 1) ;  $index <= count($posiciones) - 1 ; $index++){
+
+					$initialPosition = $posiciones[$index]['lugar'];
+
+					if( $posiciones[$positionControl]['lugar'] == $posiciones[$index]['lugar'] ){
+
+						if ($posiciones[$positionControl]['totalPuntos'] != $posiciones[$index]['totalPuntos']) {
+							if (!$es_empate) {
+								$posiciones[$index]['lugar'] = $posiciones[$index]['lugar']+$positionControl;
+							} else {
+								$posiciones[$index]['lugar'] = $posiciones[$index]['lugar'] + $count;
+							}
+						}
+
+					} else {
+						if ($posiciones[$positionControl]['totalPuntos'] == $posiciones[$index]['totalPuntos']) {
+							if (!$es_empate) {
+								$posiciones[$index]['lugar'] = $posiciones[$positionControl]['lugar'];
+							}
+						}
+					}
+					
+					if ($es_empate) {
+						if ($initialPosition == $posiciones[$index]['lugar']) {
+							$count = $count + 1;
+						}
 					}
 				}
+
 				$positionControl = $positionControl +  1;
 			}
 
@@ -108,7 +136,7 @@
 			return $posicionesSegunPuntajes;
         }
         
-        private function filtrarPrimerosLugares($lugares){
+        public function filtrarPrimerosLugares($lugares){
 			$lugaresFiltrados = array();
 			foreach($lugares as $lugar){
 				if($lugar['lugar'] < 4)
@@ -117,46 +145,6 @@
 			return $lugaresFiltrados;
         }
         
-        
-        private function calcularPosicionesConEmpate($posiciones){
-			$posicionesCalculadas= array();
-			$firstPlaces = array();
-			$secondPlaces = array();
-			$thirdPlaces = array();
-			
-			foreach($posiciones as $posicion){
-				switch ($posicion['lugar']) {
-				case 1:
-					$firstPlaces[] = $posicion;
-					break;
-				case 2:
-					$secondPlaces[] = $posicion;
-					break;
-				case 3:
-					$thirdPlaces[] = $posicion;
-					break;
-				}
-			}
-			
-			usort($firstPlaces,array($this,"cmpPuntos"));
-			usort($secondPlaces,array($this,"cmpPuntos"));
-			usort($thirdPlaces,array($this,"cmpPuntos"));
-
-			$posicionesCalculadas  = array_merge( $this->addInterestPositions($firstPlaces), $this->addInterestPositions($secondPlaces), $this->addInterestPositions($thirdPlaces) );
-
-			return $this->getPosicionesCalculadas( $posicionesCalculadas );
-		}
-
-		private function addInterestPositions($places){
-			$posicionesCalculadas = array();
-			for ($num = 0 ; $num < count($places) ; $num++) {
-				$places[$num]['lugar'] = $places[$num]['lugar'] + $num;
-				$posicionesCalculadas[] = ($places[$num]);
-			}
-
-			return $posicionesCalculadas;
-        }
-
         private function cmp($a , $b){	
 		    if ($a['totalPuntos'] == $b['totalPuntos']) {
 		        return 0;
@@ -170,13 +158,6 @@
 		    }
 		    return ($a['lugar'] > $b['lugar']) ? -1 : 1;
 		}
-
-		private function cmpPuntos($a , $b){	
-		    if ($a['totalPuntos'] == $b['totalPuntos']) {
-		        return 0;
-		    }
-		    return ($a['totalPuntos'] > $b['totalPuntos']) ? -1 : 1;
-        }
         
     }
 
