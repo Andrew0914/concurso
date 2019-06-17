@@ -67,15 +67,15 @@
 
 				for($index = 0 ; $index < count($posicionesSegunPuntajes) ; $index++){
 					$posicionesSegunPuntajes[$index]['lugar'] = $this->tableroPosiciones->getPosicionPrevia($posicionesSegunPuntajes[$index]['ID_CONCURSANTE'], $concurso,$id_master);
+
 				}
 
-				$posicionesCalculadas = $this->calcularPosicionesConEmpate($posicionesSegunPuntajes);
-				
 				// guardamos las que no hayan empatado antes
 				if(!$this->tableroPosiciones->guardarNoEmpatados($concurso , $id_master))
 					return $this->response->fail("No se pudieron guardar los lugares no empatados");
 
-				if(!$this->tableroPosiciones->guardaPosiciones( $this->getPosicionesCalculadas($posicionesCalculadas) , $id_master ))
+				
+				if(!$this->tableroPosiciones->guardaPosiciones( $this->calcularPorPosiciones($posicionesSegunPuntajes) , $id_master ))
 					return $this->response->fail("No se calcularon las posiciones con empate");
 			}
 			
@@ -85,8 +85,20 @@
 				return $this->response->fail('No se pudo establecer la bandera de posiciones generadas');
 
 			return $this->response->success(['tablero_master'=>$id_master] , 'Tableros generados');
-        }
+		}
+		
+		private function calcularPorPosiciones($posicionesSegunPuntajes){
+			$posicionesCalculadas = array();
+			for($index = 1 ; $index <= 3 ; $index++){
+				$places = $this->filtrarPorLugar($posicionesSegunPuntajes , $index);
+				if(count($places) > 0){
+					$placescalculados = $this->calcularPosicionesConEmpate($places);
+					$posicionesCalculadas = array_merge($posicionesCalculadas , $this->getPosicionesCalculadas($placescalculados));
+				}
+			}
 
+			return $posicionesCalculadas;
+		}
 
         private function getPosicionesCalculadas($posicionesSegunPuntajes){
 			$positionControl = 0 ;
@@ -108,10 +120,10 @@
 			return $posicionesSegunPuntajes;
         }
         
-        private function filtrarPrimerosLugares($lugares){
+        private function filtrarPorLugar($lugares, $posirion){
 			$lugaresFiltrados = array();
 			foreach($lugares as $lugar){
-				if($lugar['lugar'] < 4)
+				if($lugar['lugar'] == $posirion)
 					$lugaresFiltrados[] = $lugar;
 			}
 			return $lugaresFiltrados;
