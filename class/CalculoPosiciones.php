@@ -83,7 +83,8 @@
 					return $this->response->fail("No se calcularon las posiciones con empate");
 			}
 			
-			$this->tableroPosiciones->removerEmpateLugaresInferiores($id_master);
+			if(!$this->tableroPosiciones->findAndSetEmpates($id_master))
+				return $this->response("No se pudieron colocar los empates");
 
 			if( !$master->actualiza($id_master ,['POSICIONES_GENERADAS' => 1]) ) 
 				return $this->response->fail('No se pudo establecer la bandera de posiciones generadas');
@@ -131,9 +132,9 @@
 				$positionControl = $positionControl +  1;
 			}
 
-			usort($posicionesSegunPuntajes,array($this,"cmpLugar"));
+			usort($posiciones,array($this,"cmpLugar"));
 
-			return $posicionesSegunPuntajes;
+			return $posiciones;
         }
         
         public function filtrarPrimerosLugares($lugares){

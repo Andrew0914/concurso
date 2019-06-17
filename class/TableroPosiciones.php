@@ -188,6 +188,26 @@
 			return $this->update(0 , ['EMPATADO' => 0] , 'ID_TABLERO_MASTER =  ?  AND POSICION > 3 ', ['ID_TABLERO_MASTER' => $id_master] );
 		}
 
+		public function findAndSetEmpates($id_master){
+			$query =  "SELECT POSICION,COUNT(POSICION) empates FROM tablero_posiciones WHERE ID_TABLERO_MASTER = ? GROUP BY POSICION HAVING empates > 1";
+			$posiciones = $this->query($query , ['ID_TABLERO_MASTER' => $id_master]);
+
+			foreach($posiciones as $posicion){
+				
+				if($posicion['POSICION'] <= 3){
+					if($posicion['empates'] > 1 ){
+
+						if(!$this->update(0 , ['EMPATADO' => 1 ] ,
+							"ID_TABLERO_MASTER = ? AND POSICION = ?" , 
+							['ID_TABLERO_MASTER' => $id_master , 'POSICION' => $posicion['POSICION'] ] )) return false;
+
+					}
+				}
+			}
+
+			return true;
+		}
+
 	}	
 
 	/**
