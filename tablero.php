@@ -74,7 +74,7 @@
 			<div class="col-md-12">
 				<!-- TABERO FINAL / PUNTUACIONES GENERALES-->
 				<div id="divmejores">
-					<table class="table table-bordered table-geo" id="tbl-mejores" style="width: 100%;">
+					<table class="table table-bordered table-geo tbl-posiciones" id="tbl-mejores" style="width: 100%;">
 						<thead>
 							<tr>
 								<th>Posicion</th>

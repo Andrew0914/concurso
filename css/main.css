@@ -132,7 +132,7 @@ input[type=number] {
     background-color: white;
     font-family: 'monserrat';
     color: rgb(95, 94, 89);
-    font-size: 16px !important;
+    font-size: 20px !important;
 }
 
 .table-geo td,
@@ -271,4 +271,8 @@ svg#animated-paso {
 .info-remark span {
     color: blue;
     font-weight: bold;
+}
+
+.tbl-posiciones {
+    font-size: 32px !important;
 }
