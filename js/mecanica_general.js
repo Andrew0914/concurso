@@ -166,7 +166,7 @@ function sendPreRespuestas(tipoRespuesta) {
     var ronda = $jq("#ID_RONDA").val();
     var concursante = $jq("#ID_CONCURSANTE").val();
     var pregunta = $jq("#ID_PREGUNTA").val();
-
+    var timePass = getTimePass() > 15 ? 15 : getTimePass();
     var ajaxTask = $jq.ajax({
         type: "POST",
         url: "class/TableroPuntaje.php",
@@ -178,7 +178,7 @@ function sendPreRespuestas(tipoRespuesta) {
             'PREGUNTA_POSICION': posicion,
             'PREGUNTA': pregunta,
             'PRE_RESPUESTA': getRespuestaSelccionada(pregunta),
-            'TIEMPO': getTimePass(),
+            'TIEMPO': timePass,
             'final': tipoRespuesta,
             'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
         },
@@ -259,6 +259,7 @@ function sendRespuesta() {
         sendPreRespuestas(SIN_RESPUESTA);
         afterSendAnswer();
     } else {
+        var timePass = getTimePass() > 15 ? 15 : getTimePass();
         // MANDAMOS LA RESPUESTA SELECCIONADA
         var ajaxTask = $jq.ajax({
             url: 'class/TableroPuntaje.php',
@@ -271,7 +272,7 @@ function sendRespuesta() {
                 'ID_CONCURSANTE': concursante,
                 'ID_PREGUNTA': pregunta,
                 'ID_RESPUESTA': respuesta,
-                'TIEMPO': getTimePass(),
+                'TIEMPO': timePass,
                 'NIVEL_EMPATE': document.getElementById('NIVEL_EMPATE').value
             },
             success: function(data) {
