@@ -67,13 +67,12 @@ function fetchConcursantes(idConcurso) {
         dataType: "json",
         success: function(response) {
             if (response.estado == 1) {
-                $('#tbl-concursantes').slideDown(300);
                 var concursantes = response.concursantes;
                 var content = "";
                 for (var d = 0; d < concursantes.length; d++) {
                     content += "<tr>";
                     content += "<td>" + concursantes[d].CONCURSANTE + "</td>";
-                    content += "<td>" + concursantes[d].PASSWORD + "</td>";
+                    content += "<td style='display:none' class='td-password'>" + concursantes[d].PASSWORD + "</td>";
                     content += "<td>" + (concursantes[d].INICIO_SESION ? "SI" : "NO") + "</td>";
                     content += "<td><button class='btn btn-sm btn-secondary' onclick='liberarConcursante(" + concursantes[d].ID_CONCURSANTE + ")'>Liberar sesión</button></td>";
                     content += "</tr>";

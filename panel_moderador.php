@@ -148,11 +148,12 @@
 			<div class="col-md-12">
 				<div class="row">
 					<div class="col">
-						<b class="monserrat-bold" onclick="$('#tbl-concursantes').slideToggle(500)" style="cursor: pointer;text-decoration: underline;">
-							Ver Concursantes
+						<b class="monserrat-bold">
+							Concursantes
 						</b>
 					</div>
 					<div class="col text-right">
+						<button class="btn btn-sm btn-secondary" onclick="$('.td-password').slideToggle(500)">Mostrar passwords</button>
 						<button class="btn btn-sm btn-info" onclick="<?php echo 'fetchConcursantes(' . $sesion->getOne(SessionKey::ID_CONCURSO) . ')'?>">
 							<i class="fas fa-sync-alt"></i>
 						</button>
@@ -160,11 +161,11 @@
 				</div>
 				
 				<br>
-				<table class="table table-sm" style="display: none" id="tbl-concursantes">
+				<table class="table table-sm"  id="tbl-concursantes">
 					<thead>
 						<tr>
 							<th>Concursante</th>
-							<th>Password</th>
+							<th style='display:none' class='td-password'>Password</th>
 							<th>Sesión Iniciada</th>
 							<th>¿No puede entrar?</th>
 						</tr>
