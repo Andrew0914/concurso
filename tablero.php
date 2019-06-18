@@ -88,25 +88,33 @@
 								$posiciones = new TableroPosiciones();
 								$tableros = $posiciones->getTableros($sesion->getOne(SessionKey::ID_CONCURSO),$tablero_master_id,$ronda['IS_DESEMPATE']);
 								$lugares = $tableros['posiciones'];
+								$hastaPosicion = 0;
+								if($ronda['IS_DESEMPATE']){
+									$hastaPosicion = 3;
+								}else{
+									$hastaPosicion = 7;
+								}
 								foreach ($lugares as $l) {
-									echo "<tr>";
-									if($l['POSICION'] == 1){
-										echo "<td><img src='image/gold_medal.png'></td>";
-									}else if($l['POSICION']==2){
-										echo "<td><img src='image/silver_medal.png'></td>";
-									}else if($l['POSICION'] == 3){
-										echo "<td><img src='image/bronze_medal.png'></td>";
-									}else{
-										echo "<td>".$l['POSICION'] . "</td>";
+									if($l['POSICION'] <= $hastaPosicion){
+										echo "<tr>";
+										if($l['POSICION'] == 1){
+											echo "<td><img src='image/gold_medal.png'></td>";
+										}else if($l['POSICION']==2){
+											echo "<td><img src='image/silver_medal.png'></td>";
+										}else if($l['POSICION'] == 3){
+											echo "<td><img src='image/bronze_medal.png'></td>";
+										}else{
+											echo "<td>".$l['POSICION'] . "</td>";
+										}
+										echo "<td>" . $l['CONCURSANTE'] .'</td>';
+										echo "<td>" . $l['PUNTAJE_TOTAL'] .'</td>';
+										if($l['EMPATADO'] == 1){
+											echo "<td>EMPATADO</td>";
+										}else{
+											echo "<td></td>";
+										}
+										echo "</tr>"; 
 									}
-									echo "<td>" . $l['CONCURSANTE'] .'</td>';
-									echo "<td>" . $l['PUNTAJE_TOTAL'] .'</td>';
-									if($l['EMPATADO'] == 1){
-										echo "<td>EMPATADO</td>";
-									}else{
-										echo "<td></td>";
-									}
-									echo "</tr>"; 	
 								} 
 							 ?>
 						</tbody>
