@@ -70,7 +70,7 @@ function showPregunta(response) {
         }
         contenido += "</div>";
         $("#content-respuestas").html(contenido);
-        cronometro(segundosReales, function() {}, function() { paso(true); });
+        cronometro(segundosReales, function() {}, function() { paso(true, true); });
         // free memory
         segundos = null;
         segundosReales = null;
@@ -146,7 +146,7 @@ function guardaRespuestaAsignada(paso) {
     });
 }
 
-function paso(porError) {
+function paso(porError, tiempoFinalizado) {
     var posicion = $("#PREGUNTA_POSICION").val();
     var concurso = $("#ID_CONCURSO").val();
     var ronda = $("#ID_RONDA").val();
@@ -174,9 +174,15 @@ function paso(porError) {
         },
         success: function(data) {
             if (data.estado == 1) {
+
                 if (!porError) {
                     afterSend(true);
                 }
+
+                if (tiempoFinalizado) {
+                    afterSend(true);
+                }
+
                 notFinish = true;
             } else {
                 console.log(data.mensaje);
@@ -303,7 +309,7 @@ function afterSend(esPaso) {
                 } else {
                     mensaje += "<i class='fas fa-times-circle fa-2x incorrecta'></i>";
                     if (!esPaso) {
-                        paso(true);
+                        paso(true, false);
                     }
                 }
                 $("#resultado-mi-pregunta").html(mensaje);
