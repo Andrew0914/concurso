@@ -28,7 +28,7 @@
 		public function verCorrecta($idPregunta){
 			$response = new Response();
 			try{
-				return $response->success( $this->get("ID_PREGUNTA = ? AND ES_CORRECTA = ?" , ["ID_PREGUNTA" => $idPregunta , "ID_RESPUESTA" => 1])[0] , "Respuesta correcta");
+				return $response->success( $this->get("ID_PREGUNTA = ? AND ES_CORRECTA = ?" , ["ID_PREGUNTA" => $idPregunta , "ES_CORRECTA" => 1])[0] , "Respuesta correcta");
 			}catch(Exception $ex){
 				return $response->fail('No se pudo obtener la respuesta correcta');
 			}

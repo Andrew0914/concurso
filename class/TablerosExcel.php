@@ -7,6 +7,7 @@
 	require_once dirname(__FILE__) . '/TableroPuntaje.php';
 	require_once dirname(__FILE__) . '/Concursante.php';
 	require_once dirname(__FILE__) . '/PreguntasGeneradas.php';
+	require_once dirname(__FILE__) . '/Respuestas.php';
 
 	class TablerosExcel{
 		
@@ -103,13 +104,17 @@
 			$objSheet = $objPHPExcel->createSheet($indexHoja);
 			$objSheet->setTitle('Glosario de preguntas');
 			$objSheet->getStyle('A1:D1')->getFont()->setBold(true)->setSize(12);
-			$this->setEncabezados($objSheet , ['NUMERO','PREGUNTA','RONDA','RONDA EMPATE']);
+			$this->setEncabezados($objSheet , ['NUMERO','PREGUNTA','RESPUESTA','RONDA','RONDA EMPATE']);
 			$fila = 2;
+			$objRespuesta = new Respuestas();
 			foreach ($glosarios as $glosario) {
+				$respuesta = $objRespuesta->verCorrecta($glosario['ID_PREGUNTA']);
+				$respuesta = '('. $respuesta['INCISO'].') '.$respuesta['RESPUESTA']; 
 				$this->setValues($objSheet , 
-								range('A' , 'D'),
+								range('A' , 'E'),
 								[$glosario['numero'],
 								$glosario['pregunta'],
+								$respuesta,
 								$glosario['ronda'],
 								$glosario['empate'] == 0 ? 'NO APLICA' : $glosario['empate']],
 								$fila);
